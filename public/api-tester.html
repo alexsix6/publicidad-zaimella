@@ -288,6 +288,28 @@
                         </select>
                     </div>
                     
+                    <div class="form-group">
+                        <label for="imageAspectRatio">Aspect Ratio:</label>
+                        <select id="imageAspectRatio">
+                            <option value="1:1">1:1 - Instagram Post, Facebook</option>
+                            <option value="4:5">4:5 - Instagram Feed</option>
+                            <option value="9:16">9:16 - Stories, TikTok, Reels</option>
+                            <option value="16:9" selected>16:9 - YouTube, Twitter</option>
+                            <option value="1.91:1">1.91:1 - Facebook/LinkedIn Post</option>
+                            <option value="2:3">2:3 - Pinterest</option>
+                            <option value="21:9">21:9 - Cinematic</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="imageOutputFormat">Output Format:</label>
+                        <select id="imageOutputFormat">
+                            <option value="png" selected>PNG - High Quality</option>
+                            <option value="jpg">JPG - Smaller Size</option>
+                            <option value="webp">WebP - Modern Format</option>
+                        </select>
+                    </div>
+                    
                     <button type="submit" class="btn" id="imageBtn">Generate Image</button>
                 </form>
                 
@@ -489,7 +511,9 @@
                     enhanceWithAI: document.getElementById('imageEnhanceAI').checked,
                     saveLocally: document.getElementById('imageSaveLocally').checked,
                     enhancementModel: document.getElementById('imageModel').value,
-                    model: document.getElementById('imageGenerationModel').value
+                    model: document.getElementById('imageGenerationModel').value,
+                    aspectRatio: document.getElementById('imageAspectRatio').value,
+                    outputFormat: document.getElementById('imageOutputFormat').value
                 };
                 
                 const result = await makeRequest('generate-image', data);
