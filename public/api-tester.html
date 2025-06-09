@@ -476,7 +476,7 @@
             document.getElementById(loadingId).classList.remove('show');
         }
         
-        function showResult(resultId, content, type = 'success', mediaUrl = null, mediaType = null, downloadData = null) {
+        function showResult(resultId, content, type = 'success', mediaUrl = null, mediaType = null, downloadData = null, regenerateData = null) {
             const resultEl = document.getElementById(resultId);
             const contentEl = document.getElementById(resultId + 'Content');
             const previewEl = document.getElementById(resultId.replace('Result', 'Preview'));
@@ -487,32 +487,53 @@
             // Show media preview if available
             if (mediaUrl && previewEl) {
                 if (mediaType === 'image') {
-                    const downloadBtn = downloadData ? `
-                        <div style="margin-top: 10px;">
-                            <button onclick="downloadImage('${mediaUrl}', '${downloadData.filename}', '${downloadData.format}')" 
-                                    class="btn" style="background: #28a745; font-size: 14px; padding: 8px 16px;">
+                    const actionButtons = downloadData ? `
+                        <div style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
+                            <button onclick="downloadImageFixed('${mediaUrl}', '${downloadData.filename}')" 
+                                    class="btn" style="background: #28a745; font-size: 14px; padding: 10px 16px;">
                                 📥 Download ${downloadData.format.toUpperCase()} (${downloadData.aspectRatio})
                             </button>
+                            <button onclick="regenerateImage()" 
+                                    class="btn" style="background: #007bff; font-size: 14px; padding: 10px 16px;">
+                                🔄 Regenerate
+                            </button>
+                            <button onclick="useForVideo('${mediaUrl}')" 
+                                    class="btn" style="background: #6f42c1; font-size: 14px; padding: 10px 16px;">
+                                🎬 Use for Video
+                            </button>
+                        </div>
+                        <div style="margin-top: 10px; padding: 10px; background: #f8f9fa; border-radius: 5px; font-size: 12px; color: #6c757d;">
+                            💡 Preview your image above, then download if satisfied or regenerate for a new version
                         </div>
                     ` : '';
                     
                     previewEl.innerHTML = `
-                        <img src="${mediaUrl}" alt="Generated image">
-                        ${downloadBtn}
+                        <div style="border: 2px solid #dee2e6; border-radius: 10px; padding: 10px; background: white;">
+                            <img src="${mediaUrl}" alt="Generated image" style="width: 100%; max-width: 500px; height: auto; border-radius: 8px;">
+                        </div>
+                        ${actionButtons}
                     `;
                 } else if (mediaType === 'video') {
-                    const downloadBtn = downloadData ? `
-                        <div style="margin-top: 10px;">
-                            <button onclick="downloadVideo('${mediaUrl}', '${downloadData.filename}')" 
-                                    class="btn" style="background: #28a745; font-size: 14px; padding: 8px 16px;">
+                    const actionButtons = downloadData ? `
+                        <div style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
+                            <button onclick="downloadVideoFixed('${mediaUrl}', '${downloadData.filename}')" 
+                                    class="btn" style="background: #28a745; font-size: 14px; padding: 10px 16px;">
                                 📥 Download MP4 (${downloadData.aspectRatio})
+                            </button>
+                            <button onclick="regenerateVideo()" 
+                                    class="btn" style="background: #007bff; font-size: 14px; padding: 10px 16px;">
+                                🔄 Regenerate Video
                             </button>
                         </div>
                     ` : '';
                     
                     previewEl.innerHTML = `
-                        <video controls src="${mediaUrl}">Your browser does not support video.</video>
-                        ${downloadBtn}
+                        <div style="border: 2px solid #dee2e6; border-radius: 10px; padding: 10px; background: white;">
+                            <video controls src="${mediaUrl}" style="width: 100%; max-width: 500px; border-radius: 8px;">
+                                Your browser does not support video.
+                            </video>
+                        </div>
+                        ${actionButtons}
                     `;
                 }
             }
@@ -537,11 +558,27 @@
             };
         }
         
-        // Funciones de descarga
-        async function downloadImage(imageUrl, filename, format) {
+        // Variables globales para regeneración
+        let lastImageData = null;
+        let lastVideoData = null;
+        
+        // Funciones de descarga mejoradas con CORS fix
+        async function downloadImageFixed(imageUrl, filename) {
             try {
-                const response = await fetch(imageUrl);
+                // Usar proxy para evitar CORS issues
+                const proxyUrl = `/api/download-proxy?url=${encodeURIComponent(imageUrl)}`;
+                const response = await fetch(proxyUrl);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
                 const blob = await response.blob();
+                
+                // Verificar que el blob tiene contenido
+                if (blob.size === 0) {
+                    throw new Error('Downloaded file is empty');
+                }
                 
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
@@ -550,18 +587,38 @@
                 a.download = filename;
                 document.body.appendChild(a);
                 a.click();
-                window.URL.revokeObjectURL(url);
-                document.body.removeChild(a);
+                
+                // Cleanup
+                setTimeout(() => {
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                }, 100);
+                
             } catch (error) {
                 console.error('Error downloading image:', error);
-                alert('Error downloading image. Please try right-click → Save Image As...');
+                
+                // Fallback: abrir en nueva ventana
+                const fallbackMessage = `Download failed. Opening image in new tab.\n\nError: ${error.message}\n\nTip: Right-click on the image and select "Save image as..."`;
+                alert(fallbackMessage);
+                window.open(imageUrl, '_blank');
             }
         }
         
-        async function downloadVideo(videoUrl, filename) {
+        async function downloadVideoFixed(videoUrl, filename) {
             try {
-                const response = await fetch(videoUrl);
+                // Similar al de imagen pero para video
+                const proxyUrl = `/api/download-proxy?url=${encodeURIComponent(videoUrl)}`;
+                const response = await fetch(proxyUrl);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
                 const blob = await response.blob();
+                
+                if (blob.size === 0) {
+                    throw new Error('Downloaded file is empty');
+                }
                 
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
@@ -570,12 +627,62 @@
                 a.download = filename;
                 document.body.appendChild(a);
                 a.click();
-                window.URL.revokeObjectURL(url);
-                document.body.removeChild(a);
+                
+                setTimeout(() => {
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                }, 100);
+                
             } catch (error) {
                 console.error('Error downloading video:', error);
-                alert('Error downloading video. Please try right-click → Save Video As...');
+                
+                const fallbackMessage = `Video download failed. Opening in new tab.\n\nError: ${error.message}\n\nTip: Right-click on the video and select "Save video as..."`;
+                alert(fallbackMessage);
+                window.open(videoUrl, '_blank');
             }
+        }
+        
+        // Funciones de regeneración
+        function regenerateImage() {
+            if (lastImageData) {
+                // Regenerar con mismo prompt pero nueva seed
+                document.getElementById('imageBtn').click();
+            } else {
+                alert('No image data available for regeneration. Please generate an image first.');
+            }
+        }
+        
+        function regenerateVideo() {
+            if (lastVideoData) {
+                // Regenerar video con mismos parámetros
+                document.getElementById('videoBtn').click();
+            } else {
+                alert('No video data available for regeneration. Please generate a video first.');
+            }
+        }
+        
+        // Función para usar imagen en video
+        function useForVideo(imageUrl) {
+            // Auto-llenar el campo de imagen base para video
+            document.getElementById('videoImageUrl').value = imageUrl;
+            
+            // Scroll suave al formulario de video
+            document.getElementById('videoForm').scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start' 
+            });
+            
+            // Resaltar temporalmente el campo
+            const videoImageField = document.getElementById('videoImageUrl');
+            videoImageField.style.border = '3px solid #6f42c1';
+            videoImageField.style.boxShadow = '0 0 10px rgba(111, 66, 193, 0.3)';
+            
+            setTimeout(() => {
+                videoImageField.style.border = '';
+                videoImageField.style.boxShadow = '';
+            }, 3000);
+            
+            alert('✅ Image URL copied to video generator!\n\nScroll down to the video section and add your video prompt.');
         }
         
         // Función para generar nombres de archivo únicos
@@ -614,6 +721,9 @@
                 const result = await makeRequest('generate-image', data);
                 
                 if (result.status === 200 && result.data.success) {
+                    // Guardar datos para regeneración
+                    lastImageData = { ...data };
+                    
                     // Preparar datos de descarga
                     const downloadData = {
                         filename: generateFileName('image', data.outputFormat, data.aspectRatio, data.model),
@@ -660,6 +770,9 @@
                 const result = await makeRequest('generate-video', data);
                 
                 if (result.status === 200 && result.data.success) {
+                    // Guardar datos para regeneración
+                    lastVideoData = { ...data };
+                    
                     // Preparar datos de descarga para video
                     const downloadData = {
                         filename: generateFileName('video', 'mp4', data.aspectRatio),
