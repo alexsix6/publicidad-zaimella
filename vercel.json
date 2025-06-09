@@ -2,16 +2,7 @@
   "public": true,
   "cleanUrls": true,
   "trailingSlash": false,
-  "rewrites": [
-    {
-      "source": "/api-tester",
-      "destination": "/public/api-tester.html"
-    },
-    {
-      "source": "/api-docs",
-      "destination": "/public/api-docs.html"
-    }
-  ],
+
   "functions": {
     "api/generate-image.js": {
       "maxDuration": 60
