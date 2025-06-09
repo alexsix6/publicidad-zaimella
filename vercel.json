@@ -4,20 +4,12 @@
   "trailingSlash": false,
   "rewrites": [
     {
-      "source": "/api-tester.html",
-      "destination": "/public/api-tester.html"
-    },
-    {
       "source": "/api-tester",
-      "destination": "/public/api-tester.html"
-    },
-    {
-      "source": "/api-docs.html", 
-      "destination": "/public/api-docs.html"
+      "destination": "/api-tester.html"
     },
     {
       "source": "/api-docs",
-      "destination": "/public/api-docs.html"
+      "destination": "/api-docs.html"
     }
   ],
   "functions": {
