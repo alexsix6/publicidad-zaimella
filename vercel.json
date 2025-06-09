@@ -1,0 +1,66 @@
+{
+  "public": true,
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "rewrites": [
+    {
+      "source": "/api-tester.html",
+      "destination": "/public/api-tester.html"
+    },
+    {
+      "source": "/api-tester",
+      "destination": "/public/api-tester.html"
+    },
+    {
+      "source": "/api-docs.html", 
+      "destination": "/public/api-docs.html"
+    },
+    {
+      "source": "/api-docs",
+      "destination": "/public/api-docs.html"
+    }
+  ],
+  "functions": {
+    "api/generate-image.js": {
+      "maxDuration": 60
+    },
+    "api/generate-video.js": {
+      "maxDuration": 300
+    },
+    "api/generate-complete.js": {
+      "maxDuration": 300
+    }
+  },
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods", 
+          "value": "POST, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type, Authorization"
+        }
+      ]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        },
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        }
+      ]
+    }
+  ]
+}
