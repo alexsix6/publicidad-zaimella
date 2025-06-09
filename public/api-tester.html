@@ -280,6 +280,14 @@
                         </select>
                     </div>
                     
+                    <div class="form-group">
+                        <label for="imageGenerationModel">Image Generation Model:</label>
+                        <select id="imageGenerationModel">
+                            <option value="base">FLUX.1 Kontext Max (Base)</option>
+                            <option value="alexseis">AlexSeis Custom Model</option>
+                        </select>
+                    </div>
+                    
                     <button type="submit" class="btn" id="imageBtn">Generate Image</button>
                 </form>
                 
@@ -480,7 +488,8 @@
                     inputImage: document.getElementById('imageInputImage').value || null,
                     enhanceWithAI: document.getElementById('imageEnhanceAI').checked,
                     saveLocally: document.getElementById('imageSaveLocally').checked,
-                    enhancementModel: document.getElementById('imageModel').value
+                    enhancementModel: document.getElementById('imageModel').value,
+                    model: document.getElementById('imageGenerationModel').value
                 };
                 
                 const result = await makeRequest('generate-image', data);

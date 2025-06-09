@@ -8,10 +8,10 @@
       "maxDuration": 60
     },
     "api/generate-video.js": {
-      "maxDuration": 300
+      "maxDuration": 60
     },
     "api/generate-complete.js": {
-      "maxDuration": 300
+      "maxDuration": 60
     }
   },
   "headers": [

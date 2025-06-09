@@ -28,7 +28,8 @@ export default async function handler(req, res) {
       inputImage = null, 
       saveLocally = true,
       enhanceWithAI = true,
-      enhancementModel = 'anthropic/claude-3.5-sonnet'
+      enhancementModel = 'anthropic/claude-3.5-sonnet',
+      model = 'base'
     } = req.body;
 
     // Validar prompt
@@ -60,8 +61,8 @@ export default async function handler(req, res) {
     }
 
     // PASO 2: Generar imagen con FLUX.1
-    console.log(`🎯 Generating image with FLUX.1...`);
-    const imageResult = await generateImageWithFlux(finalPrompt, inputImage);
+    console.log(`🎯 Generating image with FLUX.1 (${model})...`);
+    const imageResult = await generateImageWithFlux(finalPrompt, inputImage, model);
 
     if (!imageResult.success) {
       return res.status(500).json({
@@ -109,7 +110,8 @@ export default async function handler(req, res) {
       } : null,
       metadata: {
         timestamp: new Date().toISOString(),
-        enhancementModel: enhanceWithAI ? enhancementModel : null
+        enhancementModel: enhanceWithAI ? enhancementModel : null,
+        imageModel: imageResult.model
       }
     };
 
