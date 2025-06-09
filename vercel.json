@@ -5,11 +5,11 @@
   "rewrites": [
     {
       "source": "/api-tester",
-      "destination": "/api-tester.html"
+      "destination": "/public/api-tester.html"
     },
     {
       "source": "/api-docs",
-      "destination": "/api-docs.html"
+      "destination": "/public/api-docs.html"
     }
   ],
   "functions": {
