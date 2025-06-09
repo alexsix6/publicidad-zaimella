@@ -351,6 +351,24 @@
                         </select>
                     </div>
                     
+                    <div class="form-group">
+                        <label for="videoAspectRatio">Video Aspect Ratio:</label>
+                        <select id="videoAspectRatio">
+                            <option value="1:1">1:1 - Instagram Post</option>
+                            <option value="9:16">9:16 - Stories, TikTok, Reels</option>
+                            <option value="16:9" selected>16:9 - YouTube, Landscape</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="videoDuration">Video Duration:</label>
+                        <select id="videoDuration">
+                            <option value="5s">5 seconds</option>
+                            <option value="8s" selected>8 seconds</option>
+                            <option value="10s">10 seconds</option>
+                        </select>
+                    </div>
+                    
                     <div class="checkbox-group">
                         <input type="checkbox" id="videoEnhanceAI" checked>
                         <label for="videoEnhanceAI">Enhance with AI</label>
@@ -458,7 +476,7 @@
             document.getElementById(loadingId).classList.remove('show');
         }
         
-        function showResult(resultId, content, type = 'success', mediaUrl = null, mediaType = null) {
+        function showResult(resultId, content, type = 'success', mediaUrl = null, mediaType = null, downloadData = null) {
             const resultEl = document.getElementById(resultId);
             const contentEl = document.getElementById(resultId + 'Content');
             const previewEl = document.getElementById(resultId.replace('Result', 'Preview'));
@@ -469,9 +487,33 @@
             // Show media preview if available
             if (mediaUrl && previewEl) {
                 if (mediaType === 'image') {
-                    previewEl.innerHTML = `<img src="${mediaUrl}" alt="Generated image">`;
+                    const downloadBtn = downloadData ? `
+                        <div style="margin-top: 10px;">
+                            <button onclick="downloadImage('${mediaUrl}', '${downloadData.filename}', '${downloadData.format}')" 
+                                    class="btn" style="background: #28a745; font-size: 14px; padding: 8px 16px;">
+                                📥 Download ${downloadData.format.toUpperCase()} (${downloadData.aspectRatio})
+                            </button>
+                        </div>
+                    ` : '';
+                    
+                    previewEl.innerHTML = `
+                        <img src="${mediaUrl}" alt="Generated image">
+                        ${downloadBtn}
+                    `;
                 } else if (mediaType === 'video') {
-                    previewEl.innerHTML = `<video controls src="${mediaUrl}">Your browser does not support video.</video>`;
+                    const downloadBtn = downloadData ? `
+                        <div style="margin-top: 10px;">
+                            <button onclick="downloadVideo('${mediaUrl}', '${downloadData.filename}')" 
+                                    class="btn" style="background: #28a745; font-size: 14px; padding: 8px 16px;">
+                                📥 Download MP4 (${downloadData.aspectRatio})
+                            </button>
+                        </div>
+                    ` : '';
+                    
+                    previewEl.innerHTML = `
+                        <video controls src="${mediaUrl}">Your browser does not support video.</video>
+                        ${downloadBtn}
+                    `;
                 }
             }
         }
@@ -493,6 +535,59 @@
                 status: response.status,
                 data: await response.json()
             };
+        }
+        
+        // Funciones de descarga
+        async function downloadImage(imageUrl, filename, format) {
+            try {
+                const response = await fetch(imageUrl);
+                const blob = await response.blob();
+                
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            } catch (error) {
+                console.error('Error downloading image:', error);
+                alert('Error downloading image. Please try right-click → Save Image As...');
+            }
+        }
+        
+        async function downloadVideo(videoUrl, filename) {
+            try {
+                const response = await fetch(videoUrl);
+                const blob = await response.blob();
+                
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            } catch (error) {
+                console.error('Error downloading video:', error);
+                alert('Error downloading video. Please try right-click → Save Video As...');
+            }
+        }
+        
+        // Función para generar nombres de archivo únicos
+        function generateFileName(type, format, aspectRatio, model = '') {
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-').split('T');
+            const date = timestamp[0];
+            const time = timestamp[1].split('.')[0];
+            
+            const modelPrefix = model === 'alexseis' ? 'AlexSeis_' : 'FLUX_';
+            const aspectPrefix = aspectRatio.replace(':', 'x');
+            
+            return `${modelPrefix}${type}_${aspectPrefix}_${date}_${time}.${format}`;
         }
         
         // Image generation handler
@@ -519,7 +614,16 @@
                 const result = await makeRequest('generate-image', data);
                 
                 if (result.status === 200 && result.data.success) {
-                    showResult('imageResult', result.data, 'success', result.data.publicUrl || result.data.imageUrl, 'image');
+                    // Preparar datos de descarga
+                    const downloadData = {
+                        filename: generateFileName('image', data.outputFormat, data.aspectRatio, data.model),
+                        format: data.outputFormat,
+                        aspectRatio: data.aspectRatio
+                    };
+                    
+                    showResult('imageResult', result.data, 'success', 
+                              result.data.publicUrl || result.data.imageUrl, 
+                              'image', downloadData);
                 } else {
                     showResult('imageResult', result.data, 'error');
                 }
@@ -548,13 +652,24 @@
                     videoStyle: document.getElementById('videoStyle').value,
                     enhanceWithAI: document.getElementById('videoEnhanceAI').checked,
                     useUtilsEnhancement: document.getElementById('videoUtilsEnhancement').checked,
-                    saveLocally: document.getElementById('videoSaveLocally').checked
+                    saveLocally: document.getElementById('videoSaveLocally').checked,
+                    aspectRatio: document.getElementById('videoAspectRatio').value,
+                    duration: document.getElementById('videoDuration').value
                 };
                 
                 const result = await makeRequest('generate-video', data);
                 
                 if (result.status === 200 && result.data.success) {
-                    showResult('videoResult', result.data, 'success', result.data.publicUrl || result.data.videoUrl, 'video');
+                    // Preparar datos de descarga para video
+                    const downloadData = {
+                        filename: generateFileName('video', 'mp4', data.aspectRatio),
+                        aspectRatio: data.aspectRatio,
+                        duration: data.duration
+                    };
+                    
+                    showResult('videoResult', result.data, 'success', 
+                              result.data.publicUrl || result.data.videoUrl, 
+                              'video', downloadData);
                 } else {
                     showResult('videoResult', result.data, 'error');
                 }

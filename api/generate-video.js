@@ -18,7 +18,9 @@ export default async function handler(req, res) {
       saveLocally = true,
       enhanceWithAI = true,
       enhancementModel = 'anthropic/claude-3.5-sonnet',
-      useUtilsEnhancement = true
+      useUtilsEnhancement = true,
+      aspectRatio = '16:9',
+      duration = '8s'
     } = req.body;
 
     if (!prompt || prompt.trim().length === 0) {
@@ -60,8 +62,8 @@ export default async function handler(req, res) {
     }
 
     // PASO 3: Generar video con Veo 3
-    console.log(`🎯 Generating video with Veo 3...`);
-    const videoResult = await generateVideoWithVeo3(finalPrompt, imageUrl);
+    console.log(`🎯 Generating video with Veo 3 (${aspectRatio}, ${duration})...`);
+    const videoResult = await generateVideoWithVeo3(finalPrompt, imageUrl, aspectRatio, duration);
 
     if (!videoResult.success) {
       return res.status(500).json({
