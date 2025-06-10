@@ -238,8 +238,29 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🎨 AI Content Generator</h1>
-            <p>Test your AI-powered image and video generation endpoints</p>
+            <h1>🎨 Generador de Contenido IA</h1>
+            <p>Genera imágenes y videos profesionales con FLUX.1 + Veo 3 + Modelos Razonadores</p>
+        </div>
+        
+        <div style="background: linear-gradient(135deg, #28a745, #20c997); color: white; padding: 20px; border-radius: 15px; margin-bottom: 30px; text-align: center;">
+            <h2 style="margin-bottom: 15px;">🚀 Sistema Completo de IA</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-top: 15px;">
+                <div>
+                    <h4>🎨 Imágenes FLUX.1</h4>
+                    <p>Pro Ultra, Dev, Schnell + Edición Kontext Max</p>
+                </div>
+                <div>
+                    <h4>🎬 Videos Veo 3</h4>
+                    <p>Imagen→Video, 5-10s, Full HD con audio</p>
+                </div>
+                <div>
+                    <h4>🧠 IA Razonadora</h4>
+                    <p>DeepSeek R1, Gemini 2.5, GPT-o3 Mini</p>
+                </div>
+            </div>
+            <p style="margin-top: 15px; font-size: 14px; opacity: 0.9;">
+                💡 <strong>Workflow completo:</strong> Genera imagen → Mejora con IA → Crea video → Descarga todo
+            </p>
         </div>
         
         <div class="endpoints-grid">
@@ -263,16 +284,16 @@
                     
                     <div class="checkbox-group">
                         <input type="checkbox" id="imageEnhanceAI" checked>
-                        <label for="imageEnhanceAI">Enhance with AI</label>
+                        <label for="imageEnhanceAI">🧠 Mejorar con IA Razonadora (máx 1000 chars)</label>
                     </div>
                     
                     <div class="checkbox-group">
                         <input type="checkbox" id="imageSaveLocally" checked>
-                        <label for="imageSaveLocally">Save locally</label>
+                        <label for="imageSaveLocally">💾 Guardar localmente</label>
                     </div>
                     
                     <div class="form-group">
-                        <label for="imageModel">Enhancement Model:</label>
+                        <label for="imageModel">🤖 Modelo de IA para mejorar prompts:</label>
                         <select id="imageModel">
                             <optgroup label="🚀 Ultra Low Cost (Recommended)">
                                 <option value="deepseek/deepseek-r1" selected>DeepSeek R1 (Ultra Low Cost)</option>
@@ -292,11 +313,22 @@
                     </div>
                     
                     <div class="form-group">
-                        <label for="imageGenerationModel">Image Generation Model:</label>
+                        <label for="imageGenerationModel">🎨 Generación: Modelo FLUX a usar</label>
                         <select id="imageGenerationModel">
-                            <option value="base">FLUX.1 Kontext Max (Base)</option>
-                            <option value="alexseis">AlexSeis Custom Model</option>
+                            <optgroup label="🚀 Generación desde cero">
+                                <option value="pro-ultra" selected>FLUX.1 Pro Ultra (Recomendado)</option>
+                                <option value="dev">FLUX.1 Dev (Rápido)</option>
+                                <option value="schnell">FLUX.1 Schnell (Ultra Rápido)</option>
+                            </optgroup>
+                            <optgroup label="✏️ Edición de imágenes">
+                                <option value="base">FLUX.1 Kontext Max (Edición)</option>
+                                <option value="alexseis">AlexSeis Custom Model</option>
+                            </optgroup>
                         </select>
+                    </div>
+                    
+                    <div class="info-text" style="background: #e8f4fd; padding: 10px; border-radius: 5px; margin-bottom: 15px; font-size: 14px;">
+                        💡 <strong>Generación:</strong> Crea imágenes desde cero. <strong>Edición:</strong> Requiere imagen base para modificar.
                     </div>
                     
                     <div class="form-group">
@@ -410,7 +442,7 @@
                     
                     <div class="checkbox-group">
                         <input type="checkbox" id="videoSaveLocally" checked>
-                        <label for="videoSaveLocally">Save locally</label>
+                        <label for="videoSaveLocally">💾 Guardar video localmente</label>
                     </div>
                     
                     <button type="submit" class="btn" id="videoBtn">Generate Video</button>
@@ -542,7 +574,19 @@
             const previewEl = document.getElementById(resultId.replace('Result', 'Preview'));
             
             resultEl.className = `result show ${type}`;
-            contentEl.textContent = typeof content === 'object' ? JSON.stringify(content, null, 2) : content;
+            
+            // 🆕 CÓDIGO COLAPSABLE - No expuesto por defecto
+            const jsonContent = typeof content === 'object' ? JSON.stringify(content, null, 2) : content;
+            contentEl.innerHTML = `
+                <div style="margin-bottom: 15px;">
+                    <button onclick="toggleCode('${resultId}Content')" class="btn" style="background: #17a2b8; font-size: 12px; padding: 5px 10px;">
+                        📋 Ver/Ocultar Código JSON
+                    </button>
+                </div>
+                <div id="${resultId}ContentData" style="display: none; white-space: pre-wrap; max-height: 300px; overflow-y: auto; background: #f8f9fa; padding: 10px; border-radius: 5px; font-family: monospace; font-size: 12px;">
+                    ${jsonContent}
+                </div>
+            `;
             
             // Show media preview if available
             if (mediaUrl && previewEl) {
@@ -601,6 +645,20 @@
         
         function hideResult(resultId) {
             document.getElementById(resultId).classList.remove('show');
+        }
+        
+        // 🆕 FUNCIÓN PARA MOSTRAR/OCULTAR CÓDIGO JSON
+        function toggleCode(elementId) {
+            const dataElement = document.getElementById(elementId + 'Data');
+            const button = document.querySelector(`button[onclick="toggleCode('${elementId}')"]`);
+            
+            if (dataElement.style.display === 'none') {
+                dataElement.style.display = 'block';
+                button.textContent = '📋 Ocultar Código JSON';
+            } else {
+                dataElement.style.display = 'none';
+                button.textContent = '📋 Ver/Ocultar Código JSON';
+            }
         }
         
         async function makeRequest(endpoint, data) {
