@@ -1,5 +1,3 @@
-const openRouterClient = require('../lib/openrouter-client');
-
 module.exports = async function handler(req, res) {
     console.log('🧠 [Analyze Idea] Request received');
     
@@ -65,15 +63,39 @@ Salida video: "The anthropomorphic wolf starts by adjusting his sunglasses, then
 
 Responde ÚNICAMENTE con el JSON solicitado, sin texto adicional.`;
 
-        // Realizar análisis con DeepSeek R1
-        const analysisResponse = await openRouterClient.generateCompletion(
-            analysisPrompt,
-            analysisModel,
-            {
-                max_tokens: 1000,
-                temperature: 0.7
-            }
-        );
+        // Realizar análisis con DeepSeek R1 usando fetch directo
+        const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+                'Content-Type': 'application/json',
+                'X-Title': 'AI Content Generator - Idea Analysis'
+            },
+            body: JSON.stringify({
+                model: analysisModel,
+                messages: [
+                    {
+                        role: "system",
+                        content: "You are an expert in creative visual content and prompt optimization for AI generation."
+                    },
+                    {
+                        role: "user", 
+                        content: analysisPrompt
+                    }
+                ],
+                temperature: 0.7,
+                max_tokens: 1000
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`OpenRouter API error: ${response.status} ${response.statusText}`);
+        }
+
+        const apiData = await response.json();
+        const analysisResponse = {
+            content: apiData.choices[0].message.content
+        };
 
         if (!analysisResponse || !analysisResponse.content) {
             throw new Error('No analysis response from OpenRouter');
