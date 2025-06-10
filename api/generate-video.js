@@ -17,7 +17,7 @@ export default async function handler(req, res) {
       videoStyle = 'cinematic',
       saveLocally = true,
       enhanceWithAI = true,
-      enhancementModel = 'anthropic/claude-3.5-sonnet',
+      enhancementModel = 'deepseek/deepseek-r1', // 🆕 Modelo por defecto de bajo costo
       useUtilsEnhancement = true,
       aspectRatio = '16:9',
       duration = '8s'
@@ -35,19 +35,34 @@ export default async function handler(req, res) {
     let finalPrompt = prompt;
     let enhancementResult = null;
 
-    // PASO 1: Mejorar prompt con OpenRouter (si está habilitado)
+    // PASO 1: Mejorar prompt con OpenRouter (solo si está habilitado)
     if (enhanceWithAI) {
       console.log(`🧠 Enhancing video prompt with ${enhancementModel}...`);
       
-      enhancementResult = await enhancePrompt(prompt, 'video', enhancementModel);
+      // 🆕 Pasar el parámetro enhanceEnabled correctamente
+      enhancementResult = await enhancePrompt(prompt, 'video', enhancementModel, true);
       
-      if (enhancementResult.success) {
+      if (enhancementResult.success && enhancementResult.enhanced) {
         finalPrompt = enhancementResult.enhancedPrompt;
-        console.log(`✨ AI Enhanced prompt: "${finalPrompt}"`);
+        console.log(`✨ AI Enhanced prompt (${enhancementResult.promptLength} chars): "${finalPrompt}"`);
+        
+        // 🆕 VALIDACIÓN CRÍTICA: Verificar límite de 500 chars para Veo 3
+        if (enhancementResult.warning) {
+          console.warn(`⚠️ ${enhancementResult.warning}`);
+        }
+        if (!enhancementResult.withinLimits) {
+          console.warn(`⚠️ Prompt may be too long for Veo 3 (${enhancementResult.promptLength} chars > 500)`);
+        }
+        if (enhancementResult.modelInfo) {
+          console.log(`💰 Cost level: ${enhancementResult.modelInfo.cost}`);
+        }
       } else {
         console.warn(`⚠️ AI Enhancement failed: ${enhancementResult.error}`);
         finalPrompt = enhancementResult.fallbackPrompt || prompt;
       }
+    } else {
+      console.log(`📝 AI enhancement disabled, using original prompt`);
+      enhancementResult = await enhancePrompt(prompt, 'video', enhancementModel, false);
     }
 
     // PASO 2: Aplicar enhancement de utils (si está habilitado)

@@ -1,10 +1,10 @@
-<!-- Crear archivo: public/api-tester.html -->
+<!-- AI Content Generator v2.1 - Updated 2025-01-10 with Reasoning Models & 500 char limit -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Content Generator - API Tester</title>
+    <title>AI Content Generator - API Tester v2.1</title>
     <style>
         * {
             margin: 0;
@@ -274,9 +274,18 @@
                     <div class="form-group">
                         <label for="imageModel">Enhancement Model:</label>
                         <select id="imageModel">
-                            <option value="anthropic/claude-3.5-sonnet">Claude 3.5 Sonnet</option>
-                            <option value="openai/gpt-4o">GPT-4o</option>
-                            <option value="meta-llama/llama-3.2-90b-vision-instruct">Llama 3.2 90B</option>
+                            <optgroup label="🚀 Ultra Low Cost (Recommended)">
+                                <option value="deepseek/deepseek-r1" selected>DeepSeek R1 (Ultra Low Cost)</option>
+                                <option value="google/gemini-2.5-flash-preview-05-20">Gemini 2.5 Flash (Ultra Low Cost)</option>
+                                <option value="meta-llama/llama-3.1-8b-instruct">Llama 3.1 8B (Ultra Low Cost)</option>
+                            </optgroup>
+                            <optgroup label="💰 Low Cost">
+                                <option value="openai/o3-mini">GPT-o3 Mini (Low Cost)</option>
+                            </optgroup>
+                            <optgroup label="💎 Medium Cost">
+                                <option value="anthropic/claude-3.5-sonnet">Claude 3.5 Sonnet</option>
+                                <option value="openai/o1-mini">GPT-o1 Mini</option>
+                            </optgroup>
                         </select>
                     </div>
                     
@@ -323,12 +332,30 @@
                     
                     <div class="checkbox-group">
                         <input type="checkbox" id="videoEnhanceAI" checked>
-                        <label for="videoEnhanceAI">Enhance with AI</label>
+                        <label for="videoEnhanceAI">🧠 Enhance with AI (Max 500 chars for Veo 3)</label>
                     </div>
                     
                     <div class="checkbox-group">
                         <input type="checkbox" id="videoUtilsEnhancement" checked>
-                        <label for="videoUtilsEnhancement">Technical Enhancement</label>
+                        <label for="videoUtilsEnhancement">⚙️ Technical Enhancement</label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="videoModel">Enhancement Model:</label>
+                        <select id="videoModel">
+                            <optgroup label="🚀 Ultra Low Cost (Recommended)">
+                                <option value="deepseek/deepseek-r1" selected>DeepSeek R1 (Ultra Low Cost)</option>
+                                <option value="google/gemini-2.5-flash-preview-05-20">Gemini 2.5 Flash (Ultra Low Cost)</option>
+                                <option value="meta-llama/llama-3.1-8b-instruct">Llama 3.1 8B (Ultra Low Cost)</option>
+                            </optgroup>
+                            <optgroup label="💰 Low Cost">
+                                <option value="openai/o3-mini">GPT-o3 Mini (Low Cost)</option>
+                            </optgroup>
+                            <optgroup label="💎 Medium Cost">
+                                <option value="anthropic/claude-3.5-sonnet">Claude 3.5 Sonnet</option>
+                                <option value="openai/o1-mini">GPT-o1 Mini</option>
+                            </optgroup>
+                        </select>
                     </div>
                     
                     <div class="checkbox-group">
@@ -381,12 +408,30 @@
                             
                             <div class="checkbox-group">
                                 <input type="checkbox" id="completeEnhanceAI" checked>
-                                <label for="completeEnhanceAI">Enhance with AI</label>
+                                <label for="completeEnhanceAI">🧠 Enhance with AI</label>
                             </div>
                             
                             <div class="checkbox-group">
                                 <input type="checkbox" id="completeAnalyzePrompts">
-                                <label for="completeAnalyzePrompts">Analyze prompts</label>
+                                <label for="completeAnalyzePrompts">🔍 Analyze prompts</label>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="completeEnhancementModel">Enhancement Model:</label>
+                                <select id="completeEnhancementModel">
+                                    <optgroup label="🚀 Ultra Low Cost (Recommended)">
+                                        <option value="deepseek/deepseek-r1" selected>DeepSeek R1 (Ultra Low Cost)</option>
+                                        <option value="google/gemini-2.5-flash-preview-05-20">Gemini 2.5 Flash (Ultra Low Cost)</option>
+                                        <option value="meta-llama/llama-3.1-8b-instruct">Llama 3.1 8B (Ultra Low Cost)</option>
+                                    </optgroup>
+                                    <optgroup label="💰 Low Cost">
+                                        <option value="openai/o3-mini">GPT-o3 Mini (Low Cost)</option>
+                                    </optgroup>
+                                    <optgroup label="💎 Medium Cost">
+                                        <option value="anthropic/claude-3.5-sonnet">Claude 3.5 Sonnet</option>
+                                        <option value="openai/o1-mini">GPT-o1 Mini</option>
+                                    </optgroup>
+                                </select>
                             </div>
                             
                             <div class="form-group">
@@ -395,6 +440,19 @@
                                     <option value="creative">Creative</option>
                                     <option value="technical">Technical</option>
                                     <option value="marketing">Marketing</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="completeAnalysisModel">Analysis Model:</label>
+                                <select id="completeAnalysisModel">
+                                    <optgroup label="🚀 Ultra Low Cost (Recommended)">
+                                        <option value="deepseek/deepseek-r1" selected>DeepSeek R1 (Ultra Low Cost)</option>
+                                        <option value="google/gemini-2.5-flash-preview-05-20">Gemini 2.5 Flash (Ultra Low Cost)</option>
+                                    </optgroup>
+                                    <optgroup label="💰 Low Cost">
+                                        <option value="openai/o3-mini">GPT-o3 Mini (Low Cost)</option>
+                                    </optgroup>
                                 </select>
                             </div>
                             
@@ -514,6 +572,7 @@
                     imageUrl: document.getElementById('videoImageUrl').value || null,
                     videoStyle: document.getElementById('videoStyle').value,
                     enhanceWithAI: document.getElementById('videoEnhanceAI').checked,
+                    enhancementModel: document.getElementById('videoModel').value, // 🆕 Nuevo modelo selector
                     useUtilsEnhancement: document.getElementById('videoUtilsEnhancement').checked,
                     saveLocally: document.getElementById('videoSaveLocally').checked
                 };
@@ -549,8 +608,10 @@
                     videoPrompt: document.getElementById('completeVideoPrompt').value || null,
                     videoStyle: document.getElementById('completeVideoStyle').value,
                     enhanceWithAI: document.getElementById('completeEnhanceAI').checked,
+                    enhancementModel: document.getElementById('completeEnhancementModel').value, // 🆕 Modelo para enhancement
                     analyzePrompts: document.getElementById('completeAnalyzePrompts').checked,
                     analysisType: document.getElementById('completeAnalysisType').value,
+                    analysisModel: document.getElementById('completeAnalysisModel').value, // 🆕 Modelo para análisis
                     saveLocally: true
                 };
                 

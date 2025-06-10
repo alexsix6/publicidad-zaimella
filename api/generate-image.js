@@ -28,7 +28,7 @@ export default async function handler(req, res) {
       inputImage = null, 
       saveLocally = true,
       enhanceWithAI = true,
-      enhancementModel = 'anthropic/claude-3.5-sonnet',
+      enhancementModel = 'deepseek/deepseek-r1', // 🆕 Modelo por defecto de bajo costo
       model = 'base',
       aspectRatio = '16:9',
       outputFormat = 'png'
@@ -47,19 +47,26 @@ export default async function handler(req, res) {
     let finalPrompt = prompt;
     let enhancementResult = null;
 
-    // PASO 1: Mejorar prompt con OpenRouter (si está habilitado)
+    // PASO 1: Mejorar prompt con OpenRouter (solo si está habilitado)
     if (enhanceWithAI) {
       console.log(`🧠 Enhancing prompt with ${enhancementModel}...`);
       
-      enhancementResult = await enhancePrompt(prompt, 'image', enhancementModel);
+      // 🆕 Pasar el parámetro enhanceEnabled correctamente
+      enhancementResult = await enhancePrompt(prompt, 'image', enhancementModel, true);
       
-      if (enhancementResult.success) {
+      if (enhancementResult.success && enhancementResult.enhanced) {
         finalPrompt = enhancementResult.enhancedPrompt;
-        console.log(`✨ Enhanced prompt: "${finalPrompt}"`);
+        console.log(`✨ Enhanced prompt (${enhancementResult.promptLength} chars): "${finalPrompt}"`);
+        if (enhancementResult.modelInfo) {
+          console.log(`💰 Cost level: ${enhancementResult.modelInfo.cost}`);
+        }
       } else {
         console.warn(`⚠️ Enhancement failed, using original: ${enhancementResult.error}`);
         finalPrompt = enhancementResult.fallbackPrompt || prompt;
       }
+    } else {
+      console.log(`📝 AI enhancement disabled, using original prompt`);
+      enhancementResult = await enhancePrompt(prompt, 'image', enhancementModel, false);
     }
 
     // PASO 2: Generar imagen con FLUX.1
