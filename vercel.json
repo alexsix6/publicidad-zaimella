@@ -3,6 +3,17 @@
   "cleanUrls": true,
   "trailingSlash": false,
 
+  "rewrites": [
+    {
+      "source": "/api-tester",
+      "destination": "/api-tester.html"
+    },
+    {
+      "source": "/api-docs", 
+      "destination": "/api-docs.html"
+    }
+  ],
+
   "functions": {
     "api/generate-image.js": {
       "maxDuration": 60
