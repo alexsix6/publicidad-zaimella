@@ -465,81 +465,221 @@
                     🎯 Generate Complete (Image + Video)
                 </div>
                 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                    <div>
+                <!-- Info Panel -->
+                <div style="background: #e8f4fd; padding: 15px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #667eea;">
+                    <h4 style="margin-bottom: 10px;">🎯 ¿Cuándo usar Generate Complete?</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; font-size: 14px;">
+                        <div>📱 <strong>Contenido para redes:</strong> Imagen + video del mismo concepto</div>
+                        <div>🎨 <strong>Campañas coherentes:</strong> Misma estética en ambos formatos</div>
+                        <div>⚡ <strong>Prototipado rápido:</strong> Generar variantes para testing</div>
+                        <div>🔄 <strong>Workflow automatizado:</strong> Una operación = dos outputs</div>
+                    </div>
+                </div>
+                
+                <!-- 🧠 ANÁLISIS INTELIGENTE DE IDEAS -->
+                <div style="background: linear-gradient(135deg, #28a74520, #20c99720); padding: 20px; border-radius: 15px; margin-bottom: 25px; border-left: 4px solid #28a745;">
+                    <h4 style="margin-bottom: 15px; color: #333;">🧠 Análisis Inteligente de Ideas</h4>
+                    <p style="color: #666; margin-bottom: 15px; font-size: 14px;">
+                        💡 <strong>Nuevo:</strong> Describe tu idea como se te ocurra y la IA la analizará y optimizará para obtener los mejores resultados.
+                    </p>
+                    
+                    <!-- PASO 1: IDEA BRUTA -->
+                    <div class="idea-input-section">
+                        <div class="form-group">
+                            <label for="rawCreativeIdea">💭 Tu idea creativa (escríbela libremente):</label>
+                            <textarea id="rawCreativeIdea" 
+                                     placeholder="Ej: Un lobo rockero... / Una sirena en una cafetería... / Un dragón chef cocinando..." 
+                                     style="min-height: 80px; background: #f8f9fa;"></textarea>
+                        </div>
+                        
+                        <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 15px;">
+                            <button type="button" onclick="analyzeCreativeIdea()" class="btn" id="analyzeBtn" 
+                                    style="background: #28a745; font-size: 14px; padding: 10px 20px;">
+                                🔍 Analizar y optimizar mi idea
+                            </button>
+                            
+                            <div style="font-size: 12px; color: #666;">
+                                🤖 Usa <strong>DeepSeek R1</strong> para análisis ultra low cost
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- PASO 2: RESULTADOS DEL ANÁLISIS (oculto inicialmente) -->
+                    <div id="analysisResults" style="display: none; background: #ffffff; padding: 20px; border-radius: 10px; border: 1px solid #dee2e6; margin-top: 15px;">
+                        <h5 style="color: #333; margin-bottom: 15px;">📊 Análisis de tu idea:</h5>
+                        
+                        <!-- Puntuación de calidad -->
+                        <div id="qualityScoreSection" style="margin-bottom: 15px;"></div>
+                        
+                        <!-- Fortalezas identificadas -->
+                        <div id="strengthsSection" style="margin-bottom: 15px;"></div>
+                        
+                        <!-- Sugerencias de mejora -->
+                        <div id="suggestionsSection" style="margin-bottom: 15px;"></div>
+                        
+                        <!-- Prompts optimizados -->
+                        <div id="optimizedPromptsSection" style="margin-bottom: 15px;"></div>
+                        
+                        <!-- Notas de coherencia -->
+                        <div id="coherenceNotesSection" style="margin-bottom: 15px;"></div>
+                        
+                        <!-- Botones de acción -->
+                        <div style="display: flex; gap: 10px; margin-top: 20px;">
+                            <button type="button" onclick="acceptOptimization()" class="btn" 
+                                    style="background: #28a745; font-size: 14px; padding: 10px 16px;">
+                                ✅ Usar versión optimizada
+                            </button>
+                            <button type="button" onclick="editOptimizedPrompts()" class="btn" 
+                                    style="background: #ffc107; color: #000; font-size: 14px; padding: 10px 16px;">
+                                ✏️ Editar antes de usar
+                            </button>
+                            <button type="button" onclick="rejectOptimization()" class="btn" 
+                                    style="background: #6c757d; font-size: 14px; padding: 10px 16px;">
+                                ❌ Usar idea original
+                            </button>
+                        </div>
+                        
+                        <!-- Código JSON colapsable -->
+                        <div style="margin-top: 15px;">
+                            <button onclick="toggleAnalysisCode()" class="btn" style="background: #17a2b8; font-size: 12px; padding: 5px 10px;">
+                                📋 Ver/Ocultar Análisis Completo JSON
+                            </button>
+                        </div>
+                        <div id="analysisCodeData" style="display: none; white-space: pre-wrap; max-height: 300px; overflow-y: auto; background: #f8f9fa; padding: 10px; border-radius: 5px; font-family: monospace; font-size: 12px; margin-top: 10px;">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="complete-form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <!-- CONFIGURACIÓN DE IMAGEN -->
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; border-left: 4px solid #28a745;">
+                        <h4 style="margin-bottom: 15px; color: #333;">🎨 Configuración de Imagen</h4>
+                        
                         <form id="completeForm">
                             <div class="form-group">
-                                <label for="completeImagePrompt">Image Prompt:</label>
-                                <textarea id="completeImagePrompt" placeholder="A majestic eagle soaring..." required></textarea>
+                                <label for="completeImagePrompt">📝 Image Prompt:</label>
+                                <textarea id="completeImagePrompt" placeholder="Un águila majestuosa volando..." required></textarea>
                             </div>
                             
                             <div class="form-group">
-                                <label for="completeVideoPrompt">Video Prompt (optional):</label>
-                                <textarea id="completeVideoPrompt" placeholder="Leave empty to use image prompt"></textarea>
+                                <label for="completeImageModel">🎨 Modelo FLUX para imagen:</label>
+                                <select id="completeImageModel">
+                                    <optgroup label="🚀 Generación desde cero">
+                                        <option value="pro-ultra" selected>FLUX.1 Pro Ultra (Recomendado)</option>
+                                    </optgroup>
+                                    <optgroup label="✏️ Edición de imágenes">
+                                        <option value="base">FLUX.1 Kontext Max (Edición)</option>
+                                        <option value="kontext-pro">FLUX.1 Kontext Pro (Edición Pro)</option>
+                                        <option value="alexseis">AlexSeis Custom Model</option>
+                                    </optgroup>
+                                </select>
                             </div>
                             
                             <div class="form-group">
-                                <label for="completeVideoStyle">Video Style:</label>
+                                <label for="completeImageAspectRatio">📐 Image Aspect Ratio:</label>
+                                <select id="completeImageAspectRatio">
+                                    <option value="1:1">1:1 - Instagram Post</option>
+                                    <option value="16:9" selected>16:9 - YouTube Thumbnail</option>
+                                    <option value="9:16">9:16 - Stories, Reels</option>
+                                    <option value="4:5">4:5 - Instagram Feed</option>
+                                    <option value="2:3">2:3 - Pinterest</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="completeImageFormat">💾 Output Format:</label>
+                                <select id="completeImageFormat">
+                                    <option value="png" selected>PNG - High Quality</option>
+                                    <option value="jpg">JPG - Smaller Size</option>
+                                    <option value="webp">WebP - Modern Format</option>
+                                </select>
+                            </div>
+                    </div>
+                    
+                    <!-- CONFIGURACIÓN DE VIDEO -->
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; border-left: 4px solid #dc3545;">
+                        <h4 style="margin-bottom: 15px; color: #333;">🎬 Configuración de Video</h4>
+                        
+                            <div class="form-group">
+                                <label for="completeVideoPrompt">📝 Video Prompt (opcional):</label>
+                                <textarea id="completeVideoPrompt" placeholder="Dejar vacío para usar el prompt de imagen"></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="completeVideoStyle">🎭 Video Style:</label>
                                 <select id="completeVideoStyle">
-                                    <option value="cinematic">Cinematic</option>
+                                    <option value="cinematic" selected>Cinematic</option>
                                     <option value="viral">Viral</option>
                                     <option value="artistic">Artistic</option>
                                 </select>
                             </div>
                             
-                            <div class="checkbox-group">
-                                <input type="checkbox" id="completeEnhanceAI" checked>
-                                <label for="completeEnhanceAI">Enhance with AI</label>
-                            </div>
-                            
-                            <div class="checkbox-group">
-                                <input type="checkbox" id="completeAnalyzePrompts">
-                                <label for="completeAnalyzePrompts">Analyze prompts</label>
-                            </div>
-                            
                             <div class="form-group">
-                                <label for="completeEnhancementModel">Enhancement Model:</label>
-                                <select id="completeEnhancementModel">
-                                    <optgroup label="🚀 Ultra Low Cost (Recommended)">
-                                        <option value="deepseek/deepseek-r1" selected>DeepSeek R1 (Ultra Low Cost)</option>
-                                        <option value="google/gemini-2.5-flash-preview-05-20">Gemini 2.5 Flash (Ultra Low Cost)</option>
-                                        <option value="meta-llama/llama-3.1-8b-instruct">Llama 3.1 8B (Ultra Low Cost)</option>
-                                    </optgroup>
-                                    <optgroup label="💰 Low Cost">
-                                        <option value="openai/o3-mini">GPT-o3 Mini (Low Cost)</option>
-                                    </optgroup>
-                                    <optgroup label="💎 Medium Cost">
-                                        <option value="anthropic/claude-3.5-sonnet">Claude 3.5 Sonnet</option>
-                                        <option value="openai/o1-mini">GPT-o1 Mini</option>
-                                    </optgroup>
+                                <label for="completeVideoAspectRatio">📐 Video Aspect Ratio:</label>
+                                <select id="completeVideoAspectRatio">
+                                    <option value="16:9" selected>16:9 - YouTube, Landscape</option>
+                                    <option value="9:16">9:16 - Stories, TikTok, Reels</option>
+                                    <option value="1:1">1:1 - Instagram Post</option>
                                 </select>
                             </div>
                             
                             <div class="form-group">
-                                <label for="completeAnalysisType">Analysis Type:</label>
-                                <select id="completeAnalysisType">
-                                    <option value="creative">Creative</option>
-                                    <option value="technical">Technical</option>
-                                    <option value="marketing">Marketing</option>
+                                <label for="completeVideoDuration">⏱️ Video Duration:</label>
+                                <select id="completeVideoDuration">
+                                    <option value="5s">5 seconds</option>
+                                    <option value="8s" selected>8 seconds</option>
+                                    <option value="10s">10 seconds</option>
                                 </select>
                             </div>
-                            
-                            <div class="form-group">
-                                <label for="completeAnalysisModel">Analysis Model:</label>
-                                <select id="completeAnalysisModel">
-                                    <optgroup label="🚀 Ultra Low Cost (Recommended)">
-                                        <option value="deepseek/deepseek-r1" selected>DeepSeek R1 (Ultra Low Cost)</option>
-                                        <option value="google/gemini-2.5-flash-preview-05-20">Gemini 2.5 Flash (Ultra Low Cost)</option>
-                                    </optgroup>
-                                    <optgroup label="💰 Low Cost">
-                                        <option value="openai/o3-mini">GPT-o3 Mini (Low Cost)</option>
-                                    </optgroup>
-                                </select>
-                            </div>
-                            
-                            <button type="submit" class="btn" id="completeBtn">Generate Complete</button>
+                    </div>
+                </div>
+                
+                <!-- SECCIÓN DE IA UNIFICADA -->
+                <div style="background: linear-gradient(135deg, #667eea1a, #764ba21a); padding: 20px; border-radius: 10px; margin-top: 20px; border-left: 4px solid #6f42c1;">
+                    <h4 style="margin-bottom: 15px; color: #333;">🧠 Mejora con IA Razonadora</h4>
+                    
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="completeEnhancePrompts" checked>
+                        <label for="completeEnhancePrompts">🧠 Mejorar ambos prompts con IA (máx 1000 chars imagen, 500 video)</label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="completeEnhancementModel">🤖 Modelo de IA para mejorar prompts:</label>
+                        <select id="completeEnhancementModel">
+                            <optgroup label="🚀 Ultra Low Cost (Recommended)">
+                                <option value="deepseek/deepseek-r1" selected>DeepSeek R1 (Ultra Low Cost)</option>
+                                <option value="google/gemini-2.5-flash-preview-05-20">Gemini 2.5 Flash (Ultra Low Cost)</option>
+                                <option value="meta-llama/llama-3.1-8b-instruct">Llama 3.1 8B (Ultra Low Cost)</option>
+                            </optgroup>
+                            <optgroup label="💰 Low Cost">
+                                <option value="openai/o3-mini">GPT-o3 Mini (Low Cost)</option>
+                            </optgroup>
+                            <optgroup label="💎 Medium Cost">
+                                <option value="anthropic/claude-3.5-sonnet">Claude 3.5 Sonnet</option>
+                                <option value="openai/o1-mini">GPT-o1 Mini</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                    
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="completeUseImageAsBase" checked>
+                        <label for="completeUseImageAsBase">🎬 Usar imagen generada como base para el video (workflow imagen→video)</label>
+                    </div>
+                    
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="completeSaveLocally" checked>
+                        <label for="completeSaveLocally">💾 Guardar ambos archivos localmente</label>
+                    </div>
+                    
+                    <div style="background: #d1ecf1; padding: 10px; border-radius: 5px; margin-top: 10px; font-size: 14px; color: #0c5460;">
+                        💡 <strong>Workflow optimizado:</strong> Se genera la imagen primero, luego se usa como base para crear el video con máxima coherencia visual.
+                    </div>
+                    
+                    <button type="submit" class="btn" id="completeBtn" style="width: 100%; margin-top: 15px;">🚀 Generate Complete</button>
                         </form>
                     </div>
+                    
+                    <div>
                     
                     <div>
                         <div class="loading" id="completeLoading">
@@ -968,6 +1108,229 @@
                 btn.disabled = false;
             }
         });
+        
+        // 🧠 FUNCIONES DE ANÁLISIS INTELIGENTE
+        
+        // Variables globales para el análisis
+        let currentAnalysisData = null;
+        
+        // Función principal de análisis
+        async function analyzeCreativeIdea() {
+            const rawIdea = document.getElementById('rawCreativeIdea').value.trim();
+            
+            if (!rawIdea) {
+                alert('⚠️ Por favor, describe tu idea antes de analizarla.');
+                return;
+            }
+            
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            const originalText = analyzeBtn.innerHTML;
+            
+            try {
+                // UI feedback
+                analyzeBtn.disabled = true;
+                analyzeBtn.innerHTML = '🧠 Analizando idea...';
+                
+                // Llamar a la API de análisis
+                const analysisResult = await makeRequest('analyze-idea', {
+                    rawIdea: rawIdea,
+                    analysisModel: 'deepseek/deepseek-r1'
+                });
+                
+                if (analysisResult.status === 200 && analysisResult.data.success) {
+                    currentAnalysisData = analysisResult.data.analysis;
+                    displayAnalysisResults(currentAnalysisData);
+                    
+                    // Scroll suave a los resultados
+                    document.getElementById('analysisResults').scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'start' 
+                    });
+                } else {
+                    alert(`❌ Error en el análisis: ${analysisResult.data.error || 'Error desconocido'}`);
+                }
+                
+            } catch (error) {
+                console.error('Error analizando idea:', error);
+                alert(`❌ Error de conexión: ${error.message}`);
+            } finally {
+                analyzeBtn.disabled = false;
+                analyzeBtn.innerHTML = originalText;
+            }
+        }
+        
+        // Mostrar resultados del análisis
+        function displayAnalysisResults(analysis) {
+            // Mostrar la sección de resultados
+            document.getElementById('analysisResults').style.display = 'block';
+            
+            // Puntuación de calidad con colores
+            const qualityColors = {
+                'basic': '#ffc107',
+                'good': '#28a745', 
+                'excellent': '#6f42c1'
+            };
+            const qualityEmojis = {
+                'basic': '⭐',
+                'good': '⭐⭐',
+                'excellent': '⭐⭐⭐'
+            };
+            
+            document.getElementById('qualityScoreSection').innerHTML = `
+                <div style="background: ${qualityColors[analysis.qualityScore] || '#6c757d'}20; padding: 10px; border-radius: 5px; border-left: 3px solid ${qualityColors[analysis.qualityScore] || '#6c757d'};">
+                    <strong>📊 Puntuación de calidad:</strong> 
+                    <span style="color: ${qualityColors[analysis.qualityScore] || '#6c757d'}; font-weight: bold;">
+                        ${qualityEmojis[analysis.qualityScore] || '⭐'} ${analysis.qualityScore?.toUpperCase() || 'UNKNOWN'}
+                    </span>
+                </div>
+            `;
+            
+            // Fortalezas identificadas
+            if (analysis.strengths && analysis.strengths.length > 0) {
+                document.getElementById('strengthsSection').innerHTML = `
+                    <div style="background: #d4edda; padding: 10px; border-radius: 5px; border-left: 3px solid #28a745;">
+                        <strong>💪 Fortalezas de tu idea:</strong>
+                        <ul style="margin: 5px 0 0 0; padding-left: 20px;">
+                            ${analysis.strengths.map(strength => `<li>${strength}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+            
+            // Sugerencias de mejora
+            if (analysis.suggestions && analysis.suggestions.length > 0) {
+                document.getElementById('suggestionsSection').innerHTML = `
+                    <div style="background: #fff3cd; padding: 10px; border-radius: 5px; border-left: 3px solid #ffc107;">
+                        <strong>💡 Sugerencias para mejorar:</strong>
+                        <ul style="margin: 5px 0 0 0; padding-left: 20px;">
+                            ${analysis.suggestions.map(suggestion => `<li>${suggestion}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+            
+            // Prompts optimizados
+            document.getElementById('optimizedPromptsSection').innerHTML = `
+                <div style="background: #e2e3e5; padding: 15px; border-radius: 5px; border-left: 3px solid #6c757d;">
+                    <strong>✨ Prompts optimizados:</strong>
+                    <div style="margin-top: 10px;">
+                        <label style="font-weight: bold; color: #495057;">🎨 Para imagen:</label>
+                        <div style="background: #f8f9fa; padding: 8px; border-radius: 3px; font-family: monospace; font-size: 13px; margin: 5px 0;">
+                            ${analysis.imagePrompt || 'No generado'}
+                        </div>
+                    </div>
+                    <div style="margin-top: 10px;">
+                        <label style="font-weight: bold; color: #495057;">🎬 Para video:</label>
+                        <div style="background: #f8f9fa; padding: 8px; border-radius: 3px; font-family: monospace; font-size: 13px; margin: 5px 0;">
+                            ${analysis.videoPrompt || 'No generado'}
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Notas de coherencia
+            if (analysis.coherenceNotes) {
+                document.getElementById('coherenceNotesSection').innerHTML = `
+                    <div style="background: #cff4fc; padding: 10px; border-radius: 5px; border-left: 3px solid #0dcaf0;">
+                        <strong>🔗 Coherencia imagen ↔ video:</strong>
+                        <p style="margin: 5px 0 0 0; font-size: 14px;">${analysis.coherenceNotes}</p>
+                    </div>
+                `;
+            }
+            
+            // Guardar JSON completo para mostrar si se solicita
+            document.getElementById('analysisCodeData').textContent = JSON.stringify(analysis, null, 2);
+        }
+        
+        // Funciones de acción después del análisis
+        function acceptOptimization() {
+            if (!currentAnalysisData) {
+                alert('❌ No hay análisis disponible');
+                return;
+            }
+            
+            // Llenar los campos con las versiones optimizadas
+            document.getElementById('completeImagePrompt').value = currentAnalysisData.imagePrompt || '';
+            document.getElementById('completeVideoPrompt').value = currentAnalysisData.videoPrompt || '';
+            
+            // Scroll a los formularios
+            document.querySelector('.complete-form-grid').scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start' 
+            });
+            
+            // Feedback visual
+            highlightFields(['completeImagePrompt', 'completeVideoPrompt'], '#28a745');
+            
+            alert('✅ Prompts optimizados aplicados!\n\nRevisa los campos de imagen y video, luego genera tu contenido.');
+        }
+        
+        function editOptimizedPrompts() {
+            if (!currentAnalysisData) {
+                alert('❌ No hay análisis disponible');
+                return;
+            }
+            
+            // Llenar los campos para edición manual
+            document.getElementById('completeImagePrompt').value = currentAnalysisData.imagePrompt || '';
+            document.getElementById('completeVideoPrompt').value = currentAnalysisData.videoPrompt || '';
+            
+            // Scroll y highlight para edición
+            document.querySelector('.complete-form-grid').scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start' 
+            });
+            
+            highlightFields(['completeImagePrompt', 'completeVideoPrompt'], '#ffc107');
+            
+            // Focus en el primer campo para empezar a editar
+            setTimeout(() => {
+                document.getElementById('completeImagePrompt').focus();
+                document.getElementById('completeImagePrompt').select();
+            }, 500);
+            
+            alert('✏️ Prompts listos para editar!\n\nModifica los textos según tus necesidades y luego genera.');
+        }
+        
+        function rejectOptimization() {
+            // Usar la idea original
+            const rawIdea = document.getElementById('rawCreativeIdea').value;
+            document.getElementById('completeImagePrompt').value = rawIdea;
+            document.getElementById('completeVideoPrompt').value = ''; // Vacío para usar imagen prompt
+            
+            highlightFields(['completeImagePrompt'], '#dc3545');
+            
+            alert('🔄 Usando tu idea original!\n\nSe usará tal como la escribiste inicialmente.');
+        }
+        
+        // Función auxiliar para resaltar campos
+        function highlightFields(fieldIds, color) {
+            fieldIds.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                field.style.border = `3px solid ${color}`;
+                field.style.boxShadow = `0 0 10px ${color}30`;
+                
+                setTimeout(() => {
+                    field.style.border = '';
+                    field.style.boxShadow = '';
+                }, 3000);
+            });
+        }
+        
+        // Función para mostrar/ocultar el JSON del análisis
+        function toggleAnalysisCode() {
+            const dataElement = document.getElementById('analysisCodeData');
+            const button = document.querySelector('button[onclick="toggleAnalysisCode()"]');
+            
+            if (dataElement.style.display === 'none') {
+                dataElement.style.display = 'block';
+                button.textContent = '📋 Ocultar Análisis JSON';
+            } else {
+                dataElement.style.display = 'none';
+                button.textContent = '📋 Ver/Ocultar Análisis Completo JSON';
+            }
+        }
+        
     </script>
 </body>
 </html>

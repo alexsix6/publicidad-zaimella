@@ -15,13 +15,28 @@ export default async function handler(req, res) {
     const { 
       imagePrompt,
       videoPrompt = null,
+      
+      // 🎨 CONFIGURACIÓN DE IMAGEN (NUEVOS CAMPOS)
+      imageModel = 'pro-ultra',
+      imageAspectRatio = '16:9',
+      imageFormat = 'png',
+      
+      // 🎬 CONFIGURACIÓN DE VIDEO (NUEVOS CAMPOS)
       videoStyle = 'cinematic',
+      videoAspectRatio = '16:9',
+      videoDuration = '8s',
+      
+      // 🧠 IA Y WORKFLOW (CAMPOS ACTUALIZADOS)
+      enhancePrompts = true,  // Renombrado de enhanceWithAI
+      enhancementModel = 'deepseek/deepseek-r1',  // Nuevo modelo por defecto
+      useImageAsBase = true,  // NUEVA FUNCIONALIDAD
       saveLocally = true,
-      inputImage = null,
-      enhanceWithAI = true,
-      enhancementModel = 'anthropic/claude-3.5-sonnet',
-      analyzePrompts = false,
-      analysisType = 'creative'
+      
+      // 🗑️ CAMPOS ELIMINADOS (mantener compatibilidad hacia atrás)
+      enhanceWithAI = enhancePrompts,  // Compatibilidad
+      inputImage = null,  // Mantener para edición
+      analyzePrompts = false,  // DEPRECATED - ignorar
+      analysisType = 'creative'  // DEPRECATED - ignorar
     } = req.body;
 
     if (!imagePrompt || imagePrompt.trim().length === 0) {
@@ -31,24 +46,19 @@ export default async function handler(req, res) {
       });
     }
 
-    console.log(`🎯 Starting COMPLETE generation with AI enhancement...`);
+    console.log(`🎯 Starting COMPLETE generation with enhanced workflow...`);
     console.log(`🎨 Original image prompt: "${imagePrompt}"`);
+    console.log(`🔄 Workflow mode: ${useImageAsBase ? 'Image→Video' : 'Independent'}`);
+    console.log(`🧠 AI Enhancement: ${enhancePrompts ? enhancementModel : 'Disabled'}`);
 
     const startTime = Date.now();
-    let analysis = null;
-
-    // PASO 0: Análisis opcional del prompt
-    if (analyzePrompts) {
-      console.log(`🔍 Analyzing prompt for ${analysisType} improvements...`);
-      analysis = await analyzeAndImprove(imagePrompt, analysisType, 'openai/o1-mini');
-    }
 
     // PASO 1: Mejorar prompt de imagen
     let finalImagePrompt = imagePrompt;
     let imageEnhancementResult = null;
 
-    if (enhanceWithAI) {
-      console.log(`🧠 Enhancing image prompt...`);
+    if (enhancePrompts) {
+      console.log(`🧠 Enhancing image prompt with ${enhancementModel}...`);
       imageEnhancementResult = await enhancePrompt(imagePrompt, 'image', enhancementModel);
       
       if (imageEnhancementResult.success) {
@@ -60,16 +70,22 @@ export default async function handler(req, res) {
       }
     }
 
-    // PASO 2: Generar imagen
-    console.log(`🎯 Generating image with FLUX.1...`);
-    const imageResult = await generateImageWithFlux(finalImagePrompt, inputImage);
+    // PASO 2: Generar imagen con nuevos parámetros
+    console.log(`🎯 Generating image with FLUX.1 (${imageModel})...`);
+    console.log(`📐 Image settings: ${imageAspectRatio}, ${imageFormat}`);
+    const imageResult = await generateImageWithFlux(
+      finalImagePrompt, 
+      inputImage, 
+      imageModel, 
+      imageAspectRatio, 
+      imageFormat
+    );
 
     if (!imageResult.success) {
       return res.status(500).json({
         success: false,
         error: `Image generation failed: ${imageResult.error}`,
-        stage: 'image',
-        analysis: analysis
+        stage: 'image'
       });
     }
 
@@ -80,7 +96,7 @@ export default async function handler(req, res) {
     let imagePublicUrl = imageResult.imageUrl;
 
     if (saveLocally) {
-      const imageFileName = generateFileName('image', 'png');
+      const imageFileName = generateFileName('image', imageFormat, imageAspectRatio, imageModel);
       imageSaveResult = await downloadAndSaveFile(imageResult.imageUrl, imageFileName, 'generated');
       
       if (imageSaveResult.success) {
@@ -94,8 +110,8 @@ export default async function handler(req, res) {
     let finalVideoPrompt = baseVideoPrompt;
     let videoEnhancementResult = null;
 
-    if (enhanceWithAI) {
-      console.log(`🧠 Enhancing video prompt...`);
+    if (enhancePrompts) {
+      console.log(`🧠 Enhancing video prompt with ${enhancementModel}...`);
       videoEnhancementResult = await enhancePrompt(baseVideoPrompt, 'video', enhancementModel);
       
       if (videoEnhancementResult.success) {
@@ -111,9 +127,18 @@ export default async function handler(req, res) {
     finalVideoPrompt = enhancePromptForVideo(finalVideoPrompt, videoStyle);
     console.log(`⚡ Final video prompt: "${finalVideoPrompt}"`);
 
-    // PASO 5: Generar video
+    // PASO 5: Generar video con nuevos parámetros
+    const videoBaseImage = useImageAsBase ? imageResult.imageUrl : null;
     console.log(`🎬 Generating video with Veo 3...`);
-    const videoResult = await generateVideoWithVeo3(finalVideoPrompt, imageResult.imageUrl);
+    console.log(`📐 Video settings: ${videoAspectRatio}, ${videoDuration}`);
+    console.log(`🖼️ Using image as base: ${useImageAsBase ? 'YES' : 'NO'}`);
+    
+    const videoResult = await generateVideoWithVeo3(
+      finalVideoPrompt,
+      videoBaseImage,
+      videoAspectRatio,
+      videoDuration
+    );
 
     if (!videoResult.success) {
       // Retornar imagen exitosa pero video fallido
@@ -130,8 +155,7 @@ export default async function handler(req, res) {
             original: imagePrompt,
             final: finalImagePrompt
           }
-        },
-        analysis: analysis
+        }
       });
     }
 
@@ -142,7 +166,7 @@ export default async function handler(req, res) {
     let videoPublicUrl = videoResult.videoUrl;
 
     if (saveLocally) {
-      const videoFileName = generateFileName('video', 'mp4');
+      const videoFileName = generateFileName('video', 'mp4', videoAspectRatio);
       videoSaveResult = await downloadAndSaveFile(videoResult.videoUrl, videoFileName, 'videos');
       
       if (videoSaveResult.success) {
@@ -190,13 +214,28 @@ export default async function handler(req, res) {
           success: videoEnhancementResult.success
         } : null
       },
-      analysis: analysis,
+
       metadata: {
         timestamp: new Date().toISOString(),
         processingTimeMs: processingTime,
-        enhancementModel: enhanceWithAI ? enhancementModel : null,
+        enhancementModel: enhancePrompts ? enhancementModel : null,
+        
+        // 🎨 CONFIGURACIÓN DE IMAGEN
+        imageModel: imageModel,
+        imageAspectRatio: imageAspectRatio,
+        imageFormat: imageFormat,
+        
+        // 🎬 CONFIGURACIÓN DE VIDEO
         videoStyle: videoStyle,
-        analysisUsed: analyzePrompts
+        videoAspectRatio: videoAspectRatio,
+        videoDuration: videoDuration,
+        
+        // 🔄 WORKFLOW
+        useImageAsBase: useImageAsBase,
+        workflow: useImageAsBase ? 'image-to-video' : 'independent',
+        
+        // 🗑️ DEPRECATED (mantener compatibilidad)
+        analysisUsed: false  // Ya no se usa
       }
     };
 
