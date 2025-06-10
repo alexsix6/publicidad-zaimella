@@ -1,13 +1,10 @@
-<!-- AI Content Generator v2.1 - CACHE BUSTER 2025-01-10-15:30 -->
+<!-- Crear archivo: public/api-tester.html -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🧠 AI Content Generator v2.1 - Reasoning Models Edition</title>
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
+    <title>AI Content Generator - API Tester</title>
     <style>
         * {
             margin: 0;
@@ -45,20 +42,6 @@
         .header p {
             color: #666;
             font-size: 1.1rem;
-        }
-        
-        .version-info {
-            background: #e8f4fd;
-            border: 2px solid #3498db;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 30px;
-            text-align: center;
-        }
-        
-        .version-info h3 {
-            color: #2980b9;
-            margin-bottom: 10px;
         }
         
         .endpoints-grid {
@@ -135,20 +118,6 @@
         
         .checkbox-group input[type="checkbox"] {
             width: auto;
-        }
-        
-        .model-selector {
-            background: #f0f8ff;
-            border: 2px solid #4169E1;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 20px;
-        }
-        
-        .model-selector label {
-            color: #4169E1;
-            font-weight: bold;
-            margin-bottom: 10px;
         }
         
         .btn {
@@ -232,43 +201,59 @@
         
         .result-content {
             white-space: pre-wrap;
-            max-height: 300px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            max-height: 400px;
             overflow-y: auto;
-            margin-bottom: 15px;
         }
         
-        .media-preview img,
+        .media-preview {
+            margin-top: 15px;
+        }
+        
+        .media-preview img {
+            max-width: 100%;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+        
         .media-preview video {
             max-width: 100%;
-            height: auto;
-            border-radius: 8px;
-            margin-top: 10px;
+            border-radius: 10px;
         }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-ready { background: #28a745; }
+        .status-loading { background: #ffc107; }
+        .status-error { background: #dc3545; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🧠 AI Content Generator v2.1</h1>
-            <p>FLUX.1 Kontext Max + Veo 3 + Reasoning Models</p>
+            <h1>🎨 AI Content Generator</h1>
+            <p>Test your AI-powered image and video generation endpoints</p>
         </div>
         
-        <div class="version-info">
-            <h3>🆕 NEW: Ultra Low Cost Reasoning Models Available!</h3>
-            <p>✅ DeepSeek R1 • ✅ Gemini 2.5 Flash • ✅ GPT-o3 Mini • ✅ 500 char limit for Veo 3</p>
-        </div>
-
         <div class="endpoints-grid">
             <!-- ENDPOINT 1: Generate Image -->
             <div class="endpoint-card">
                 <div class="endpoint-title">
+                    <span class="status-indicator status-ready"></span>
                     🎨 Generate Image
                 </div>
                 
                 <form id="imageForm">
                     <div class="form-group">
                         <label for="imagePrompt">Prompt:</label>
-                        <textarea id="imagePrompt" placeholder="A beautiful sunset over majestic mountains..." required></textarea>
+                        <textarea id="imagePrompt" placeholder="A beautiful sunset over the mountains..." required></textarea>
                     </div>
                     
                     <div class="form-group">
@@ -278,33 +263,65 @@
                     
                     <div class="checkbox-group">
                         <input type="checkbox" id="imageEnhanceAI" checked>
-                        <label for="imageEnhanceAI">🧠 Enhance with AI</label>
+                        <label for="imageEnhanceAI">Enhance with AI</label>
                     </div>
                     
                     <div class="checkbox-group">
                         <input type="checkbox" id="imageSaveLocally" checked>
-                        <label for="imageSaveLocally">💾 Save locally</label>
+                        <label for="imageSaveLocally">Save locally</label>
                     </div>
                     
-                    <div class="model-selector">
-                        <label for="imageModel">🧠 Enhancement Model:</label>
+                    <div class="form-group">
+                        <label for="imageModel">Enhancement Model:</label>
                         <select id="imageModel">
                             <optgroup label="🚀 Ultra Low Cost (Recommended)">
-                                <option value="deepseek/deepseek-r1" selected>💎 DeepSeek R1 (Ultra Low Cost)</option>
-                                <option value="google/gemini-2.5-flash-preview-05-20">⚡ Gemini 2.5 Flash (Ultra Low Cost)</option>
-                                <option value="meta-llama/llama-3.1-8b-instruct">🦙 Llama 3.1 8B (Ultra Low Cost)</option>
+                                <option value="deepseek/deepseek-r1" selected>DeepSeek R1 (Ultra Low Cost)</option>
+                                <option value="google/gemini-2.5-flash-preview-05-20">Gemini 2.5 Flash (Ultra Low Cost)</option>
+                                <option value="meta-llama/llama-3.1-8b-instruct">Llama 3.1 8B (Ultra Low Cost)</option>
                             </optgroup>
                             <optgroup label="💰 Low Cost">
-                                <option value="openai/o3-mini">🔥 GPT-o3 Mini (Low Cost)</option>
+                                <option value="openai/o3-mini">GPT-o3 Mini (Low Cost)</option>
                             </optgroup>
                             <optgroup label="💎 Medium Cost">
-                                <option value="anthropic/claude-3.5-sonnet">🧠 Claude 3.5 Sonnet</option>
-                                <option value="openai/o1-mini">⭐ GPT-o1 Mini</option>
+                                <option value="anthropic/claude-3.5-sonnet">Claude 3.5 Sonnet</option>
+                                <option value="openai/gpt-4o">GPT-4o</option>
+                                <option value="openai/o1-mini">GPT-o1 Mini</option>
+                                <option value="meta-llama/llama-3.2-90b-vision-instruct">Llama 3.2 90B</option>
                             </optgroup>
                         </select>
                     </div>
                     
-                    <button type="submit" class="btn" id="imageBtn">🎨 Generate Image</button>
+                    <div class="form-group">
+                        <label for="imageGenerationModel">Image Generation Model:</label>
+                        <select id="imageGenerationModel">
+                            <option value="base">FLUX.1 Kontext Max (Base)</option>
+                            <option value="alexseis">AlexSeis Custom Model</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="imageAspectRatio">Aspect Ratio:</label>
+                        <select id="imageAspectRatio">
+                            <option value="1:1">1:1 - Instagram Post, Facebook</option>
+                            <option value="4:5">4:5 - Instagram Feed</option>
+                            <option value="9:16">9:16 - Stories, TikTok, Reels</option>
+                            <option value="16:9" selected>16:9 - YouTube, Twitter</option>
+                            <option value="1.91:1">1.91:1 - Facebook/LinkedIn Post</option>
+                            <option value="2:3">2:3 - Pinterest</option>
+                            <option value="21:9">21:9 - Cinematic</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="imageOutputFormat">Output Format:</label>
+                        <select id="imageOutputFormat">
+                            <option value="png" selected>PNG - High Quality</option>
+                            <option value="jpg">JPG - Smaller Size</option>
+                            <option value="webp">WebP - Modern Format</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn" id="imageBtn">Generate Image</button>
                 </form>
                 
                 <div class="loading" id="imageLoading">
@@ -321,6 +338,7 @@
             <!-- ENDPOINT 2: Generate Video -->
             <div class="endpoint-card">
                 <div class="endpoint-title">
+                    <span class="status-indicator status-ready"></span>
                     🎬 Generate Video
                 </div>
                 
@@ -338,9 +356,27 @@
                     <div class="form-group">
                         <label for="videoStyle">Video Style:</label>
                         <select id="videoStyle">
-                            <option value="cinematic">🎬 Cinematic</option>
-                            <option value="viral">📱 Viral</option>
-                            <option value="artistic">🎨 Artistic</option>
+                            <option value="cinematic">Cinematic</option>
+                            <option value="viral">Viral</option>
+                            <option value="artistic">Artistic</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="videoAspectRatio">Video Aspect Ratio:</label>
+                        <select id="videoAspectRatio">
+                            <option value="1:1">1:1 - Instagram Post</option>
+                            <option value="9:16">9:16 - Stories, TikTok, Reels</option>
+                            <option value="16:9" selected>16:9 - YouTube, Landscape</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="videoDuration">Video Duration:</label>
+                        <select id="videoDuration">
+                            <option value="5s">5 seconds</option>
+                            <option value="8s" selected>8 seconds</option>
+                            <option value="10s">10 seconds</option>
                         </select>
                     </div>
                     
@@ -351,33 +387,33 @@
                     
                     <div class="checkbox-group">
                         <input type="checkbox" id="videoUtilsEnhancement" checked>
-                        <label for="videoUtilsEnhancement">⚙️ Technical Enhancement</label>
+                        <label for="videoUtilsEnhancement">Technical Enhancement</label>
                     </div>
                     
-                    <div class="model-selector">
-                        <label for="videoModel">🧠 Enhancement Model:</label>
+                    <div class="form-group">
+                        <label for="videoModel">Enhancement Model:</label>
                         <select id="videoModel">
                             <optgroup label="🚀 Ultra Low Cost (Recommended)">
-                                <option value="deepseek/deepseek-r1" selected>💎 DeepSeek R1 (Ultra Low Cost)</option>
-                                <option value="google/gemini-2.5-flash-preview-05-20">⚡ Gemini 2.5 Flash (Ultra Low Cost)</option>
-                                <option value="meta-llama/llama-3.1-8b-instruct">🦙 Llama 3.1 8B (Ultra Low Cost)</option>
+                                <option value="deepseek/deepseek-r1" selected>DeepSeek R1 (Ultra Low Cost)</option>
+                                <option value="google/gemini-2.5-flash-preview-05-20">Gemini 2.5 Flash (Ultra Low Cost)</option>
+                                <option value="meta-llama/llama-3.1-8b-instruct">Llama 3.1 8B (Ultra Low Cost)</option>
                             </optgroup>
                             <optgroup label="💰 Low Cost">
-                                <option value="openai/o3-mini">🔥 GPT-o3 Mini (Low Cost)</option>
+                                <option value="openai/o3-mini">GPT-o3 Mini (Low Cost)</option>
                             </optgroup>
                             <optgroup label="💎 Medium Cost">
-                                <option value="anthropic/claude-3.5-sonnet">🧠 Claude 3.5 Sonnet</option>
-                                <option value="openai/o1-mini">⭐ GPT-o1 Mini</option>
+                                <option value="anthropic/claude-3.5-sonnet">Claude 3.5 Sonnet</option>
+                                <option value="openai/o1-mini">GPT-o1 Mini</option>
                             </optgroup>
                         </select>
                     </div>
                     
                     <div class="checkbox-group">
                         <input type="checkbox" id="videoSaveLocally" checked>
-                        <label for="videoSaveLocally">💾 Save locally</label>
+                        <label for="videoSaveLocally">Save locally</label>
                     </div>
                     
-                    <button type="submit" class="btn" id="videoBtn">🎬 Generate Video</button>
+                    <button type="submit" class="btn" id="videoBtn">Generate Video</button>
                 </form>
                 
                 <div class="loading" id="videoLoading">
@@ -394,6 +430,7 @@
             <!-- ENDPOINT 3: Generate Complete -->
             <div class="endpoint-card" style="grid-column: 1 / -1;">
                 <div class="endpoint-title">
+                    <span class="status-indicator status-ready"></span>
                     🎯 Generate Complete (Image + Video)
                 </div>
                 
@@ -413,36 +450,36 @@
                             <div class="form-group">
                                 <label for="completeVideoStyle">Video Style:</label>
                                 <select id="completeVideoStyle">
-                                    <option value="cinematic">🎬 Cinematic</option>
-                                    <option value="viral">📱 Viral</option>
-                                    <option value="artistic">🎨 Artistic</option>
+                                    <option value="cinematic">Cinematic</option>
+                                    <option value="viral">Viral</option>
+                                    <option value="artistic">Artistic</option>
                                 </select>
                             </div>
                             
                             <div class="checkbox-group">
                                 <input type="checkbox" id="completeEnhanceAI" checked>
-                                <label for="completeEnhanceAI">🧠 Enhance with AI</label>
+                                <label for="completeEnhanceAI">Enhance with AI</label>
                             </div>
                             
                             <div class="checkbox-group">
                                 <input type="checkbox" id="completeAnalyzePrompts">
-                                <label for="completeAnalyzePrompts">🔍 Analyze prompts</label>
+                                <label for="completeAnalyzePrompts">Analyze prompts</label>
                             </div>
                             
-                            <div class="model-selector">
-                                <label for="completeEnhancementModel">🧠 Enhancement Model:</label>
+                            <div class="form-group">
+                                <label for="completeEnhancementModel">Enhancement Model:</label>
                                 <select id="completeEnhancementModel">
                                     <optgroup label="🚀 Ultra Low Cost (Recommended)">
-                                        <option value="deepseek/deepseek-r1" selected>💎 DeepSeek R1 (Ultra Low Cost)</option>
-                                        <option value="google/gemini-2.5-flash-preview-05-20">⚡ Gemini 2.5 Flash (Ultra Low Cost)</option>
-                                        <option value="meta-llama/llama-3.1-8b-instruct">🦙 Llama 3.1 8B (Ultra Low Cost)</option>
+                                        <option value="deepseek/deepseek-r1" selected>DeepSeek R1 (Ultra Low Cost)</option>
+                                        <option value="google/gemini-2.5-flash-preview-05-20">Gemini 2.5 Flash (Ultra Low Cost)</option>
+                                        <option value="meta-llama/llama-3.1-8b-instruct">Llama 3.1 8B (Ultra Low Cost)</option>
                                     </optgroup>
                                     <optgroup label="💰 Low Cost">
-                                        <option value="openai/o3-mini">🔥 GPT-o3 Mini (Low Cost)</option>
+                                        <option value="openai/o3-mini">GPT-o3 Mini (Low Cost)</option>
                                     </optgroup>
                                     <optgroup label="💎 Medium Cost">
-                                        <option value="anthropic/claude-3.5-sonnet">🧠 Claude 3.5 Sonnet</option>
-                                        <option value="openai/o1-mini">⭐ GPT-o1 Mini</option>
+                                        <option value="anthropic/claude-3.5-sonnet">Claude 3.5 Sonnet</option>
+                                        <option value="openai/o1-mini">GPT-o1 Mini</option>
                                     </optgroup>
                                 </select>
                             </div>
@@ -450,26 +487,26 @@
                             <div class="form-group">
                                 <label for="completeAnalysisType">Analysis Type:</label>
                                 <select id="completeAnalysisType">
-                                    <option value="creative">🎨 Creative</option>
-                                    <option value="technical">⚙️ Technical</option>
-                                    <option value="marketing">📈 Marketing</option>
+                                    <option value="creative">Creative</option>
+                                    <option value="technical">Technical</option>
+                                    <option value="marketing">Marketing</option>
                                 </select>
                             </div>
                             
-                            <div class="model-selector">
-                                <label for="completeAnalysisModel">🔍 Analysis Model:</label>
+                            <div class="form-group">
+                                <label for="completeAnalysisModel">Analysis Model:</label>
                                 <select id="completeAnalysisModel">
                                     <optgroup label="🚀 Ultra Low Cost (Recommended)">
-                                        <option value="deepseek/deepseek-r1" selected>💎 DeepSeek R1 (Ultra Low Cost)</option>
-                                        <option value="google/gemini-2.5-flash-preview-05-20">⚡ Gemini 2.5 Flash (Ultra Low Cost)</option>
+                                        <option value="deepseek/deepseek-r1" selected>DeepSeek R1 (Ultra Low Cost)</option>
+                                        <option value="google/gemini-2.5-flash-preview-05-20">Gemini 2.5 Flash (Ultra Low Cost)</option>
                                     </optgroup>
                                     <optgroup label="💰 Low Cost">
-                                        <option value="openai/o3-mini">🔥 GPT-o3 Mini (Low Cost)</option>
+                                        <option value="openai/o3-mini">GPT-o3 Mini (Low Cost)</option>
                                     </optgroup>
                                 </select>
                             </div>
                             
-                            <button type="submit" class="btn" id="completeBtn">🎯 Generate Complete</button>
+                            <button type="submit" class="btn" id="completeBtn">Generate Complete</button>
                         </form>
                     </div>
                     
@@ -499,7 +536,7 @@
             document.getElementById(loadingId).classList.remove('show');
         }
         
-        function showResult(resultId, content, type = 'success', mediaUrl = null, mediaType = null) {
+        function showResult(resultId, content, type = 'success', mediaUrl = null, mediaType = null, downloadData = null, regenerateData = null) {
             const resultEl = document.getElementById(resultId);
             const contentEl = document.getElementById(resultId + 'Content');
             const previewEl = document.getElementById(resultId.replace('Result', 'Preview'));
@@ -510,9 +547,54 @@
             // Show media preview if available
             if (mediaUrl && previewEl) {
                 if (mediaType === 'image') {
-                    previewEl.innerHTML = `<img src="${mediaUrl}" alt="Generated image">`;
+                    const actionButtons = downloadData ? `
+                        <div style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
+                            <button onclick="downloadImageFixed('${mediaUrl}', '${downloadData.filename}')" 
+                                    class="btn" style="background: #28a745; font-size: 14px; padding: 10px 16px;">
+                                📥 Download ${downloadData.format.toUpperCase()} (${downloadData.aspectRatio})
+                            </button>
+                            <button onclick="regenerateImage()" 
+                                    class="btn" style="background: #007bff; font-size: 14px; padding: 10px 16px;">
+                                🔄 Regenerate
+                            </button>
+                            <button onclick="useForVideo('${mediaUrl}')" 
+                                    class="btn" style="background: #6f42c1; font-size: 14px; padding: 10px 16px;">
+                                🎬 Use for Video
+                            </button>
+                        </div>
+                        <div style="margin-top: 10px; padding: 10px; background: #f8f9fa; border-radius: 5px; font-size: 12px; color: #6c757d;">
+                            💡 Preview your image above, then download if satisfied or regenerate for a new version
+                        </div>
+                    ` : '';
+                    
+                    previewEl.innerHTML = `
+                        <div style="border: 2px solid #dee2e6; border-radius: 10px; padding: 10px; background: white;">
+                            <img src="${mediaUrl}" alt="Generated image" style="width: 100%; max-width: 500px; height: auto; border-radius: 8px;">
+                        </div>
+                        ${actionButtons}
+                    `;
                 } else if (mediaType === 'video') {
-                    previewEl.innerHTML = `<video controls src="${mediaUrl}">Your browser does not support video.</video>`;
+                    const actionButtons = downloadData ? `
+                        <div style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
+                            <button onclick="downloadVideoFixed('${mediaUrl}', '${downloadData.filename}')" 
+                                    class="btn" style="background: #28a745; font-size: 14px; padding: 10px 16px;">
+                                📥 Download MP4 (${downloadData.aspectRatio})
+                            </button>
+                            <button onclick="regenerateVideo()" 
+                                    class="btn" style="background: #007bff; font-size: 14px; padding: 10px 16px;">
+                                🔄 Regenerate Video
+                            </button>
+                        </div>
+                    ` : '';
+                    
+                    previewEl.innerHTML = `
+                        <div style="border: 2px solid #dee2e6; border-radius: 10px; padding: 10px; background: white;">
+                            <video controls src="${mediaUrl}" style="width: 100%; max-width: 500px; border-radius: 8px;">
+                                Your browser does not support video.
+                            </video>
+                        </div>
+                        ${actionButtons}
+                    `;
                 }
             }
         }
@@ -536,6 +618,145 @@
             };
         }
         
+        // Variables globales para regeneración
+        let lastImageData = null;
+        let lastVideoData = null;
+        
+        // Funciones de descarga mejoradas con CORS fix
+        async function downloadImageFixed(imageUrl, filename) {
+            try {
+                // Usar proxy para evitar CORS issues
+                const proxyUrl = `/api/download-proxy?url=${encodeURIComponent(imageUrl)}`;
+                const response = await fetch(proxyUrl);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const blob = await response.blob();
+                
+                // Verificar que el blob tiene contenido
+                if (blob.size === 0) {
+                    throw new Error('Downloaded file is empty');
+                }
+                
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                
+                // Cleanup
+                setTimeout(() => {
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                }, 100);
+                
+            } catch (error) {
+                console.error('Error downloading image:', error);
+                
+                // Fallback: abrir en nueva ventana
+                const fallbackMessage = `Download failed. Opening image in new tab.\n\nError: ${error.message}\n\nTip: Right-click on the image and select "Save image as..."`;
+                alert(fallbackMessage);
+                window.open(imageUrl, '_blank');
+            }
+        }
+        
+        async function downloadVideoFixed(videoUrl, filename) {
+            try {
+                // Similar al de imagen pero para video
+                const proxyUrl = `/api/download-proxy?url=${encodeURIComponent(videoUrl)}`;
+                const response = await fetch(proxyUrl);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const blob = await response.blob();
+                
+                if (blob.size === 0) {
+                    throw new Error('Downloaded file is empty');
+                }
+                
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                
+                setTimeout(() => {
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                }, 100);
+                
+            } catch (error) {
+                console.error('Error downloading video:', error);
+                
+                const fallbackMessage = `Video download failed. Opening in new tab.\n\nError: ${error.message}\n\nTip: Right-click on the video and select "Save video as..."`;
+                alert(fallbackMessage);
+                window.open(videoUrl, '_blank');
+            }
+        }
+        
+        // Funciones de regeneración
+        function regenerateImage() {
+            if (lastImageData) {
+                // Regenerar con mismo prompt pero nueva seed
+                document.getElementById('imageBtn').click();
+            } else {
+                alert('No image data available for regeneration. Please generate an image first.');
+            }
+        }
+        
+        function regenerateVideo() {
+            if (lastVideoData) {
+                // Regenerar video con mismos parámetros
+                document.getElementById('videoBtn').click();
+            } else {
+                alert('No video data available for regeneration. Please generate a video first.');
+            }
+        }
+        
+        // Función para usar imagen en video
+        function useForVideo(imageUrl) {
+            // Auto-llenar el campo de imagen base para video
+            document.getElementById('videoImageUrl').value = imageUrl;
+            
+            // Scroll suave al formulario de video
+            document.getElementById('videoForm').scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start' 
+            });
+            
+            // Resaltar temporalmente el campo
+            const videoImageField = document.getElementById('videoImageUrl');
+            videoImageField.style.border = '3px solid #6f42c1';
+            videoImageField.style.boxShadow = '0 0 10px rgba(111, 66, 193, 0.3)';
+            
+            setTimeout(() => {
+                videoImageField.style.border = '';
+                videoImageField.style.boxShadow = '';
+            }, 3000);
+            
+            alert('✅ Image URL copied to video generator!\n\nScroll down to the video section and add your video prompt.');
+        }
+        
+        // Función para generar nombres de archivo únicos
+        function generateFileName(type, format, aspectRatio, model = '') {
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-').split('T');
+            const date = timestamp[0];
+            const time = timestamp[1].split('.')[0];
+            
+            const modelPrefix = model === 'alexseis' ? 'AlexSeis_' : 'FLUX_';
+            const aspectPrefix = aspectRatio.replace(':', 'x');
+            
+            return `${modelPrefix}${type}_${aspectPrefix}_${date}_${time}.${format}`;
+        }
+        
         // Image generation handler
         document.getElementById('imageForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -551,13 +772,28 @@
                     inputImage: document.getElementById('imageInputImage').value || null,
                     enhanceWithAI: document.getElementById('imageEnhanceAI').checked,
                     saveLocally: document.getElementById('imageSaveLocally').checked,
-                    enhancementModel: document.getElementById('imageModel').value
+                    enhancementModel: document.getElementById('imageModel').value,
+                    model: document.getElementById('imageGenerationModel').value,
+                    aspectRatio: document.getElementById('imageAspectRatio').value,
+                    outputFormat: document.getElementById('imageOutputFormat').value
                 };
                 
                 const result = await makeRequest('generate-image', data);
                 
                 if (result.status === 200 && result.data.success) {
-                    showResult('imageResult', result.data, 'success', result.data.publicUrl || result.data.imageUrl, 'image');
+                    // Guardar datos para regeneración
+                    lastImageData = { ...data };
+                    
+                    // Preparar datos de descarga
+                    const downloadData = {
+                        filename: generateFileName('image', data.outputFormat, data.aspectRatio, data.model),
+                        format: data.outputFormat,
+                        aspectRatio: data.aspectRatio
+                    };
+                    
+                    showResult('imageResult', result.data, 'success', 
+                              result.data.publicUrl || result.data.imageUrl, 
+                              'image', downloadData);
                 } else {
                     showResult('imageResult', result.data, 'error');
                 }
@@ -587,13 +823,27 @@
                     enhanceWithAI: document.getElementById('videoEnhanceAI').checked,
                     enhancementModel: document.getElementById('videoModel').value,
                     useUtilsEnhancement: document.getElementById('videoUtilsEnhancement').checked,
-                    saveLocally: document.getElementById('videoSaveLocally').checked
+                    saveLocally: document.getElementById('videoSaveLocally').checked,
+                    aspectRatio: document.getElementById('videoAspectRatio').value,
+                    duration: document.getElementById('videoDuration').value
                 };
                 
                 const result = await makeRequest('generate-video', data);
                 
                 if (result.status === 200 && result.data.success) {
-                    showResult('videoResult', result.data, 'success', result.data.publicUrl || result.data.videoUrl, 'video');
+                    // Guardar datos para regeneración
+                    lastVideoData = { ...data };
+                    
+                    // Preparar datos de descarga para video
+                    const downloadData = {
+                        filename: generateFileName('video', 'mp4', data.aspectRatio),
+                        aspectRatio: data.aspectRatio,
+                        duration: data.duration
+                    };
+                    
+                    showResult('videoResult', result.data, 'success', 
+                              result.data.publicUrl || result.data.videoUrl, 
+                              'video', downloadData);
                 } else {
                     showResult('videoResult', result.data, 'error');
                 }
@@ -661,16 +911,7 @@
                 btn.disabled = false;
             }
         });
-        
-        // Log model selection changes for debugging
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('🧠 Reasoning Models Loaded Successfully!');
-            console.log('Available models:', {
-                image: document.getElementById('imageModel').options.length,
-                video: document.getElementById('videoModel').options.length,
-                complete: document.getElementById('completeEnhancementModel').options.length
-            });
-        });
     </script>
 </body>
-</html> 
+</html>
+
