@@ -1,0 +1,78 @@
+{
+  "profile": {
+    "id": "example_agency_1734624619000",
+    "name": "Marketing Agency Premium",
+    "description": "Professional marketing agency profile with modern, clean aesthetic and brand consistency",
+    "version": "1.0.0",
+    "created": "2024-12-19T17:30:19.000Z",
+    "updated": "2024-12-19T17:30:19.000Z"
+  },
+  "context": {
+    "user_preferences": {
+      "style": "modern minimalist",
+      "mood": "professional",
+      "color_palette": ["#2563eb", "#f8fafc", "#1e293b", "#64748b"],
+      "lighting": "soft natural",
+      "composition": "rule of thirds",
+      "avoid": ["cluttered", "outdated", "amateur", "low quality"]
+    },
+    "project_context": {
+      "theme": "corporate excellence",
+      "target_audience": "business professionals",
+      "industry": "marketing and advertising",
+      "use_case": "client presentations and social media"
+    },
+    "technical_preferences": {
+      "quality": "ultra-high",
+      "aspect_ratio": "16:9",
+      "output_format": "png",
+      "model_preference": "pro-ultra"
+    },
+    "brand_guidelines": {
+      "values": ["innovation", "professionalism", "reliability", "creativity"],
+      "tone": "confident and approachable",
+      "visual_elements": ["clean lines", "geometric shapes", "premium typography"],
+      "brand_colors": ["corporate blue", "clean white", "sophisticated gray"]
+    }
+  },
+  "memory": {
+    "successful_prompts": [
+      {
+        "prompt": "modern office building with glass facade, professional lighting",
+        "timestamp": "2024-12-19T17:25:00.000Z",
+        "result_quality": 9,
+        "user_feedback": "Perfect for corporate presentation"
+      },
+      {
+        "prompt": "business team collaboration in modern workspace",
+        "timestamp": "2024-12-19T17:20:00.000Z",
+        "result_quality": 8,
+        "user_feedback": "Great composition and lighting"
+      }
+    ],
+    "learned_patterns": {
+      "effective_keywords": ["professional", "modern", "clean", "premium", "corporate"],
+      "style_combinations": [
+        "modern + minimalist = clean professional look",
+        "soft lighting + rule of thirds = engaging composition"
+      ]
+    },
+    "usage_stats": {
+      "total_generations": 15,
+      "success_rate": 87,
+      "last_used": "2024-12-19T17:25:00.000Z"
+    }
+  },
+  "relationships": {
+    "semantic_connections": {
+      "professional": ["corporate", "business", "executive", "premium"],
+      "modern": ["contemporary", "sleek", "minimalist", "clean"],
+      "marketing": ["advertising", "branding", "campaign", "creative"]
+    },
+    "style_associations": {
+      "minimalist": ["clean lines", "white space", "simple"],
+      "corporate": ["professional", "business", "formal"],
+      "premium": ["high-end", "luxury", "quality", "sophisticated"]
+    }
+  }
+} 
