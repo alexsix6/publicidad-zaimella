@@ -1,0 +1,64 @@
+{
+  "profile": {
+    "id": "l_nea_premium_skincare_org_nico_1755460324973",
+    "name": "Línea Premium Skincare Orgánico",
+    "description": "Perfil de contexto para línea de productos de cuidado personal orgánico premium dirigida a consumidores conscientes del medio ambiente",
+    "version": "1.0.0",
+    "created": "2025-08-17T19:52:04.973Z",
+    "updated": "2025-08-17T19:52:04.973Z"
+  },
+  "context": {
+    "user_preferences": {
+      "style": "clean product photography",
+      "mood": "professional and trustworthy",
+      "language": "es"
+    },
+    "project_context": {
+      "theme": "product photography",
+      "target_audience": "general consumers",
+      "industry": "consumer goods"
+    },
+    "technical_preferences": {
+      "quality": "ultra-high",
+      "aspect_ratio": "1:1",
+      "color_accuracy": "high"
+    },
+    "brand_guidelines": {
+      "primary_colors": [
+        "#2E5D31",
+        "#F8F9FA",
+        "#E8F5E8"
+      ],
+      "secondary_colors": [
+        "#8FBC8F",
+        "#D4E6D4"
+      ],
+      "typography": "Montserrat, Open Sans",
+      "style": "Minimalista, natural, premium",
+      "tone": "Confiable, auténtico, consciente"
+    },
+    "product_specifications": {},
+    "validation_rules": {
+      "must_include": [],
+      "forbidden": [],
+      "tolerance": {
+        "color": "ΔE < 2",
+        "dimensions_mm": "±1 mm"
+      }
+    },
+    "reference_assets": {}
+  },
+  "memory": {
+    "successful_prompts": [],
+    "learned_patterns": {},
+    "usage_stats": {
+      "total_generations": 0,
+      "success_rate": 0,
+      "last_used": null
+    }
+  },
+  "relationships": {
+    "semantic_connections": {},
+    "style_associations": {}
+  }
+}

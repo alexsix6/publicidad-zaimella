@@ -1,0 +1,39 @@
+{
+  "id": "real-estate",
+  "name": "Real Estate",
+  "keywords": [
+    "property",
+    "house",
+    "home",
+    "apartment",
+    "real estate",
+    "buy",
+    "sell",
+    "rent",
+    "investment"
+  ],
+  "targetAudience": "Property buyers, sellers, and investors",
+  "keyMessaging": [
+    "prime locations",
+    "investment opportunity",
+    "dream home",
+    "professional service"
+  ],
+  "visualStyle": "architectural photography, warm lighting, lifestyle imagery",
+  "optimalPlatforms": [
+    "facebook",
+    "instagram",
+    "linkedin"
+  ],
+  "bestPractices": [
+    "Professional property photography",
+    "Virtual tours and 360° views",
+    "Local market expertise emphasis",
+    "Testimonials from satisfied clients"
+  ],
+  "trends": [
+    "Virtual reality property tours",
+    "Drone photography for exteriors",
+    "Smart home technology highlights"
+  ]
+}

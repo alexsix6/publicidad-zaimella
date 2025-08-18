@@ -1,0 +1,97 @@
+{
+  "name": "@publicidad-zaimella/mcp-content-generator",
+  "version": "1.0.0",
+  "description": "MCP server for conversational AI-driven content generation",
+  "type": "module",
+  "main": "server.js",
+  "bin": {
+    "publicidad-zaimella-mcp": "./server.js"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "test": "node tests/test-mcp-local.js",
+    "test:veo3": "node tests/test-veo3-integration.js",
+    "test:watch": "nodemon tests/test-mcp-local.js",
+    "dev": "nodemon server.js",
+    "validate": "node -c server.js",
+    "health": "node -e \"import('./adapters/api-bridge.js').then(m => new m.ApiBridge().healthCheck()).then(console.log)\"",
+    "stats": "node -e \"import('./tools/niche-manager.js').then(m => { const nm = new m.NicheManager(); nm.initialize().then(() => console.log(nm.getNicheStats())); })\"",
+    "veo3:templates": "node -e \"import('./tools/scene-composer.js').then(m => { const sc = new m.SceneComposer(); sc.initialize().then(() => console.log(JSON.stringify(sc.getVeo3Templates(), null, 2))); })\""
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "ai",
+    "content-generation",
+    "claude",
+    "openai",
+    "image-generation",
+    "video-generation",
+    "marketing",
+    "automation"
+  ],
+  "author": "Publicidad Zaimella Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^0.6.0",
+    "@qdrant/qdrant-js": "^1.15.1",
+    "node-cache": "^5.1.2",
+    "axios": "^1.6.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.0"
+  },
+  "peerDependencies": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/publicidad-zaimella/mcp-content-generator.git"
+  },
+  "bugs": {
+    "url": "https://github.com/publicidad-zaimella/mcp-content-generator/issues"
+  },
+  "homepage": "https://github.com/publicidad-zaimella/mcp-content-generator#readme",
+  "mcp": {
+    "server": {
+      "name": "publicidad-zaimella-content-generator",
+      "version": "1.0.0",
+      "description": "Content generation MCP server",
+      "command": "node",
+      "args": ["server.js"],
+      "env": {
+        "NODE_ENV": "production"
+      }
+    },
+    "tools": [
+      {
+        "name": "generate_complete_content",
+        "description": "Generate complete content package (copy + image + video)"
+      },
+      {
+        "name": "analyze_content_context", 
+        "description": "Analyze content brief and suggest parameters"
+      },
+      {
+        "name": "get_niche_insights",
+        "description": "Get industry-specific insights"
+      },
+      {
+        "name": "check_cache_status",
+        "description": "Check semantic cache for similar content"
+      }
+    ]
+  },
+  "files": [
+    "server.js",
+    "tools/",
+    "adapters/",
+    "config/",
+    "niches/",
+    "package.json",
+    "README.md"
+  ]
+}

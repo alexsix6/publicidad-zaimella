@@ -1,0 +1,39 @@
+{
+  "id": "e-commerce",
+  "name": "E-commerce",
+  "keywords": [
+    "shop",
+    "buy",
+    "product",
+    "sale",
+    "discount",
+    "store",
+    "online",
+    "retail",
+    "purchase"
+  ],
+  "targetAudience": "Online shoppers and consumers",
+  "keyMessaging": [
+    "quality products",
+    "competitive prices",
+    "fast shipping",
+    "customer satisfaction"
+  ],
+  "visualStyle": "clean product photography, bright colors, lifestyle contexts",
+  "optimalPlatforms": [
+    "instagram",
+    "facebook",
+    "tiktok"
+  ],
+  "bestPractices": [
+    "High-quality product images with multiple angles",
+    "Clear pricing and shipping information",
+    "Customer reviews and social proof",
+    "Easy checkout process promotion"
+  ],
+  "trends": [
+    "Social commerce integration",
+    "AR/VR product visualization",
+    "Sustainable and eco-friendly messaging"
+  ]
+}

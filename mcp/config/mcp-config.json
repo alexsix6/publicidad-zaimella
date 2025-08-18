@@ -1,0 +1,128 @@
+{
+  "mcpVersion": "0.6.0",
+  "server": {
+    "name": "publicidad-zaimella-content-generator",
+    "version": "1.0.0",
+    "description": "Content generation MCP server for Publicidad Zaimella",
+    "author": "Publicidad Zaimella Team",
+    "license": "MIT"
+  },
+  "capabilities": {
+    "tools": {
+      "generate_complete_content": {
+        "description": "Generate complete content package (copy + image + video)",
+        "timeout": 360000,
+        "retries": 2
+      },
+      "analyze_content_context": {
+        "description": "Analyze content brief and suggest parameters",
+        "timeout": 30000,
+        "retries": 1
+      },
+      "get_niche_insights": {
+        "description": "Get industry-specific insights",
+        "timeout": 10000,
+        "retries": 1
+      },
+      "check_cache_status": {
+        "description": "Check semantic cache for similar content",
+        "timeout": 15000,
+        "retries": 1
+      }
+    }
+  },
+  "settings": {
+    "caching": {
+      "enabled": true,
+      "ttl": 300,
+      "semanticCaching": true,
+      "similarityThreshold": 0.85
+    },
+    "generation": {
+      "defaultNiche": "marketing-agency",
+      "defaultPlatforms": ["instagram"],
+      "defaultVoicePreference": "generic",
+      "defaultContextGathering": "hybrid",
+      "maxRetries": 3,
+      "timeouts": {
+        "image": 180000,
+        "video": 300000,
+        "complete": 360000
+      }
+    },
+    "platforms": {
+      "supported": ["instagram", "tiktok", "linkedin", "x-twitter", "facebook"],
+      "defaultFormats": {
+        "instagram": "post",
+        "tiktok": "video",
+        "linkedin": "post",
+        "x-twitter": "post",
+        "facebook": "post"
+      }
+    },
+    "niches": {
+      "supported": ["marketing-agency", "e-commerce", "real-estate", "fitness", "food-beverage", "auto"],
+      "autoDetection": true,
+      "learningEnabled": true
+    }
+  },
+  "integrations": {
+    "qdrant": {
+      "enabled": true,
+      "url": "http://localhost:6333",
+      "collection": "content_cache",
+      "gracefulDegradation": true
+    },
+    "existingAPIs": {
+      "baseUrl": "http://localhost:3000",
+      "endpoints": {
+        "generateImage": "/api/generate-image",
+        "generateVideo": "/api/generate-video",
+        "generateComplete": "/api/generate-complete",
+        "contextProfiles": "/api/context-profiles"
+      },
+      "timeout": 300000,
+      "retries": 2
+    }
+  },
+  "logging": {
+    "level": "info",
+    "enableConsole": true,
+    "enableFile": false,
+    "logFile": "./logs/mcp-server.log",
+    "includeTimestamps": true,
+    "includeMetadata": true
+  },
+  "security": {
+    "rateLimiting": {
+      "enabled": false,
+      "maxRequestsPerMinute": 10
+    },
+    "validation": {
+      "strictMode": false,
+      "sanitizeInputs": true
+    }
+  },
+  "performance": {
+    "concurrentGenerations": 3,
+    "cacheWarmup": false,
+    "preloadNiches": true,
+    "optimizePrompts": true
+  },
+  "monitoring": {
+    "enabled": true,
+    "metrics": {
+      "responseTime": true,
+      "cacheHitRate": true,
+      "nicheAccuracy": true,
+      "generationSuccess": true
+    },
+    "alerts": {
+      "slowResponse": 30000,
+      "lowCacheHitRate": 0.5,
+      "highErrorRate": 0.1
+    }
+  }
+}
+
+

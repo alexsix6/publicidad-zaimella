@@ -1,0 +1,1050 @@
+/**
+ * Content Orchestrator - Main workflow engine for complete content generation
+ * Implements the 9-step pipeline: Context → Images → Video → Copy → Variants
+ */
+
+import { ApiBridge } from '../adapters/api-bridge.js';
+import { QdrantConnector } from '../adapters/qdrant-connector.js';
+import { NicheManager } from './niche-manager.js';
+import { SceneComposer } from './scene-composer.js';
+import { VariantGenerator } from './variant-generator.js';
+
+export class ContentOrchestrator {
+  constructor() {
+    this.apiBridge = new ApiBridge();
+    this.qdrantConnector = new QdrantConnector();
+    this.nicheManager = new NicheManager();
+    this.sceneComposer = new SceneComposer();
+    this.variantGenerator = new VariantGenerator();
+    
+    this.initialized = false;
+    this.currentSession = null;
+  }
+
+  async initialize(sessionConfig) {
+    if (!this.initialized) {
+      //console.log("Initializing Content Orchestrator...");
+      
+      // Initialize all components
+      await Promise.all([
+        this.apiBridge.initialize(),
+        this.qdrantConnector.initialize(),
+        this.nicheManager.initialize(),
+        this.sceneComposer.initialize(),
+        this.variantGenerator.initialize()
+      ]);
+      
+      this.initialized = true;
+      //console.log('✅ Content Orchestrator initialized');
+    }
+
+    // Set up current session
+    this.currentSession = {
+      id: this.generateSessionId(),
+      config: sessionConfig,
+      startTime: Date.now(),
+      steps: [],
+      results: {}
+    };
+
+    //console.log(`🎯 Session initialized: ${this.currentSession.id}`);
+    ////console.log(`📝 Brief: "${sessionConfig.brief}"`);
+    //console.log(`🏷️ Niche: ${sessionConfig.niche}`);
+    //console.log(`📱 Platforms: ${sessionConfig.platforms.join(', ')}`);
+  }
+
+  /**
+   * Execute complete content generation pipeline (9 steps)
+   */
+  async generateCompleteContent() {
+    if (!this.currentSession) {
+      throw new Error('Session not initialized. Call initialize() first.');
+    }
+
+    const session = this.currentSession;
+    const startTime = Date.now();
+
+    try {
+      //console.log('🚀 Starting complete content generation pipeline...');
+
+      // STEP 1: Context Gathering
+      await this.executeStep('context_gathering', async () => {
+        return await this.gatherContext(session.config);
+      });
+
+      // STEP 2: Cache Check
+      await this.executeStep('cache_check', async () => {
+        return await this.checkSemanticCache(session.config.brief);
+      });
+
+      // STEP 3: Niche Context Application
+      await this.executeStep('niche_context', async () => {
+        return await this.applyNicheContext(session.config.niche, session.results.context_gathering);
+      });
+
+      // STEP 4: Product Image Generation
+      await this.executeStep('product_image', async () => {
+        return await this.generateProductImage(session.results.niche_context);
+      });
+
+      // STEP 5: Avatar/Person Image Generation
+      await this.executeStep('avatar_image', async () => {
+        return await this.generateAvatarImage(session.results.niche_context, session.results.product_image);
+      });
+
+      // STEP 6: Video Scene Composition
+      await this.executeStep('video_generation', async () => {
+        return await this.generateVideoContent(
+          session.results.product_image,
+          session.results.avatar_image,
+          session.results.niche_context
+        );
+      });
+
+      // STEP 7: Copy Generation
+      await this.executeStep('copy_generation', async () => {
+        return await this.generateCopyContent(session.results.niche_context);
+      });
+
+      // STEP 8: Platform Variants
+      await this.executeStep('platform_variants', async () => {
+        return await this.generatePlatformVariants(
+          session.config.platforms,
+          session.results
+        );
+      });
+
+      // STEP 9: Cache Storage
+      await this.executeStep('cache_storage', async () => {
+        return await this.storeInSemanticCache(session.config.brief, session.results);
+      });
+
+      // Compile final results
+      const finalResults = this.compileFinalResults(session);
+      
+      //console.log(`🎉 Content generation completed in ${Date.now() - startTime}ms`);
+      return finalResults;
+
+    } catch (error) {
+      //console.error('❌ Content generation pipeline failed:', error);
+      throw new Error(`Pipeline failed at step ${session.steps.length}: ${error.message}`);
+    }
+  }
+
+  /**
+   * Execute a pipeline step with error handling and logging
+   */
+  async executeStep(stepName, stepFunction) {
+    const stepStartTime = Date.now();
+    //console.log(`📍 Executing step: ${stepName}`);
+
+    try {
+      const result = await stepFunction();
+      const duration = Date.now() - stepStartTime;
+      
+      this.currentSession.steps.push({
+        name: stepName,
+        status: 'completed',
+        duration,
+        timestamp: new Date().toISOString()
+      });
+
+      this.currentSession.results[stepName] = result;
+      ////console.log(`✅ Step ${stepName} completed in ${duration}ms`);
+      
+      return result;
+    } catch (error) {
+      const duration = Date.now() - stepStartTime;
+      
+      this.currentSession.steps.push({
+        name: stepName,
+        status: 'failed',
+        duration,
+        error: error.message,
+        timestamp: new Date().toISOString()
+      });
+
+      //console.error(`❌ Step ${stepName} failed after ${duration}ms:`, error.message);
+      throw error;
+    }
+  }
+
+  /**
+   * STEP 1: Context Gathering (Hybrid approach)
+   */
+  async gatherContext(config) {
+    const { brief, contextGathering = 'hybrid' } = config;
+    
+    //console.log(`🔍 Gathering context using ${contextGathering} approach`);
+
+    const context = {
+      originalBrief: brief,
+      gatheringMethod: contextGathering,
+      timestamp: new Date().toISOString()
+    };
+
+    switch (contextGathering) {
+      case 'proactive':
+        // Ask strategic questions upfront
+        context.questions = await this.generateProactiveQuestions(brief);
+        break;
+        
+      case 'reactive':
+        // Generate based on brief, ask questions as needed
+        context.assumptions = await this.generateReactiveAssumptions(brief);
+        break;
+        
+      case 'hybrid':
+      default:
+        // Combine both approaches
+        context.questions = await this.generateProactiveQuestions(brief);
+        context.assumptions = await this.generateReactiveAssumptions(brief);
+        break;
+    }
+
+    return context;
+  }
+
+  /**
+   * STEP 2: Semantic Cache Check
+   */
+  async checkSemanticCache(query) {
+    ////console.log(`💾 Checking semantic cache for: "${query}"`);
+    
+    const cacheResult = await this.qdrantConnector.searchSimilar(query, 0.85);
+    
+    if (cacheResult.found && cacheResult.reusable) {
+      //console.log(`🎯 Cache hit! Similarity: ${(cacheResult.score * 100).toFixed(1)}%`);
+      return {
+        hit: true,
+        similarity: cacheResult.score,
+        content: cacheResult.content,
+        metadata: cacheResult.metadata,
+        canReuse: true
+      };
+    }
+
+    //console.log('📝 No suitable cached content found, proceeding with fresh generation');
+    return { hit: false, canReuse: false };
+  }
+
+  /**
+   * STEP 3: Apply Niche Context
+   */
+  async applyNicheContext(niche, gatheredContext) {
+    //console.log(`🎯 Applying ${niche} niche context`);
+    
+    const nicheInsights = await this.nicheManager.getNicheInsights(niche);
+    const contextProfile = await this.nicheManager.getOptimalContextProfile(niche);
+    
+    return {
+      niche,
+      insights: nicheInsights,
+      contextProfile,
+      enhancedBrief: await this.enhanceBriefWithNiche(gatheredContext.originalBrief, nicheInsights),
+      targetAudience: nicheInsights.targetAudience,
+      keyMessaging: nicheInsights.keyMessaging,
+      visualStyle: nicheInsights.visualStyle
+    };
+  }
+
+  /**
+   * STEP 4: Product Image Generation
+   */
+  async generateProductImage(nicheContext) {
+    //console.log('🎨 Generating product image...');
+    
+    const productPrompt = await this.buildProductPrompt(nicheContext);
+    
+    const imageOptions = {
+      model: 'flux-kontext', // Máxima calidad para productos
+      aspectRatio: '1:1', // Square for product shots
+      enhanceWithAI: true,
+      contextProfileId: nicheContext.contextProfile?.id
+    };
+
+    const result = await this.apiBridge.generateImage(productPrompt, imageOptions);
+    
+    return {
+      type: 'product',
+      prompt: productPrompt,
+      ...result
+    };
+  }
+
+  /**
+   * STEP 5: Avatar/Person Image Generation
+   */
+  async generateAvatarImage(nicheContext, productImageResult = null) {
+    //console.log('👤 Generating avatar image...');
+    
+    const productImageRef = productImageResult?.localPath || null;
+    const avatarPrompt = await this.buildAvatarPrompt(nicheContext, productImageRef);
+    
+    // Detect if trained model is requested
+    const detectedModel = this.detectTrainedModel(nicheContext.enhancedBrief);
+    //console.log(`🎯 Detected model for avatar: ${detectedModel}`);
+    
+    const imageOptions = {
+      model: detectedModel, // Smart model selection
+      aspectRatio: '9:16', // Portrait for social
+      enhanceWithAI: true,
+      contextProfileId: nicheContext.contextProfile?.id
+    };
+
+    const result = await this.apiBridge.generateImage(avatarPrompt, imageOptions);
+    
+    return {
+      type: 'avatar',
+      prompt: avatarPrompt,
+      ...result
+    };
+  }
+
+  /**
+   * STEP 6: Video Scene Composition
+   */
+  async generateVideoContent(productImage, avatarImage, nicheContext) {
+    //console.log('🎬 Generating video content...');
+    
+    // Use SceneComposer to create video scenes
+    const sceneConfig = {
+      mode: 'presentation', // presentation, interaction, demonstration
+      productImage: productImage.publicUrl,
+      avatarImage: avatarImage.publicUrl,
+      niche: nicheContext.niche,
+      style: nicheContext.visualStyle
+    };
+
+    const videoScene = await this.sceneComposer.composeScene(sceneConfig);
+    
+    const videoOptions = {
+      imageUrl: productImage.replicateUrl || productImage.publicUrl, // Use Replicate URL for FAL access
+      videoStyle: 'cinematic',
+      aspectRatio: '16:9',
+      duration: '8s',
+      enhanceWithAI: true
+    };
+
+    const result = await this.apiBridge.generateVideo(videoScene.prompt, videoOptions);
+    
+    return {
+      scene: videoScene,
+      ...result
+    };
+  }
+
+  /**
+   * STEP 7: Copy Generation
+   */
+  async generateCopyContent(nicheContext) {
+    //console.log('📝 Generating copy content...');
+    
+    // Generate copy based on niche and context
+    const copyPrompt = this.buildCopyPrompt(nicheContext);
+    
+    // Use OpenRouter for copy generation (via existing enhancement system)
+    const copyResult = {
+      headline: await this.generateHeadline(nicheContext),
+      description: await this.generateDescription(nicheContext),
+      cta: await this.generateCTA(nicheContext),
+      hashtags: await this.generateHashtags(nicheContext)
+    };
+
+    return copyResult;
+  }
+
+  /**
+   * STEP 8: Platform Variants Generation
+   */
+  async generatePlatformVariants(platforms, sessionResults) {
+    //console.log(`📱 Generating variants for platforms: ${platforms.join(', ')}`);
+    
+    const variants = [];
+    
+    for (const platform of platforms) {
+      const variant = await this.variantGenerator.generateVariant(platform, {
+        images: [sessionResults.product_image, sessionResults.avatar_image],
+        video: sessionResults.video_generation,
+        copy: sessionResults.copy_generation,
+        niche: sessionResults.niche_context.niche
+      });
+      
+      variants.push(variant);
+    }
+
+    return variants;
+  }
+
+  /**
+   * STEP 9: Store in Semantic Cache
+   */
+  async storeInSemanticCache(originalQuery, results) {
+    //console.log('💾 Storing results in semantic cache...');
+    
+    const cacheContent = {
+      images: [results.product_image, results.avatar_image],
+      video: results.video_generation,
+      copy: results.copy_generation,
+      variants: results.platform_variants
+    };
+
+    const metadata = {
+      niche: results.niche_context.niche,
+      platforms: this.currentSession.config.platforms,
+      processingTime: Date.now() - this.currentSession.startTime,
+      assetsCount: 2 + 1 + results.platform_variants.length, // 2 images + 1 video + variants
+      sessionId: this.currentSession.id
+    };
+
+    await this.qdrantConnector.storeContent(originalQuery, cacheContent, metadata);
+    
+    return { stored: true, metadata };
+  }
+
+  /**
+   * Compile final results for return
+   */
+  compileFinalResults(session) {
+    const processingTime = Date.now() - session.startTime;
+    
+    return {
+      success: true,
+      sessionId: session.id,
+      images: [
+        session.results.product_image,
+        session.results.avatar_image
+      ],
+      video: session.results.video_generation,
+      copy: session.results.copy_generation,
+      variants: session.results.platform_variants,
+      metadata: {
+        processingTime,
+        nicheUsed: session.results.niche_context.niche,
+        cacheHit: session.results.cache_check.hit,
+        stepsCompleted: session.steps.length,
+        platforms: session.config.platforms,
+        voicePreference: session.config.voicePreference,
+        productImageRef: session.results.product_image?.localPath || null
+      }
+    };
+  }
+
+  // Helper methods for prompt building
+  async buildProductPrompt(nicheContext) {
+    return `${nicheContext.enhancedBrief}, product photography style, ${nicheContext.visualStyle}, professional lighting, clean background`;
+  }
+
+  async buildAvatarPrompt(nicheContext, productImageRef = null) {
+    const demographics = nicheContext.targetAudience;
+    let basePrompt = `${demographics}, ${nicheContext.visualStyle}, professional portrait, engaging expression, high quality`;
+    
+    // Add product image reference for visual consistency
+    if (productImageRef) {
+      basePrompt += `, interacting with product from reference image: ${productImageRef}, same lighting and visual style as reference, consistent color palette and atmosphere`;
+    }
+    
+    return basePrompt;
+  }
+
+  /**
+   * Detect if brief requests trained model (Alexsei)
+   */
+  detectTrainedModel(brief) {
+    const alexseiKeywords = ['alexsei', 'alexsix6', 'e7ed97cf', 'kontext:e7ed97cf'];
+    const briefLower = brief.toLowerCase();
+    
+    for (const keyword of alexseiKeywords) {
+      if (briefLower.includes(keyword)) {
+        return 'alexseis'; // Maps to trained model
+      }
+    }
+    
+    return 'alexseis'; // Use trained model for avatars
+  }
+
+  buildCopyPrompt(nicheContext) {
+    return `Create marketing copy for ${nicheContext.niche} targeting ${nicheContext.targetAudience} with key messaging: ${nicheContext.keyMessaging.join(', ')}`;
+  }
+
+  async generateHeadline(nicheContext) {
+    // Mock implementation - in production would use LLM
+    return `Transform Your ${nicheContext.niche.replace('-', ' ').toUpperCase()} Experience`;
+  }
+
+  async generateDescription(nicheContext) {
+    return `Discover the power of ${nicheContext.keyMessaging[0]} with our innovative solution designed for ${nicheContext.targetAudience}.`;
+  }
+
+  async generateCTA(nicheContext) {
+    const ctas = {
+      'e-commerce': 'Shop Now',
+      'marketing-agency': 'Get Started',
+      'real-estate': 'View Properties',
+      'fitness': 'Start Training',
+      'food-beverage': 'Order Today'
+    };
+    return ctas[nicheContext.niche] || 'Learn More';
+  }
+
+  async generateHashtags(nicheContext) {
+    const baseHashtags = [`#${nicheContext.niche.replace('-', '')}`, '#marketing', '#business'];
+    return baseHashtags.concat(nicheContext.keyMessaging.map(msg => `#${msg.replace(/\s+/g, '')}`));
+  }
+
+  async generateProactiveQuestions(brief) {
+    // Mock implementation - would use LLM to generate strategic questions
+    return [
+      'What is your target audience demographic?',
+      'What is your primary call-to-action?',
+      'What tone of voice should we use?',
+      'Are there any brand guidelines to follow?'
+    ];
+  }
+
+  async generateReactiveAssumptions(brief) {
+    // Mock implementation - would analyze brief and make assumptions
+    return {
+      targetAudience: 'General consumers',
+      tone: 'Professional and engaging',
+      goal: 'Increase brand awareness',
+      style: 'Modern and clean'
+    };
+  }
+
+  async enhanceBriefWithNiche(originalBrief, nicheInsights) {
+    return `${originalBrief}, optimized for ${nicheInsights.targetAudience}, emphasizing ${nicheInsights.keyMessaging.join(' and ')}, ${nicheInsights.visualStyle} style`;
+  }
+
+  generateSessionId() {
+    return `session_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+  }
+}
+
+/**
+ * Veo3VideoGenerator - Specialized video generation for Veo3 API
+ * Implements Spanish → Reasoning → English → Context Profile → Veo3 JSON pipeline
+ */
+export class Veo3VideoGenerator {
+  constructor() {
+    this.initialized = false;
+    this.reasoningModels = [
+      'deepseek/deepseek-r1',
+      'openai/o1-mini', 
+      'anthropic/claude-3.5-sonnet'
+    ];
+    this.templates = new Map();
+    this.nicheEnhancements = new Map();
+  }
+
+  async initialize() {
+    if (this.initialized) return;
+
+    //console.log('🎬 Initializing Veo3VideoGenerator...');
+    
+    // Load proven templates
+    this.loadProvenTemplates();
+    
+    // Load niche-specific enhancements
+    this.loadNicheEnhancements();
+    
+    this.initialized = true;
+    //console.log('✅ Veo3VideoGenerator initialized with proven templates');
+  }
+
+  loadProvenTemplates() {
+    // Template 1: Cinematic Product Reveal (with avatar and dialogue)
+    this.templates.set('veo3_cinematic', {
+      name: 'Cinematic Product Reveal',
+      structure: '[Shot Type] + [Subject + Action] + [Environment] + [Audio]',
+      maxWords: 250,
+      template: `{shotType} of {subject} {action} in {environment}. 
+{character}: "{dialogue}"
+AUDIO: {audioDescription}
+{visualDetails}
+{cameraMovement}
+{lighting}
+Duration: 8-12 seconds.`
+    });
+
+    // Template 2: Magic Transformation (Corona style)
+    this.templates.set('veo3_transform', {
+      name: 'Product Magic Transformation',
+      structure: '[Initial State] + [Transformation] + [Final Result] + [Key Visuals]',
+      maxWords: 200,
+      template: `{shotType} showing {initialState}.
+Magical transformation begins with {transformEffect}.
+{product} transforms into {finalResult}.
+AUDIO: {audioDescription}
+{keyVisuals}
+{environmentDetails}
+Duration: 8-10 seconds.`
+    });
+
+    // Template 3: Tech Innovation Reveal (Tesla style)
+    this.templates.set('veo3_tech', {
+      name: 'Tech Innovation Reveal',
+      structure: '[Tech Setup] + [Innovation Moment] + [Benefits] + [Call to Action]',
+      maxWords: 230,
+      template: `{shotType} of {techSetup} in {environment}.
+{innovationMoment} reveals {keyFeature}.
+{benefits} demonstrated clearly.
+AUDIO: {audioDescription}
+{visualEffects}
+{brandingElements}
+Duration: 10-12 seconds.`
+    });
+
+    //console.log(`📋 Loaded ${this.templates.size} proven Veo3 templates`);
+  }
+
+  loadNicheEnhancements() {
+    // Niche-specific enhancements from Veo3 guide
+    this.nicheEnhancements.set('higiene-personal', {
+      style: 'clean, medical-grade, trustworthy',
+      lighting: 'bright, clinical, soft shadows',
+      colors: 'white, light blue, mint green',
+      environment: 'clean bathroom, medical facility, spa-like setting',
+      audioTone: 'professional, reassuring, gentle'
+    });
+
+    this.nicheEnhancements.set('consultoria', {
+      style: 'corporate, modern, confident',
+      lighting: 'professional office lighting, warm undertones',
+      colors: 'navy blue, gray, white, gold accents',
+      environment: 'modern office, conference room, executive setting',
+      audioTone: 'authoritative, professional, trustworthy'
+    });
+
+    this.nicheEnhancements.set('alimentacion', {
+      style: 'vibrant, appetizing, warm',
+      lighting: 'warm, golden hour, food photography lighting',
+      colors: 'warm oranges, rich browns, fresh greens',
+      environment: 'kitchen, restaurant, dining setting, market',
+      audioTone: 'inviting, warm, enthusiastic'
+    });
+
+    this.nicheEnhancements.set('tecnologia', {
+      style: 'futuristic, sleek, innovative',
+      lighting: 'cool LED lighting, blue tones, dramatic shadows',
+      colors: 'electric blue, silver, black, neon accents',
+      environment: 'tech lab, modern office, futuristic setting',
+      audioTone: 'cutting-edge, confident, inspiring'
+    });
+
+    //console.log(`🎯 Loaded ${this.nicheEnhancements.size} niche enhancements`);
+  }
+
+  /**
+   * Main processing pipeline: Spanish → Reasoning → English → Context Profile → Veo3 JSON
+   */
+  async processVideoRequest(spanishPrompt, options = {}) {
+    const {
+      niche = 'marketing-agency',
+      template = 'veo3_cinematic',
+      contextProfileId = null,
+      reasoningModel = 'deepseek/deepseek-r1'
+    } = options;
+
+    ////console.log(`🎬 Processing Veo3 video request: "${spanishPrompt}"`);
+    //console.log(`🎯 Niche: ${niche}, Template: ${template}`);
+
+    const pipeline = {
+      originalSpanish: spanishPrompt,
+      steps: [],
+      results: {}
+    };
+
+    try {
+      // STEP 1: Parse Intent from Spanish
+      const intent = await this.parseSpanishIntent(spanishPrompt);
+      pipeline.steps.push('intent_parsed');
+      pipeline.results.intent = intent;
+
+      // STEP 2: Enhance with Reasoning Model
+      const enhancedConcept = await this.enhanceWithReasoning(intent, reasoningModel);
+      pipeline.steps.push('reasoning_enhanced');
+      pipeline.results.enhancedConcept = enhancedConcept;
+
+      // STEP 3: Translate to Technical English
+      const technicalEnglish = await this.translateToTechnicalEnglish(enhancedConcept, intent);
+      pipeline.steps.push('translated');
+      pipeline.results.technicalEnglish = technicalEnglish;
+
+      // STEP 4: Apply Context Profile
+      const contextEnhanced = contextProfileId 
+        ? await this.applyContextProfile(technicalEnglish, contextProfileId)
+        : technicalEnglish;
+      pipeline.steps.push('context_applied');
+      pipeline.results.contextEnhanced = contextEnhanced;
+
+      // STEP 5: Apply Niche Enhancement
+      const nicheEnhanced = await this.applyNicheEnhancement(contextEnhanced, niche);
+      pipeline.steps.push('niche_enhanced');
+      pipeline.results.nicheEnhanced = nicheEnhanced;
+
+      // STEP 6: Generate Veo3-optimized JSON
+      const veo3Json = await this.generateVeo3Json(nicheEnhanced, template, intent);
+      pipeline.steps.push('veo3_json_generated');
+      pipeline.results.veo3Json = veo3Json;
+
+      // STEP 7: Validate against proven examples
+      const validation = this.validateAgainstExamples(veo3Json);
+      pipeline.steps.push('validated');
+      pipeline.results.validation = validation;
+
+      ////console.log(`✅ Veo3 pipeline completed: ${pipeline.steps.length} steps`);
+      
+      return {
+        success: true,
+        pipeline,
+        finalPrompt: veo3Json.prompt,
+        audioInstructions: veo3Json.audio,
+        metadata: {
+          originalLanguage: 'spanish',
+          finalLanguage: 'english',
+          template: template,
+          niche: niche,
+          wordCount: veo3Json.prompt.split(' ').length,
+          processingSteps: pipeline.steps.length
+        }
+      };
+
+    } catch (error) {
+      //console.error('❌ Veo3 pipeline failed:', error);
+      return {
+        success: false,
+        error: error.message,
+        pipeline,
+        fallbackPrompt: spanishPrompt
+      };
+    }
+  }
+
+  /**
+   * Parse intent from Spanish input
+   */
+  async parseSpanishIntent(spanishPrompt) {
+    //console.log('🔍 Parsing Spanish intent...');
+
+    // Extract key elements from Spanish prompt
+    const intent = {
+      product: null,
+      action: null,
+      character: null,
+      environment: null,
+      emotion: null,
+      dialogue: null
+    };
+
+    // Simple keyword extraction (in production would use NLP)
+    const productKeywords = ['pañal', 'producto', 'servicio', 'consultoría', 'comida', 'tecnología'];
+    const actionKeywords = ['presentar', 'mostrar', 'revelar', 'transformar', 'demostrar'];
+    const characterKeywords = ['avatar', 'persona', 'presentador', 'consultor', 'chef', 'experto'];
+
+    for (const keyword of productKeywords) {
+      if (spanishPrompt.toLowerCase().includes(keyword)) {
+        intent.product = keyword;
+        break;
+      }
+    }
+
+    for (const keyword of actionKeywords) {
+      if (spanishPrompt.toLowerCase().includes(keyword)) {
+        intent.action = keyword;
+        break;
+      }
+    }
+
+    for (const keyword of characterKeywords) {
+      if (spanishPrompt.toLowerCase().includes(keyword)) {
+        intent.character = keyword;
+        break;
+      }
+    }
+
+    // Detect if dialogue is requested
+    if (spanishPrompt.includes('hablando') || spanishPrompt.includes('diciendo') || spanishPrompt.includes('explicando')) {
+      intent.dialogue = 'requested';
+    }
+
+    //console.log('✅ Intent parsed:', intent);
+    return intent;
+  }
+
+  /**
+   * Enhance concept with reasoning model
+   */
+  async enhanceWithReasoning(intent, model) {
+    ////console.log(`🧠 Enhancing with reasoning model: ${model}`);
+
+    // Mock reasoning enhancement (in production would call actual LLM)
+    const enhancements = {
+      cinematography: this.suggestCinematography(intent),
+      narrative: this.buildNarrative(intent),
+      technical: this.addTechnicalElements(intent),
+      emotional: this.enhanceEmotionalImpact(intent)
+    };
+
+    //console.log('✅ Concept enhanced with reasoning');
+    return enhancements;
+  }
+
+  /**
+   * Translate to technical English with cinematography terms
+   */
+  async translateToTechnicalEnglish(enhancedConcept, originalIntent) {
+    //console.log('🔄 Translating to technical English...');
+
+    const translations = {
+      'pañal': 'diaper product',
+      'presentar': 'present professionally',
+      'avatar': 'professional presenter',
+      'consultoría': 'consulting services',
+      'mostrar': 'showcase',
+      'transformar': 'transform dramatically',
+      'revelar': 'reveal cinematically'
+    };
+
+    let englishPrompt = originalIntent.product || 'product';
+    
+    // Apply translations while preserving dialogue in Spanish
+    Object.entries(translations).forEach(([spanish, english]) => {
+      if (originalIntent.product === spanish || originalIntent.action === spanish) {
+        englishPrompt = englishPrompt.replace(spanish, english);
+      }
+    });
+
+    // Add cinematography terminology
+    const cinematicEnglish = {
+      basePrompt: englishPrompt,
+      shotType: enhancedConcept.cinematography.shotType,
+      cameraMovement: enhancedConcept.cinematography.movement,
+      lighting: enhancedConcept.cinematography.lighting,
+      narrative: enhancedConcept.narrative
+    };
+
+    //console.log('✅ Translated to technical English');
+    return cinematicEnglish;
+  }
+
+  /**
+   * Apply context profile enhancement
+   */
+  async applyContextProfile(technicalPrompt, contextProfileId) {
+    //console.log(`🎯 Applying context profile: ${contextProfileId}`);
+
+    // Mock context profile application (in production would load actual profile)
+    const contextEnhancements = {
+      brandStyle: 'professional, trustworthy',
+      colorPalette: 'brand colors with high contrast',
+      messaging: 'emphasize quality and reliability',
+      targetAudience: 'discerning consumers'
+    };
+
+    const enhanced = {
+      ...technicalPrompt,
+      brandContext: contextEnhancements,
+      brandIntegration: 'seamlessly integrated brand elements'
+    };
+
+    //console.log('✅ Context profile applied');
+    return enhanced;
+  }
+
+  /**
+   * Apply niche-specific enhancements
+   */
+  async applyNicheEnhancement(prompt, niche) {
+    //console.log(`🏷️ Applying niche enhancements: ${niche}`);
+
+    const nicheData = this.nicheEnhancements.get(niche) || this.nicheEnhancements.get('higiene-personal');
+
+    const enhanced = {
+      ...prompt,
+      nicheStyle: nicheData.style,
+      nicheLighting: nicheData.lighting,
+      nicheColors: nicheData.colors,
+      nicheEnvironment: nicheData.environment,
+      nicheAudioTone: nicheData.audioTone
+    };
+
+    //console.log('✅ Niche enhancements applied');
+    return enhanced;
+  }
+
+  /**
+   * Generate Veo3-optimized JSON
+   */
+  async generateVeo3Json(enhancedPrompt, templateName, originalIntent) {
+    ////console.log(`📝 Generating Veo3 JSON with template: ${templateName}`);
+
+    const template = this.templates.get(templateName);
+    if (!template) {
+      throw new Error(`Template ${templateName} not found`);
+    }
+
+    // Build the final prompt using template
+    let finalPrompt = template.template;
+
+    // Replace template variables
+    const replacements = {
+      '{shotType}': enhancedPrompt.shotType || 'Medium shot',
+      '{subject}': enhancedPrompt.basePrompt || 'product',
+      '{action}': originalIntent.action || 'being presented',
+      '{environment}': enhancedPrompt.nicheEnvironment || 'professional setting',
+      '{character}': originalIntent.character || 'professional presenter',
+      '{dialogue}': this.generateDialogue(originalIntent, enhancedPrompt),
+      '{audioDescription}': this.generateAudioDescription(enhancedPrompt),
+      '{visualDetails}': this.generateVisualDetails(enhancedPrompt),
+      '{cameraMovement}': enhancedPrompt.cameraMovement || 'smooth pan',
+      '{lighting}': enhancedPrompt.nicheLighting || 'professional lighting'
+    };
+
+    Object.entries(replacements).forEach(([placeholder, value]) => {
+      finalPrompt = finalPrompt.replace(new RegExp(placeholder, 'g'), value);
+    });
+
+    // Ensure under 250 words
+    const wordCount = finalPrompt.split(' ').length;
+    if (wordCount > 250) {
+      finalPrompt = finalPrompt.split(' ').slice(0, 247).join(' ') + '...';
+      //console.log(`⚠️ Prompt truncated from ${wordCount} to 250 words`);
+    }
+
+    const veo3Json = {
+      prompt: finalPrompt.trim(),
+      audio: replacements['{audioDescription}'],
+      duration: '8s',
+      aspectRatio: '16:9',
+      template: templateName,
+      wordCount: finalPrompt.split(' ').length,
+      metadata: {
+        niche: enhancedPrompt.niche,
+        hasDialogue: originalIntent.dialogue === 'requested',
+        cinematicStyle: enhancedPrompt.nicheStyle
+      }
+    };
+
+    ////console.log(`✅ Veo3 JSON generated (${veo3Json.wordCount} words)`);
+    return veo3Json;
+  }
+
+  /**
+   * Helper methods for content generation
+   */
+  suggestCinematography(intent) {
+    const shotTypes = {
+      'pañal': 'Close-up product shot',
+      'consultoría': 'Medium two-shot',
+      'tecnología': 'Dynamic tracking shot'
+    };
+
+    return {
+      shotType: shotTypes[intent.product] || 'Medium shot',
+      movement: 'Smooth dolly movement',
+      lighting: 'Professional three-point lighting'
+    };
+  }
+
+  buildNarrative(intent) {
+    return {
+      opening: 'Engaging product introduction',
+      development: 'Clear benefit demonstration',
+      climax: 'Key feature reveal',
+      resolution: 'Call to action'
+    };
+  }
+
+  addTechnicalElements(intent) {
+    return {
+      colorGrading: 'Warm, professional tone',
+      soundDesign: 'Clean, professional audio',
+      pacing: 'Measured, confident rhythm'
+    };
+  }
+
+  enhanceEmotionalImpact(intent) {
+    return {
+      tone: 'Confident and trustworthy',
+      mood: 'Professional yet approachable',
+      energy: 'Engaging but not overwhelming'
+    };
+  }
+
+  generateDialogue(intent, enhancedPrompt) {
+    if (intent.dialogue !== 'requested') return '';
+
+    const dialogues = {
+      'pañal': 'Presenter: "La máxima protección para tu bebé"',
+      'consultoría': 'Expert: "Transformamos tu negocio con estrategias probadas"',
+      'tecnología': 'Innovator: "El futuro de la tecnología está aquí"'
+    };
+
+    return dialogues[intent.product] || 'Presenter: "Descubre la diferencia"';
+  }
+
+  generateAudioDescription(enhancedPrompt) {
+    return `Professional ${enhancedPrompt.nicheAudioTone || 'confident'} narration with subtle background music, clear pronunciation, ${enhancedPrompt.brandContext?.messaging || 'emphasizing quality'}`;
+  }
+
+  generateVisualDetails(enhancedPrompt) {
+    return `${enhancedPrompt.nicheStyle || 'Professional'} visual style, ${enhancedPrompt.nicheColors || 'brand colors'}, ${enhancedPrompt.brandIntegration || 'subtle brand integration'}`;
+  }
+
+  /**
+   * Validate against proven examples
+   */
+  validateAgainstExamples(veo3Json) {
+    const validation = {
+      wordCount: veo3Json.wordCount <= 250,
+      hasAudioTag: veo3Json.prompt.includes('AUDIO:'),
+      hasDialogueFormat: veo3Json.prompt.includes(':') && veo3Json.prompt.includes('"'),
+      hasCinematography: /shot|camera|lighting/i.test(veo3Json.prompt),
+      isUnder250Words: veo3Json.wordCount <= 250
+    };
+
+    const passedChecks = Object.values(validation).filter(Boolean).length;
+    const totalChecks = Object.keys(validation).length;
+
+    ////console.log(`✅ Validation: ${passedChecks}/${totalChecks} checks passed`);
+
+    return {
+      ...validation,
+      score: passedChecks / totalChecks,
+      passed: passedChecks >= totalChecks * 0.8 // 80% threshold
+    };
+  }
+
+  /**
+   * Get available templates
+   */
+  getAvailableTemplates() {
+    return Array.from(this.templates.entries()).map(([key, template]) => ({
+      id: key,
+      name: template.name,
+      maxWords: template.maxWords,
+      structure: template.structure
+    }));
+  }
+
+  /**
+   * Get supported niches
+   */
+  getSupportedNiches() {
+    return Array.from(this.nicheEnhancements.keys());
+  }
+
+  /**
+   * Get processing statistics
+   */
+  getStats() {
+    return {
+      templatesLoaded: this.templates.size,
+      nichesSupported: this.nicheEnhancements.size,
+      reasoningModels: this.reasoningModels.length,
+      maxPromptWords: 250,
+      optimalDuration: '8-12 seconds'
+    };
+  }
+}
