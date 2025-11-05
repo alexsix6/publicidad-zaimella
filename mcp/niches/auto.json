@@ -1,0 +1,39 @@
+{
+  "id": "auto",
+  "name": "Automotive",
+  "keywords": [
+    "car",
+    "auto",
+    "vehicle",
+    "drive",
+    "automotive",
+    "dealer",
+    "service",
+    "parts",
+    "maintenance"
+  ],
+  "targetAudience": "Car buyers and automotive enthusiasts",
+  "keyMessaging": [
+    "reliability",
+    "performance",
+    "innovation",
+    "value"
+  ],
+  "visualStyle": "sleek vehicle photography, dynamic angles, lifestyle driving scenes",
+  "optimalPlatforms": [
+    "facebook",
+    "instagram",
+    "youtube"
+  ],
+  "bestPractices": [
+    "Showcase vehicle features and technology",
+    "Include performance specifications",
+    "Show vehicles in attractive settings",
+    "Emphasize safety and reliability"
+  ],
+  "trends": [
+    "Electric vehicle adoption",
+    "360° vehicle viewing experiences",
+    "Autonomous driving features"
+  ]
+}

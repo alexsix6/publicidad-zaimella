@@ -1,0 +1,317 @@
+{
+  "profile": {
+    "id": "prudential_product_photography_1752994608941",
+    "name": "Prudential Comfort Adulto Total P-10u",
+    "description": "Gemelo digital hiperfiel del paquete Prudential Comfort Total Talla P (10 unidades) para render e-commerce y materiales ATL/BTL.",
+    "version": "2.0.33",
+    "created": "2025-07-20T06:56:48.940Z",
+    "updated": "2025-07-29T06:55:00.000Z"
+  },
+  "context": {
+    "user_preferences": {
+      "style": "clean product photography",
+      "mood": "trustworthy and caring",
+      "color_palette_hex": [
+        "#005EB8",
+        "#25B8A5",
+        "#FFFFFF",
+        "#BFC3C7",
+        "#0A2139"
+      ],
+      "lighting": "soft professional studio (key-light 35° izquierda, fill 30 % derecha, back-rim 20 %)",
+      "composition": "frontal o 45° ligero, paquete centrado, fondo degradado azul oscuro, espacio negativo simétrico",
+      "avoid": [
+        "texto en inglés",
+        "colores fuera de la paleta Pantone aprobada",
+        "fondos recargados",
+        "perspectivas extremas",
+        "tipografías con serif"
+      ],
+      "language": "es"
+    },
+    "project_context": {
+      "theme": "incontinencia adulta — comfort total",
+      "target_audience": "cuidadores y adultos mayores",
+      "industry": "cuidado de la salud e higiene",
+      "use_case": "e-commerce (miniaturas 1 000 px), anuncios social ads, fichas técnicas"
+    },
+    "technical_preferences": {
+      "quality": "ultra-high",
+      "color_accuracy": "ΔE < 2 frente a Pantone",
+      "aspect_ratio": "1:1",
+      "output_format": "png",
+      "print_resolution_ppi": 300
+    },
+    "brand_guidelines": {
+      "values": [
+        "confianza",
+        "cuidado",
+        "calidad",
+        "seguridad",
+        "fiabilidad"
+      ],
+      "tone": "profesional, cálido y accesible",
+      "visual_elements": {
+        "background": "degradado #0A2139 → #005EB8 con partículas sutiles",
+        "pedestal": "ninguno (NO incluir pedestal en renders finales)",
+        "shadow": "suave bajo el paquete, opacidad 25 %"
+      },
+      "color_spec": {
+        "primary_blue": {
+          "hex": "#005EB8",
+          "pantone": "Pantone 2935 C",
+          "cmyk": "100 -63 -0 -0"
+        },
+        "turquoise": {
+          "hex": "#25B8A5",
+          "pantone": "Pantone 3268 C",
+          "cmyk": "79 -0 -41 -0"
+        },
+        "gray_divider": {
+          "hex": "#BFC3C7",
+          "pantone": "Pantone Cool Gray 4 C",
+          "cmyk": "16 -11 -12 -0"
+        },
+        "white": {
+          "hex": "#FFFFFF",
+          "pantone": "Pantone TransWhite",
+          "cmyk": "0-0-0-0"
+        },
+        "deep_background": {
+          "hex": "#0A2139",
+          "pantone": "Pantone 296 C",
+          "cmyk": "100-69-32-90"
+        }
+      },
+      "typography": {
+        "primary_font": "Poppins Bold (geometric sans, aproximación al logotipo)",
+        "secondary_font": "Poppins Regular",
+        "tracking_pt": 0,
+        "line_height": "110 %",
+        "font_files": [
+          "https://fonts.gstatic.com/s/poppins/v19/pxiByp8kv8JHgFVrLCz7Z1JlEA.ttf",
+          "https://fonts.gstatic.com/s/poppins/v19/pxiEyp8kv8JHgFVrJJLmr19VF9eP.ttf"
+        ]
+      }
+    },
+    "product_specifications": {
+      "sku": "ComfortTotal-P-10u",
+      "category": "pañal adulto desechable",
+      "pack_type": "bolsa HDPE flexible termosellada",
+      "pack_dimensions_mm": {
+        "height": 210,
+        "width": 210,
+        "depth": 140
+      },
+      "icon_pigeon_mm": {
+        "width": 25,
+        "height": 25
+      },
+      "absorbency_indicator_mm": {
+        "big_drop": {
+          "width": 6,
+          "height": 25
+        },
+        "black_circle": {
+          "diameter": 6
+        }
+      },
+      "unit_count": 10,
+      "size": {
+        "code": "P",
+        "descriptor": "Pequeño",
+        "waist_range_cm": "Hasta 80 cm",
+        "weight_limit_kg": "Hasta 50 kg"
+      },
+      "absorbency": {
+        "level": "Protección Severa",
+        "graphic": "9 gotas + 1 gota grande con 'x10'"
+      },
+      "front_panel": {
+        "upper_section": {
+          "color": "#005EB8",
+          "elements": [
+            "Logotipo Prudential (paloma + palabra 'Prudential')",
+            "Texto 'COMFORT TOTAL'"
+          ],
+          "marketing_headline": "",
+          "marketing_subheadline": ""
+        },
+        "divider_wave": {
+          "color": "#BFC3C7",
+          "thickness_mm": 3
+        },
+        "lower_section": {
+          "color": "#25B8A5",
+          "layout": {
+            "left_column": {
+              "align": "left",
+              "order": [
+                "P",
+                "PEQUEÑO",
+                "separator_line",
+                "CONTENIDO",
+                "10",
+                "UNIDADES"
+              ]
+            },
+            "icons_row": [
+              "Icono 'AJUSTE PERFECTO – Corte anatómico'",
+              "Icono 'SUAVE CON LA PIEL – Cubierta tipo tela'"
+            ],
+            "product_render": "pañal abierto con aletas (orejas) visible a la derecha",
+            "bottom_info_row": [
+              "Etiqueta 'DÍA Y NOCHE'",
+              "Texto 'PESO: Hasta 50 kg'",
+              "Texto 'CINTURA: Hasta 80 cm'"
+            ],
+            "absorbency_block": "columna de gotas + círculo negro 'x10' con leyenda 'PROTECCIÓN SEVERA'"
+          }
+        }
+      },
+      "side_panels": {
+        "left_panel": {
+          "heading": "DESCUBRE TU PRUDENTIAL IDEAL",
+          "sections": [
+            "Recuadro turquesa con P Pequeño 10 u",
+            "Argumentos de uso Día y Noche, Peso, Cintura",
+            "QR code 28 mm con paloma central y texto 'ESCANÉAME'",
+            "Módulos de cross-selling (Invisible Overnight, Apósito, Protector de Cama)"
+          ]
+        },
+        "right_panel": {
+          "heading": "¿CÓMO USARLO?",
+          "subsections": [
+            "Persona de pie (2 viñetas)",
+            "Persona sentada (2 viñetas)",
+            "Persona acostada (2 viñetas)"
+          ],
+          "ingredients": "Celulosa, Polipropileno (Tela no tejida), Poliacrilato de sodio (SAP)…",
+          "barcode_ean13": "7861078301597",
+          "website": "www.onlineprudential.com"
+        }
+      },
+      "top_panel": {
+        "logo_repeat": true,
+        "icons_repeat": [
+          "ajuste",
+          "suave",
+          "absorbency_drop"
+        ],
+        "size_badge": "P Pequeño 10 unidades (turquesa)"
+      },
+      "bottom_seal": {
+        "structure": "costura central con film blanco + franjas azul/turquesa laterales",
+        "note": "NO mostrar en render frontal"
+      },
+      "copy_es": {
+        "call_to_action": "¡PÍDELO AHORA!",
+        "value_prop": "La mayor protección al mejor precio",
+        "micro": {
+          "ajuste": "AJUSTE PERFECTO",
+          "corte": "Corte anatómico",
+          "suave": "SUAVE CON LA PIEL",
+          "cubierta": "Cubierta tipo tela",
+          "dia_noche": "DÍA Y NOCHE",
+          "peso": "PESO: Hasta 50 kg",
+          "cintura": "CINTURA: Hasta 80 cm"
+        }
+      }
+    },
+    "validation_rules": {
+      "must_include": [
+        "paleta Pantone exacta",
+        "logotipo Prudential con paloma 25×25 mm",
+        "texto íntegramente en español",
+        "indicador de 10 gotas + círculo negro 'x10'",
+        "copy micro exacto en iconos",
+        "línea ondulada gris 3 mm"
+      ],
+      "forbidden": [
+        "traducciones al inglés",
+        "cambiar tipografía Poppins",
+        "alterar proporción de bloques azul/turquesa (>1 % tolerancia)",
+        "añadir pedestal visual"
+      ],
+      "tolerance": {
+        "color": "ΔE < 2",
+        "dimensions_mm": "±1 mm",
+        "text_accuracy": "100 % (OCR-check)"
+      }
+    },
+    "reference_assets": {
+      "images": {
+        "front": "cara_anterior.jpg",
+        "back": "cara_posterior.jpg",
+        "left": "cara_costado_izquierdo.jpg",
+        "right": "cara_costado_derecho.jpg",
+        "top": "cara_superior.jpg",
+        "bottom": "base_del_paquete.jpg"
+      },
+      "svg_icons": {
+        "absorbency_drop": "drop_x10.svg",
+        "ajuste": "ajuste_perfecto.svg",
+        "suave": "suave_con_la_piel.svg"
+      },
+      "color_swatches": [
+        "#005EB8",
+        "#25B8A5",
+        "#BFC3C7",
+        "#FFFFFF"
+      ]
+    }
+  },
+  "memory": {
+    "successful_prompts": [
+      {
+        "prompt": "Prudential Comfort Total diaper package size P",
+        "timestamp": "2025-07-21T22:45:09.837Z",
+        "result_quality": 8,
+        "user_feedback": "Auto-enhancement successful",
+        "digitalTwinUsed": false,
+        "promptLength": 46,
+        "enhancementType": "enhanced"
+      }
+    ],
+    "learned_patterns": {
+      "color_guard": "rechazar si ΔE prom > 2",
+      "lang_guard": "rechazar si se detecta palabra en inglés",
+      "effective_keywords": [
+        "prudential",
+        "comfort",
+        "total",
+        "diaper",
+        "package",
+        "size",
+        "producto",
+        "adulto"
+      ]
+    },
+    "usage_stats": {
+      "total_generations": 69,
+      "success_rate": 46.3768115942029,
+      "last_used": "2025-07-29T05:39:09.812Z"
+    }
+  },
+  "relationships": {
+    "semantic_connections": {
+      "incontinencia": [
+        "protección severa",
+        "comodidad",
+        "ajuste anatómico"
+      ],
+      "cross_selling": [
+        "Invisible Overnight",
+        "Apósito",
+        "Protector de cama"
+      ]
+    },
+    "style_associations": {
+      "clean product photography": [
+        "fondo degradado azul",
+        "iluminación suave",
+        "producto centrado"
+      ]
+    }
+  }
+}

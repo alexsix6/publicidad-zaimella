@@ -1,0 +1,159 @@
+/**
+ * Skill Detector - Detects and loads skills from creator_skills project
+ * Implements Skill-First with Fallback pattern
+ *
+ * @module skill-detector
+ */
+
+import path from 'path';
+import { fileURLToPath } from 'url';
+import fs from 'fs';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+export class SkillDetector {
+  constructor() {
+    // Path to creator_skills project
+    this.skillsBasePath = path.resolve(__dirname, '../../../creator_skills/skills');
+
+    this.availableSkills = new Map();
+    this.skillMetadata = new Map();
+    this.initialized = false;
+  }
+
+  /**
+   * Initialize skill detector - scan for available skills
+   */
+  async initialize() {
+    if (this.initialized) return;
+
+    console.log('🔍 [SkillDetector] Scanning for available skills...');
+
+    try {
+      // Check if skills directory exists
+      if (!fs.existsSync(this.skillsBasePath)) {
+        console.warn(`⚠️ [SkillDetector] Skills directory not found: ${this.skillsBasePath}`);
+        console.log('📝 [SkillDetector] Skills will be unavailable, using fallback logic');
+        this.initialized = true;
+        return;
+      }
+
+      const skillDirs = fs.readdirSync(this.skillsBasePath, { withFileTypes: true })
+        .filter(dirent => dirent.isDirectory())
+        .map(dirent => dirent.name);
+
+      console.log(`📦 [SkillDetector] Found ${skillDirs.length} skill directories: ${skillDirs.join(', ')}`);
+
+      for (const skillName of skillDirs) {
+        await this.loadSkill(skillName);
+      }
+
+      console.log(`✅ [SkillDetector] Loaded ${this.availableSkills.size} skills successfully`);
+      this.initialized = true;
+
+    } catch (error) {
+      console.error('❌ [SkillDetector] Error during initialization:', error.message);
+      console.log('📝 [SkillDetector] Continuing with fallback logic only');
+      this.initialized = true;
+    }
+  }
+
+  /**
+   * Load a specific skill
+   */
+  async loadSkill(skillName) {
+    try {
+      // Find latest version directory
+      const skillPath = path.join(this.skillsBasePath, skillName);
+      const versions = fs.readdirSync(skillPath, { withFileTypes: true })
+        .filter(dirent => dirent.isDirectory() && dirent.name.startsWith('v'))
+        .map(dirent => dirent.name)
+        .sort()
+        .reverse();
+
+      if (versions.length === 0) {
+        console.warn(`⚠️ [SkillDetector] No versions found for skill: ${skillName}`);
+        return;
+      }
+
+      const latestVersion = versions[0];
+      const skillModulePath = path.join(skillPath, latestVersion, 'index.js');
+
+      if (!fs.existsSync(skillModulePath)) {
+        console.warn(`⚠️ [SkillDetector] index.js not found for skill: ${skillName}@${latestVersion}`);
+        return;
+      }
+
+      // Import skill module dynamically
+      const skillModule = await import(`file://${skillModulePath}`);
+
+      // Store skill instance (default export)
+      this.availableSkills.set(skillName, skillModule.default);
+
+      // Load metadata
+      const skillJsonPath = path.join(skillPath, latestVersion, 'skill.json');
+      if (fs.existsSync(skillJsonPath)) {
+        const metadata = JSON.parse(fs.readFileSync(skillJsonPath, 'utf-8'));
+        this.skillMetadata.set(skillName, metadata);
+        console.log(`  ✓ ${skillName}@${latestVersion} (score: ${metadata.quality_score}/100)`);
+      } else {
+        console.log(`  ✓ ${skillName}@${latestVersion} (metadata not found)`);
+      }
+
+    } catch (error) {
+      console.error(`❌ [SkillDetector] Failed to load skill ${skillName}:`, error.message);
+    }
+  }
+
+  /**
+   * Get skill by name
+   */
+  getSkill(skillName) {
+    return this.availableSkills.get(skillName);
+  }
+
+  /**
+   * Check if skill is available
+   */
+  hasSkill(skillName) {
+    return this.availableSkills.has(skillName);
+  }
+
+  /**
+   * Get skill metadata
+   */
+  getSkillMetadata(skillName) {
+    return this.skillMetadata.get(skillName);
+  }
+
+  /**
+   * Get all available skills
+   */
+  getAllSkills() {
+    return Array.from(this.availableSkills.keys());
+  }
+
+  /**
+   * Get health check status
+   */
+  getStatus() {
+    return {
+      initialized: this.initialized,
+      skillsPath: this.skillsBasePath,
+      skillsAvailable: this.availableSkills.size,
+      skills: Array.from(this.availableSkills.keys()),
+      metadata: Array.from(this.skillMetadata.entries()).map(([name, meta]) => ({
+        name,
+        version: meta.version,
+        quality_score: meta.quality_score
+      }))
+    };
+  }
+}
+
+// Export singleton instance
+export const skillDetector = new SkillDetector();
+
+// Default export
+export default skillDetector;

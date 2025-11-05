@@ -1,0 +1,38 @@
+{
+  "id": "marketing-agency",
+  "name": "Marketing Agency",
+  "keywords": [
+    "marketing",
+    "agency",
+    "brand",
+    "campaign",
+    "advertising",
+    "promotion",
+    "client",
+    "strategy"
+  ],
+  "targetAudience": "Business professionals and decision makers",
+  "keyMessaging": [
+    "professional excellence",
+    "proven results",
+    "strategic thinking",
+    "creative solutions"
+  ],
+  "visualStyle": "modern professional, clean lines, corporate colors",
+  "optimalPlatforms": [
+    "linkedin",
+    "x-twitter",
+    "facebook"
+  ],
+  "bestPractices": [
+    "Focus on ROI and measurable results",
+    "Use professional imagery and clean layouts",
+    "Emphasize expertise and case studies",
+    "Include clear call-to-actions"
+  ],
+  "trends": [
+    "Data-driven marketing approaches",
+    "Personalized content strategies",
+    "Multi-channel campaign integration"
+  ]
+}

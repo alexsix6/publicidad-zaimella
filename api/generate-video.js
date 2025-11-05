@@ -17,10 +17,14 @@ export default async function handler(req, res) {
       videoStyle = 'cinematic',
       saveLocally = true,
       enhanceWithAI = true,
-      enhancementModel = 'deepseek/deepseek-r1', // 🆕 Modelo por defecto de bajo costo
+      enhancementModel = 'openai/gpt-4o-mini', // 🆕 Mejor para templates estructurados Veo3
       useUtilsEnhancement = true,
-      aspectRatio = '16:9',
-      duration = '8s'
+      aspectRatio, // 🆕 Sin default - se auto-detectará
+      duration = '8s',
+      testMode = false, // 🆕 Modo de testing sin consumir saldo
+      // 🆕 PARÁMETROS PARA AUTO-DETECCIÓN
+      platform = null, // instagram, linkedin, tiktok, etc.
+      format = null    // post, story, reel, etc.
     } = req.body;
 
     if (!prompt || prompt.trim().length === 0) {
@@ -30,17 +34,74 @@ export default async function handler(req, res) {
       });
     }
 
-    console.log(`🎬 Original video prompt: "${prompt}"`);
+    // 🆕 AUTO-DETECCIÓN DE ASPECT RATIO Y DURATION POR PLATAFORMA
+    let finalAspectRatio = aspectRatio;
+    let maxAllowedDuration = duration;
+    let platformContext = null;
+    
+    if (platform) {
+      try {
+        // Importar VariantGenerator para obtener especificaciones
+        const { VariantGenerator } = await import('../mcp/tools/variant-generator.js');
+        const variantGenerator = new VariantGenerator();
+        await variantGenerator.initialize();
+        
+        const platformSpec = variantGenerator.platformSpecs.get(platform);
+        if (platformSpec) {
+          const formatKey = format || Object.keys(platformSpec.formats)[0];
+          const formatSpec = platformSpec.formats[formatKey];
+          
+          if (formatSpec) {
+            // Auto-detectar aspect ratio
+            if (!finalAspectRatio) {
+              finalAspectRatio = formatSpec.aspectRatio || '16:9';
+            }
+            
+            // Validar duration contra maxDuration de la plataforma
+            if (formatSpec.maxDuration && formatSpec.maxDuration !== 'unlimited') {
+              const maxSeconds = parseInt(formatSpec.maxDuration);
+              const requestedSeconds = parseInt(duration);
+              
+              if (requestedSeconds > maxSeconds) {
+                maxAllowedDuration = formatSpec.maxDuration;
+                console.log(`⚠️ Duration adjusted from ${duration} to ${maxAllowedDuration} for ${platform}:${formatKey}`);
+              }
+            }
+            
+            // Construir contexto de plataforma
+            platformContext = {
+              platform,
+              format: formatKey,
+              toneOfVoice: platformSpec.toneOfVoice,
+              demographics: platformSpec.demographics,
+              bestPractices: platformSpec.bestPractices,
+              contentTypes: platformSpec.contentTypes,
+              maxDuration: formatSpec.maxDuration
+            };
+            
+            //console.log(`🎯 Platform context loaded: ${platform}:${formatKey} - ${platformSpec.toneOfVoice}`);
+          }
+        }
+      } catch (error) {
+        console.warn(`⚠️ Failed to load platform context: ${error.message}`);
+      }
+    }
+    
+    // Fallbacks finales
+    finalAspectRatio = finalAspectRatio || '16:9';
+    maxAllowedDuration = maxAllowedDuration || duration;
+
+    //console.log(`🎬 Original video prompt: "${prompt}"`);
 
     let finalPrompt = prompt;
     let enhancementResult = null;
 
     // PASO 1: Mejorar prompt con OpenRouter (solo si está habilitado)
     if (enhanceWithAI) {
-      console.log(`🧠 Enhancing video prompt with ${enhancementModel}...`);
+      //console.log(`🧠 Enhancing video prompt with ${enhancementModel}...`);
       
-      // 🆕 Pasar el parámetro enhanceEnabled correctamente
-      enhancementResult = await enhancePrompt(prompt, 'video', enhancementModel, true);
+      // 🆕 Pasar el parámetro enhanceEnabled correctamente + platform context
+      enhancementResult = await enhancePrompt(prompt, 'video', enhancementModel, true, false, platformContext);
       
       if (enhancementResult.success && enhancementResult.enhanced) {
         finalPrompt = enhancementResult.enhancedPrompt;
@@ -54,31 +115,31 @@ export default async function handler(req, res) {
           console.warn(`⚠️ Prompt may be too long for Veo 3 (${enhancementResult.promptLength} chars > 500)`);
         }
         if (enhancementResult.modelInfo) {
-          console.log(`💰 Cost level: ${enhancementResult.modelInfo.cost}`);
+          //console.log(`💰 Cost level: ${enhancementResult.modelInfo.cost}`);
         }
       } else {
         console.warn(`⚠️ AI Enhancement failed: ${enhancementResult.error}`);
         finalPrompt = enhancementResult.fallbackPrompt || prompt;
       }
     } else {
-      console.log(`📝 AI enhancement disabled, using original prompt`);
-      enhancementResult = await enhancePrompt(prompt, 'video', enhancementModel, false);
+      //console.log(`📝 AI enhancement disabled, using original prompt`);
+      enhancementResult = await enhancePrompt(prompt, 'video', enhancementModel, false, false, platformContext);
     }
 
     // PASO 2: Aplicar enhancement de utils (si está habilitado)
     if (useUtilsEnhancement) {
-      console.log(`🔧 Applying technical enhancement for ${videoStyle}...`);
+      //console.log(`🔧 Applying technical enhancement for ${videoStyle}...`);
       finalPrompt = enhancePromptForVideo(finalPrompt, videoStyle);
       console.log(`⚡ Technical Enhanced prompt: "${finalPrompt}"`);
     }
 
     if (imageUrl) {
-      console.log(`🖼️ Using base image: ${imageUrl}`);
+      //console.log(`🖼️ Using base image: ${imageUrl}`);
     }
 
     // PASO 3: Generar video con Veo 3
-    console.log(`🎯 Generating video with Veo 3 (${aspectRatio}, ${duration})...`);
-    const videoResult = await generateVideoWithVeo3(finalPrompt, imageUrl, aspectRatio, duration);
+    //console.log(`🎯 Generating video with Veo 3 (${finalAspectRatio}, ${maxAllowedDuration})...`);
+    const videoResult = await generateVideoWithVeo3(finalPrompt, imageUrl, finalAspectRatio, maxAllowedDuration);
 
     if (!videoResult.success) {
       return res.status(500).json({
@@ -91,20 +152,20 @@ export default async function handler(req, res) {
       });
     }
 
-    console.log(`✅ Video generated successfully`);
+    //console.log(`✅ Video generated successfully`);
 
     // PASO 4: Guardar video localmente (si se solicita)
     let saveResult = null;
     let publicUrl = videoResult.videoUrl;
 
     if (saveLocally) {
-      console.log(`💾 Saving video locally...`);
+      //console.log(`💾 Saving video locally...`);
       const fileName = generateFileName('video', 'mp4');
       saveResult = await downloadAndSaveFile(videoResult.videoUrl, fileName, 'videos');
       
       if (saveResult.success) {
         publicUrl = saveResult.publicUrl;
-        console.log(`✅ Video saved: ${publicUrl}`);
+        //console.log(`✅ Video saved: ${publicUrl}`);
       } else {
         console.warn(`⚠️ Save failed: ${saveResult.error}`);
       }

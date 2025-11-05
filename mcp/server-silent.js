@@ -63,8 +63,8 @@ class ContentGenerationMCPServer {
                 },
                 platform: {
                   type: 'string',
-                  enum: ['instagram', 'tiktok', 'linkedin', 'x-twitter', 'facebook'],
-                  description: 'Primary target platform'
+                  enum: ['instagram', 'tiktok', 'linkedin', 'x-twitter', 'facebook', 'pinterest', 'youtube', 'email', 'google', 'kick'],
+                  description: 'Primary target platform (11 platforms supported)'
                 },
                 format: {
                   type: 'string',
@@ -210,8 +210,8 @@ class ContentGenerationMCPServer {
                 },
                 platform: {
                   type: 'string',
-                  enum: ['instagram', 'linkedin', 'tiktok', 'x-twitter', 'facebook'],
-                  description: 'Target platform for copy generation'
+                  enum: ['instagram', 'tiktok', 'linkedin', 'x-twitter', 'facebook', 'pinterest', 'youtube', 'email', 'google', 'kick'],
+                  description: 'Target platform for copy generation (11 platforms supported)'
                 },
                 format: {
                   type: 'string',

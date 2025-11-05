@@ -51,19 +51,23 @@
       }
     },
     "platforms": {
-      "supported": ["instagram", "tiktok", "linkedin", "x-twitter", "facebook"],
+      "templates": ["instagram", "tiktok", "linkedin", "x-twitter", "facebook"],
       "defaultFormats": {
         "instagram": "post",
         "tiktok": "video",
         "linkedin": "post",
         "x-twitter": "post",
         "facebook": "post"
-      }
+      },
+      "genericSupport": true,
+      "comment": "Templates are optimized definitions. System supports ANY platform via generic specs."
     },
     "niches": {
-      "supported": ["marketing-agency", "e-commerce", "real-estate", "fitness", "food-beverage", "auto"],
+      "templates": ["marketing-agency", "e-commerce", "real-estate", "fitness", "food-beverage", "auto"],
       "autoDetection": true,
-      "learningEnabled": true
+      "learningEnabled": true,
+      "genericSupport": true,
+      "comment": "Templates are optimized definitions. System supports ANY industry via semantic extraction."
     }
   },
   "integrations": {

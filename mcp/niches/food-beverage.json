@@ -1,0 +1,39 @@
+{
+  "id": "food-beverage",
+  "name": "Food & Beverage",
+  "keywords": [
+    "food",
+    "restaurant",
+    "menu",
+    "drink",
+    "recipe",
+    "cuisine",
+    "dining",
+    "chef",
+    "delicious"
+  ],
+  "targetAudience": "Food enthusiasts and potential diners",
+  "keyMessaging": [
+    "fresh ingredients",
+    "authentic flavors",
+    "culinary excellence",
+    "memorable experience"
+  ],
+  "visualStyle": "appetizing food photography, warm colors, lifestyle dining scenes",
+  "optimalPlatforms": [
+    "instagram",
+    "tiktok",
+    "facebook"
+  ],
+  "bestPractices": [
+    "High-quality food photography with proper lighting",
+    "Show preparation process and behind-the-scenes",
+    "Highlight unique ingredients or techniques",
+    "Include customer dining experiences"
+  ],
+  "trends": [
+    "Plant-based and sustainable options",
+    "Interactive cooking content",
+    "Local sourcing and farm-to-table"
+  ]
+}

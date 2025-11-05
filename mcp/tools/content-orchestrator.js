@@ -8,6 +8,16 @@ import { QdrantConnector } from '../adapters/qdrant-connector.js';
 import { NicheManager } from './niche-manager.js';
 import { SceneComposer } from './scene-composer.js';
 import { VariantGenerator } from './variant-generator.js';
+import { SkillDetector } from './skill-detector.js';
+import { contextProfileManager } from '../../lib/context-profile-manager.js';
+import { composeImages, getRecommendedLayout } from '../../lib/image-compositor.js';
+import fs from 'fs/promises';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// Get __dirname equivalent in ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export class ContentOrchestrator {
   constructor() {
@@ -16,26 +26,39 @@ export class ContentOrchestrator {
     this.nicheManager = new NicheManager();
     this.sceneComposer = new SceneComposer();
     this.variantGenerator = new VariantGenerator();
-    
+    this.skillDetector = new SkillDetector();
+    this.contextProfileManager = contextProfileManager;
+
     this.initialized = false;
     this.currentSession = null;
+    this.skillsUsageLog = []; // Track skill usage
   }
 
   async initialize(sessionConfig) {
     if (!this.initialized) {
       //console.log("Initializing Content Orchestrator...");
-      
-      // Initialize all components
+
+      // Initialize all components (including SkillDetector and ContextProfileManager)
       await Promise.all([
         this.apiBridge.initialize(),
         this.qdrantConnector.initialize(),
         this.nicheManager.initialize(),
         this.sceneComposer.initialize(),
-        this.variantGenerator.initialize()
+        this.variantGenerator.initialize(),
+        this.skillDetector.initialize(),
+        this.contextProfileManager.initialize()
       ]);
-      
+
       this.initialized = true;
       //console.log('✅ Content Orchestrator initialized');
+
+      // Log skills status
+      const skillsStatus = this.skillDetector.getStatus();
+      //console.log(`🎓 Skills available: ${skillsStatus.skillsAvailable} [${skillsStatus.skills.join(', ')}]`);
+
+      // Log context profiles status
+      const profilesList = this.contextProfileManager.listProfiles();
+      //console.log(`📋 Context Profiles available: ${profilesList.length}`);
     }
 
     // Set up current session
@@ -67,6 +90,65 @@ export class ContentOrchestrator {
     try {
       //console.log('🚀 Starting complete content generation pipeline...');
 
+      // STEP 0: Context Profile Resolution (NEW - Phase 1)
+      await this.executeStep('context_profile_resolution', async () => {
+        let contextProfileId = session.config.contextProfileId;
+
+        // Auto-select if not provided
+        if (!contextProfileId) {
+          //console.log('🔍 No contextProfileId provided, attempting auto-selection...');
+          const autoSelection = await this.contextProfileManager.autoSelectProfile(
+            session.config.brief,
+            'image'
+          );
+
+          if (autoSelection.success && autoSelection.profileId) {
+            contextProfileId = autoSelection.profileId;
+            //console.log(`✅ Auto-selected Context Profile: ${contextProfileId}`);
+          } else {
+            //console.log('⚠️ No Context Profile auto-selected, proceeding without profile');
+            return {
+              contextProfileId: null,
+              profile: null,
+              isDigitalTwin: false,
+              brand_guidelines: {},
+              platform_specifications: {}
+            };
+          }
+        }
+
+        // Load profile
+        const profile = await this.contextProfileManager.loadProfile(contextProfileId);
+
+        if (!profile) {
+          //console.log(`⚠️ Context Profile ${contextProfileId} not found, proceeding without profile`);
+          return {
+            contextProfileId: null,
+            profile: null,
+            isDigitalTwin: false,
+            brand_guidelines: {},
+            platform_specifications: {}
+          };
+        }
+
+        // Detect Digital Twin mode
+        const isDigitalTwin = this.contextProfileManager.isDigitalTwinProfile(profile);
+
+        if (isDigitalTwin) {
+          //console.log(`🎯 Digital Twin mode detected - High-precision requirements enabled`);
+        }
+
+        return {
+          contextProfileId,
+          profile,
+          isDigitalTwin,
+          brand_guidelines: profile.context.brand_guidelines || {},
+          platform_specifications: profile.context.platform_specifications || {},
+          validation_rules: profile.context.validation_rules || {},
+          product_specifications: profile.context.product_specifications || {}
+        };
+      });
+
       // STEP 1: Context Gathering
       await this.executeStep('context_gathering', async () => {
         return await this.gatherContext(session.config);
@@ -97,13 +179,57 @@ export class ContentOrchestrator {
         return await this.generateVideoContent(
           session.results.product_image,
           session.results.avatar_image,
+          session.results.niche_context,
+          session.config.brief // ✅ Pass original brief for context
+        );
+      });
+
+      // STEP 6.5: Customer Avatar Profile Generation (uses avatar-construction skill)
+      await this.executeStep('customer_avatar_profile', async () => {
+        return await this.generateCustomerAvatarProfile(session.config.brief, session.results.niche_context);
+      });
+
+      // STEP 6.6: Unique Mechanism Generation (NEW - Phase 4.1)
+      await this.executeStep('unique_mechanism', async () => {
+        return await this.generateUniqueMechanism(
+          session.config.brief,
+          session.results.customer_avatar_profile,
           session.results.niche_context
         );
       });
 
-      // STEP 7: Copy Generation
+      // STEP 6.7: Grand Slam Offer Generation (NEW - Phase 4.2)
+      await this.executeStep('grand_slam_offer', async () => {
+        return await this.generateGrandSlamOffer(
+          session.config.brief,
+          session.results.customer_avatar_profile,
+          session.results.unique_mechanism,
+          session.config.pricing || { base_price: 149, currency: 'USD', billing_cycle: 'monthly' },
+          session.results.niche_context
+        );
+      });
+
+      // STEP 7: Copy Generation (uses ad-copy-generation skill + mechanism + offer)
       await this.executeStep('copy_generation', async () => {
-        return await this.generateCopyContent(session.results.niche_context);
+        return await this.generateCopyContent(
+          session.config.brief,
+          session.results.customer_avatar_profile,
+          session.results.unique_mechanism,
+          session.results.grand_slam_offer,
+          session.results.niche_context
+        );
+      });
+
+      // STEP 7.5: Landing Page Structure Generation (NEW - uses landing-page-structure skill)
+      await this.executeStep('landing_page_structure', async () => {
+        return await this.generateLandingPageStructure(
+          session.config.brief,
+          session.results.customer_avatar_profile,
+          session.results.unique_mechanism,
+          session.results.grand_slam_offer,
+          session.results.copy_generation,
+          session.results.niche_context
+        );
       });
 
       // STEP 8: Platform Variants
@@ -133,15 +259,21 @@ export class ContentOrchestrator {
 
   /**
    * Execute a pipeline step with error handling and logging
+   * ENHANCED: Graceful degradation for optional steps (image/video services)
    */
   async executeStep(stepName, stepFunction) {
     const stepStartTime = Date.now();
     //console.log(`📍 Executing step: ${stepName}`);
 
+    // OPTIONAL STEPS: Can fail gracefully without breaking pipeline
+    // (image/video services may not be available in all environments)
+    const optionalSteps = ['product_image', 'avatar_image', 'video_generation'];
+    const isOptionalStep = optionalSteps.includes(stepName);
+
     try {
       const result = await stepFunction();
       const duration = Date.now() - stepStartTime;
-      
+
       this.currentSession.steps.push({
         name: stepName,
         status: 'completed',
@@ -151,19 +283,27 @@ export class ContentOrchestrator {
 
       this.currentSession.results[stepName] = result;
       ////console.log(`✅ Step ${stepName} completed in ${duration}ms`);
-      
+
       return result;
     } catch (error) {
       const duration = Date.now() - stepStartTime;
-      
+
       this.currentSession.steps.push({
         name: stepName,
-        status: 'failed',
+        status: isOptionalStep ? 'skipped' : 'failed',
         duration,
         error: error.message,
         timestamp: new Date().toISOString()
       });
 
+      // GRACEFUL DEGRADATION: Optional steps can fail without breaking pipeline
+      if (isOptionalStep) {
+    console.log(`⚠️ Optional step ${stepName} skipped (service unavailable): ${error.message}`);
+        this.currentSession.results[stepName] = null; // Mark as null but continue
+        return null;
+      }
+
+      // CRITICAL STEPS: Must succeed, throw error to halt pipeline
       //console.error(`❌ Step ${stepName} failed after ${duration}ms:`, error.message);
       throw error;
     }
@@ -303,55 +443,617 @@ export class ContentOrchestrator {
 
   /**
    * STEP 6: Video Scene Composition
+   * OPTIONAL COMPOSITION: Only combines product + avatar if avatarImage exists
+   * Otherwise uses product image alone with brief context
+   * NOW INCLUDES: Brief context for auto-enhanced video prompts
    */
-  async generateVideoContent(productImage, avatarImage, nicheContext) {
+  async generateVideoContent(productImage, avatarImage, nicheContext, brief) {
     //console.log('🎬 Generating video content...');
-    
+
     // Use SceneComposer to create video scenes
     const sceneConfig = {
       mode: 'presentation', // presentation, interaction, demonstration
       productImage: productImage.publicUrl,
-      avatarImage: avatarImage.publicUrl,
+      avatarImage: avatarImage?.publicUrl || null, // Optional
       niche: nicheContext.niche,
-      style: nicheContext.visualStyle
+      style: nicheContext.visualStyle,
+      // ✅ NEW: Pass campaign context for auto-enhancement
+      brief: brief, // Original brief
+      enhancedBrief: nicheContext.enhancedBrief, // Brief + niche context
+      keyMessaging: nicheContext.keyMessaging, // Key messages from niche
+      targetAudience: nicheContext.targetAudience // Target audience
     };
 
     const videoScene = await this.sceneComposer.composeScene(sceneConfig);
-    
-    const videoOptions = {
-      imageUrl: productImage.replicateUrl || productImage.publicUrl, // Use Replicate URL for FAL access
-      videoStyle: 'cinematic',
-      aspectRatio: '16:9',
-      duration: '8s',
-      enhanceWithAI: true
-    };
 
-    const result = await this.apiBridge.generateVideo(videoScene.prompt, videoOptions);
-    
+    // ✅ OPTIONAL COMPOSITION: Only if avatarImage exists
+    if (avatarImage && avatarImage.publicUrl) {
+      //console.log('  🎨 Avatar detected: Composing product + avatar images...');
+
+      // Get recommended layout based on niche
+      const layout = getRecommendedLayout(nicheContext);
+      //console.log(`  📐 Using layout: ${layout}`);
+
+      try {
+        // Compose images using Sharp.js
+        const composedBuffer = await composeImages(
+          productImage.replicateUrl || productImage.publicUrl,
+          avatarImage.replicateUrl || avatarImage.publicUrl,
+          {
+            layout: layout,
+            aspectRatio: '16:9', // Video default
+            width: 1920,
+            height: 1080
+          }
+        );
+
+        // Save composed image to public/generated/composed/
+        const timestamp = Date.now();
+        const composedFilename = `composed_${timestamp}.jpg`;
+        const composedDir = path.join(__dirname, '../../public/generated/composed');
+
+        // Ensure directory exists
+        await fs.mkdir(composedDir, { recursive: true });
+
+        const composedPath = path.join(composedDir, composedFilename);
+        await fs.writeFile(composedPath, composedBuffer);
+
+        // Construct public URL
+        const baseUrl = process.env.VERCEL_URL
+          ? `https://${process.env.VERCEL_URL}`
+          : 'http://localhost:3000';
+        const composedImageUrl = `${baseUrl}/generated/composed/${composedFilename}`;
+
+        //console.log(`  ✅ Composed image saved: ${composedImageUrl}`);
+
+        // Use composed image for video generation
+        const videoOptions = {
+          imageUrl: composedImageUrl, // ✅ COMPOSED IMAGE (product + avatar)
+          videoStyle: 'cinematic',
+          aspectRatio: '16:9',
+          duration: '8s',
+          enhanceWithAI: true
+        };
+
+        const result = await this.apiBridge.generateVideo(videoScene.prompt, videoOptions);
+
+        return {
+          scene: videoScene,
+          composedImage: {
+            url: composedImageUrl,
+            layout: layout,
+            localPath: composedPath
+          },
+          ...result
+        };
+
+      } catch (compositionError) {
+        // Fallback: If composition fails, use product image only
+        console.error(`  ⚠️ Image composition failed: ${compositionError.message}`);
+        //console.log(`  ⚠️ Falling back to product image only`);
+
+        const videoOptions = {
+          imageUrl: productImage.replicateUrl || productImage.publicUrl,
+          videoStyle: 'cinematic',
+          aspectRatio: '16:9',
+          duration: '8s',
+          enhanceWithAI: true
+        };
+
+        const result = await this.apiBridge.generateVideo(videoScene.prompt, videoOptions);
+
+        return {
+          scene: videoScene,
+          compositionFailed: true,
+          usedProductOnly: true,
+          ...result
+        };
+      }
+    } else {
+      // ✅ NO AVATAR: Use product image only (valid scenario)
+      //console.log('  📦 Product-only video: Using product image with brief context');
+
+      const videoOptions = {
+        imageUrl: productImage.replicateUrl || productImage.publicUrl,
+        videoStyle: 'cinematic',
+        aspectRatio: '16:9',
+        duration: '8s',
+        enhanceWithAI: true
+      };
+
+      const result = await this.apiBridge.generateVideo(videoScene.prompt, videoOptions);
+
+      return {
+        scene: videoScene,
+        usedProductOnly: true,
+        avatarNotProvided: true,
+        ...result
+      };
+    }
+  }
+
+  /**
+   * STEP 6.5: Customer Avatar Profile Generation (ENHANCED - Phase 1)
+   * Uses avatar-construction skill with fallback
+   * Now receives contextProfileId from Step 0
+   */
+  async generateCustomerAvatarProfile(brief, nicheContext) {
+    //console.log('🎯 Generating customer avatar profile...');
+
+    // Get contextProfileId from Step 0 results
+    const contextProfileResolution = this.currentSession.results.context_profile_resolution;
+    const contextProfileId = contextProfileResolution?.contextProfileId || null;
+
+    if (contextProfileId) {
+      //console.log(`  📋 Using Context Profile: ${contextProfileId}`);
+      if (contextProfileResolution.isDigitalTwin) {
+        //console.log(`  🎯 Digital Twin mode: High-precision avatar generation`);
+      }
+    }
+
+    // Skill-First: Try to use avatar-construction skill
+    if (this.skillDetector.hasSkill('avatar-construction')) {
+      try {
+        //console.log('  → Using avatar-construction skill');
+        const avatarSkill = this.skillDetector.getSkill('avatar-construction');
+
+        const avatarProfile = await avatarSkill.generate({
+          brief: brief,
+          nicheContext: nicheContext,
+          industry: nicheContext.niche,
+          contextProfileId: contextProfileId // ✅ Now uses Step 0 resolution
+        });
+
+        // Log success
+        this.logSkillUsage('avatar-construction', 'success');
+        //console.log('  ✓ Avatar profile generated via skill');
+
+        return avatarProfile;
+
+      } catch (error) {
+        console.error('  ✗ Skill failed:', error.message);
+        //console.log('  → Falling back to internal logic');
+        this.logSkillUsage('avatar-construction', 'fallback', error.message);
+        // Fallback below
+      }
+    } else {
+      //console.log('  → avatar-construction skill not available, using fallback');
+      this.logSkillUsage('avatar-construction', 'unavailable');
+    }
+
+    // Fallback: Internal logic (basic avatar profile)
+    return this.generateAvatarProfileFallback(brief, nicheContext);
+  }
+
+  /**
+   * Fallback method for avatar profile generation
+   */
+  async generateAvatarProfileFallback(brief, nicheContext) {
     return {
-      scene: videoScene,
-      ...result
+      metadata: {
+        generated_at: new Date().toISOString(),
+        method: 'fallback',
+        note: 'avatar-construction skill unavailable'
+      },
+      demographics: {
+        age_range: '25-45',
+        gender: 'Both',
+        income_range: '$40,000-$100,000'
+      },
+      psychographics: {
+        core_values: ['Success', 'Quality', 'Growth'],
+        lifestyle: 'Busy professional'
+      },
+      pain_points_and_desires: {
+        top_pain_points: [{ pain: 'Not achieving desired results', intensity: 'high' }],
+        dream_outcome: { description: 'Achieve transformation effectively' }
+      },
+      market_sophistication: {
+        primary_level: { level: 3, name: 'Solution Aware' }
+      }
     };
   }
 
   /**
-   * STEP 7: Copy Generation
+   * STEP 6.6: Unique Mechanism Generation (ENHANCED - Phase 1)
+   * Uses unique-mechanism-generator skill with fallback
+   * Now receives contextProfileId from Step 0
    */
-  async generateCopyContent(nicheContext) {
-    //console.log('📝 Generating copy content...');
-    
-    // Generate copy based on niche and context
-    const copyPrompt = this.buildCopyPrompt(nicheContext);
-    
-    // Use OpenRouter for copy generation (via existing enhancement system)
-    const copyResult = {
-      headline: await this.generateHeadline(nicheContext),
-      description: await this.generateDescription(nicheContext),
-      cta: await this.generateCTA(nicheContext),
-      hashtags: await this.generateHashtags(nicheContext)
-    };
+  async generateUniqueMechanism(brief, customerAvatarProfile, nicheContext) {
+    //console.log('🎯 Generating unique mechanism...');
 
-    return copyResult;
+    // Get contextProfileId from Step 0 results
+    const contextProfileResolution = this.currentSession.results.context_profile_resolution;
+    const contextProfileId = contextProfileResolution?.contextProfileId || null;
+
+    if (contextProfileId) {
+      //console.log(`  📋 Using Context Profile: ${contextProfileId}`);
+      if (contextProfileResolution.isDigitalTwin) {
+        //console.log(`  🎯 Digital Twin mode: High-precision mechanism generation`);
+      }
+    }
+
+    // Skill-First: Try to use unique-mechanism-generator skill
+    if (this.skillDetector.hasSkill('unique-mechanism-generator')) {
+      try {
+        //console.log('  → Using unique-mechanism-generator skill');
+        const mechanismSkill = this.skillDetector.getSkill('unique-mechanism-generator');
+
+        const mechanismResult = await mechanismSkill.generate({
+          brief: brief,
+          avatar: customerAvatarProfile,
+          contextProfileId: contextProfileId // ✅ Now uses Step 0 resolution
+        });
+
+        // Log success
+        this.logSkillUsage('unique-mechanism-generator', 'success');
+        //console.log(`  ✓ Generated ${mechanismResult.mechanism_variants.length} mechanism variants via skill`);
+
+        return mechanismResult;
+
+      } catch (error) {
+        console.error('  ✗ Skill failed:', error.message);
+        //console.log('  → Falling back to internal logic');
+        this.logSkillUsage('unique-mechanism-generator', 'fallback', error.message);
+        // Fallback below
+      }
+    } else {
+      //console.log('  → unique-mechanism-generator skill not available, using fallback');
+      this.logSkillUsage('unique-mechanism-generator', 'unavailable');
+    }
+
+    // Fallback: Basic mechanism
+    return this.generateMechanismFallback(brief, customerAvatarProfile);
+  }
+
+  /**
+   * Fallback method for unique mechanism generation
+   */
+  async generateMechanismFallback(brief, customerAvatarProfile) {
+    return {
+      metadata: {
+        generated_at: new Date().toISOString(),
+        method: 'fallback',
+        note: 'unique-mechanism-generator skill unavailable'
+      },
+      mechanism_variants: [{
+        id: 'mechanism_fallback',
+        name: 'Complete Solution System',
+        tagline: 'The comprehensive approach to achieving your goals',
+        type: 'generic',
+        scores: {
+          believability_score: 70,
+          differentiation_strength: 70,
+          market_fit_score: 70,
+          overall_quality: 70
+        }
+      }],
+      recommended_mechanism: {
+        mechanism_id: 'mechanism_fallback',
+        recommendation_reason: 'Fallback mechanism - skill unavailable',
+        confidence_score: 60
+      }
+    };
+  }
+
+  /**
+   * STEP 6.7: Grand Slam Offer Generation (ENHANCED - Phase 1)
+   * Uses grand-slam-offer-generator skill with fallback
+   * Now receives contextProfileId from Step 0
+   */
+  async generateGrandSlamOffer(brief, customerAvatarProfile, uniqueMechanism, pricing, nicheContext) {
+    //console.log('💰 Generating Grand Slam Offer...');
+
+    // Get contextProfileId from Step 0 results
+    const contextProfileResolution = this.currentSession.results.context_profile_resolution;
+    const contextProfileId = contextProfileResolution?.contextProfileId || null;
+
+    if (contextProfileId) {
+      //console.log(`  📋 Using Context Profile: ${contextProfileId}`);
+      if (contextProfileResolution.isDigitalTwin) {
+        //console.log(`  🎯 Digital Twin mode: High-precision offer generation`);
+      }
+    }
+
+    // Skill-First: Try to use grand-slam-offer-generator skill
+    if (this.skillDetector.hasSkill('grand-slam-offer-generator')) {
+      try {
+        //console.log('  → Using grand-slam-offer-generator skill');
+        const offerSkill = this.skillDetector.getSkill('grand-slam-offer-generator');
+
+        // Use recommended mechanism or first variant
+        const selectedMechanism = uniqueMechanism.mechanism_variants ?
+          uniqueMechanism.mechanism_variants[0] : null;
+
+        const offerResult = await offerSkill.generate({
+          brief: brief,
+          avatar: customerAvatarProfile,
+          unique_mechanism: selectedMechanism,
+          pricing: pricing,
+          contextProfileId: contextProfileId // ✅ Now uses Step 0 resolution
+        });
+
+        // Log success
+        this.logSkillUsage('grand-slam-offer-generator', 'success');
+        //console.log(`  ✓ Generated Grand Slam Offer (${offerResult.scores.overall_grand_slam_score}/100) via skill`);
+
+        return offerResult;
+
+      } catch (error) {
+        console.error('  ✗ Skill failed:', error.message);
+        //console.log('  → Falling back to internal logic');
+        this.logSkillUsage('grand-slam-offer-generator', 'fallback', error.message);
+        // Fallback below
+      }
+    } else {
+      //console.log('  → grand-slam-offer-generator skill not available, using fallback');
+      this.logSkillUsage('grand-slam-offer-generator', 'unavailable');
+    }
+
+    // Fallback: Basic offer
+    return this.generateOfferFallback(brief, pricing);
+  }
+
+  /**
+   * Fallback method for Grand Slam Offer generation
+   */
+  async generateOfferFallback(brief, pricing) {
+    return {
+      metadata: {
+        generated_at: new Date().toISOString(),
+        method: 'fallback',
+        note: 'grand-slam-offer-generator skill unavailable'
+      },
+      offer: {
+        value_equation: {
+          calculated_value_score: 70
+        },
+        value_stack: {
+          core_offer: {
+            name: 'Complete Solution',
+            value: pricing.base_price * 3,
+            actual_price: pricing.base_price
+          },
+          bonuses: [],
+          total_value: pricing.base_price * 3,
+          actual_price: pricing.base_price,
+          value_to_price_ratio: 3.0
+        },
+        guarantee: {
+          type: 'money_back',
+          duration: '60 days',
+          strength_level: 'basic',
+          credibility_boost: 70
+        },
+        urgency: {
+          type: 'time_limited',
+          message: 'Limited time offer',
+          urgency_strength: 60
+        }
+      },
+      scores: {
+        offer_strength: 70,
+        value_perception: 70,
+        risk_reduction: 70,
+        overall_grand_slam_score: 70
+      }
+    };
+  }
+
+  /**
+   * STEP 7: Copy Generation (ENHANCED - Phase 1)
+   * Uses ad-copy-generation skill with fallback
+   * Now receives contextProfileId + platformSpecs from Step 0
+   */
+  async generateCopyContent(brief, customerAvatarProfile, uniqueMechanism, grandSlamOffer, nicheContext) {
+    //console.log('📝 Generating copy content...');
+
+    // Get contextProfileId and platformSpecs from Step 0 results
+    const contextProfileResolution = this.currentSession.results.context_profile_resolution;
+    const contextProfileId = contextProfileResolution?.contextProfileId || null;
+    const platformSpecs = contextProfileResolution?.platform_specifications || {};
+
+    if (contextProfileId) {
+      //console.log(`  📋 Using Context Profile: ${contextProfileId}`);
+      if (contextProfileResolution.isDigitalTwin) {
+        //console.log(`  🎯 Digital Twin mode: High-precision copy generation`);
+      }
+    }
+
+    // Get target platform (ENHANCED - Phase 3: Generic fallback)
+    const targetPlatform = this.currentSession?.config?.platforms?.[0] || 'instagram';
+
+    // Get platform-specific specifications
+    const platformSpecification = platformSpecs[targetPlatform] || null;
+    if (platformSpecification) {
+      //console.log(`  📱 Using ${targetPlatform} specifications: ${platformSpecification.toneOfVoice || 'default'}`);
+    }
+
+    // Detect language from brief (NEW - FIX #2: Spanish language support)
+    const detectedLanguage = this.detectLanguageFromBrief(brief);
+    console.log(`  🌐 Detected language: ${detectedLanguage} (${detectedLanguage === 'es' ? 'Español' : 'English'})`);
+
+    // Skill-First: Try to use ad-copy-generation skill
+    if (this.skillDetector.hasSkill('ad-copy-generation')) {
+      try {
+        //console.log('  → Using ad-copy-generation skill');
+        const copySkill = this.skillDetector.getSkill('ad-copy-generation');
+
+        const copyResult = await copySkill.generate({
+          brief: brief,
+          avatar: customerAvatarProfile,
+          unique_mechanism: uniqueMechanism,
+          grand_slam_offer: grandSlamOffer,
+          nicheContext: nicheContext,
+          platform: targetPlatform,
+          language: detectedLanguage, // ✅ NEW: Language detection (es/en)
+          contextProfileId: contextProfileId, // ✅ Now uses Step 0 resolution
+          platformSpecification: platformSpecification // ✅ NEW: Platform-specific specs (toneOfVoice, demographics, bestPractices)
+        });
+
+        // Log success
+        this.logSkillUsage('ad-copy-generation', 'success');
+        //console.log(`  ✓ Generated ${copyResult.variants.length} ad copy variants via skill`);
+
+        return copyResult;
+
+      } catch (error) {
+        console.error('  ✗ Skill failed:', error.message);
+        //console.log('  → Falling back to internal logic');
+        this.logSkillUsage('ad-copy-generation', 'fallback', error.message);
+        // Fallback below
+      }
+    } else {
+      //console.log('  → ad-copy-generation skill not available, using fallback');
+      this.logSkillUsage('ad-copy-generation', 'unavailable');
+    }
+
+    // Fallback: Internal logic (basic copy generation)
+    return this.generateCopyFallback(nicheContext);
+  }
+
+  /**
+   * Fallback method for copy generation
+   */
+  async generateCopyFallback(nicheContext) {
+    const copyPrompt = this.buildCopyPrompt(nicheContext);
+
+    return {
+      metadata: {
+        generated_at: new Date().toISOString(),
+        method: 'fallback',
+        note: 'ad-copy-generation skill unavailable'
+      },
+      variants: [
+        {
+          variant_id: 1,
+          hook_type: 'generic',
+          copy: {
+            headline: await this.generateHeadline(nicheContext),
+            body: await this.generateDescription(nicheContext),
+            cta: await this.generateCTA(nicheContext)
+          }
+        }
+      ]
+    };
+  }
+
+  /**
+   * STEP 7.5: Landing Page Structure Generation (ENHANCED - Phase 1)
+   * Uses landing-page-structure skill with fallback
+   * Now receives contextProfileId + brandGuidelines from Step 0
+   */
+  async generateLandingPageStructure(brief, customerAvatarProfile, uniqueMechanism, grandSlamOffer, copyContent, nicheContext) {
+    //console.log('📄 Generating landing page structure...');
+
+    // Get contextProfileId and brandGuidelines from Step 0 results
+    const contextProfileResolution = this.currentSession.results.context_profile_resolution;
+    const contextProfileId = contextProfileResolution?.contextProfileId || null;
+    const brandGuidelines = contextProfileResolution?.brand_guidelines || {};
+
+    if (contextProfileId) {
+      //console.log(`  📋 Using Context Profile: ${contextProfileId}`);
+      if (contextProfileResolution.isDigitalTwin) {
+        //console.log(`  🎯 Digital Twin mode: High-precision landing page generation`);
+      }
+    }
+
+    // Log brand guidelines if available
+    if (brandGuidelines.color_spec) {
+      //console.log(`  🎨 Using brand colors: ${brandGuidelines.color_spec.primary || 'default'}`);
+    }
+    if (brandGuidelines.typography) {
+      //console.log(`  📝 Using brand typography: ${brandGuidelines.typography.primary_font || 'default'}`);
+    }
+
+    // Skill-First: Try to use landing-page-structure skill
+    if (this.skillDetector.hasSkill('landing-page-structure')) {
+      try {
+        //console.log('  → Using landing-page-structure skill');
+        const landingSkill = this.skillDetector.getSkill('landing-page-structure');
+
+        // Use first copy variant as primary
+        const primaryCopy = copyContent.variants ? copyContent.variants[0] : null;
+
+        const landingResult = await landingSkill.generate({
+          brief: brief,
+          avatar: customerAvatarProfile,
+          unique_mechanism: uniqueMechanism,
+          grand_slam_offer: grandSlamOffer,
+          primary_copy: primaryCopy,
+          nicheContext: nicheContext,
+          contextProfileId: contextProfileId, // ✅ Now uses Step 0 resolution
+          brandGuidelines: brandGuidelines // ✅ NEW: Pantone colors, typography, visual style
+        });
+
+        // Log success
+        this.logSkillUsage('landing-page-structure', 'success');
+        //console.log(`  ✓ Generated landing page with ${landingResult.sections.length} sections via skill`);
+
+        return landingResult;
+
+      } catch (error) {
+        console.error('  ✗ Skill failed:', error.message);
+        //console.log('  → Falling back to internal logic');
+        this.logSkillUsage('landing-page-structure', 'fallback', error.message);
+        // Fallback below
+      }
+    } else {
+      //console.log('  → landing-page-structure skill not available, using fallback');
+      this.logSkillUsage('landing-page-structure', 'unavailable');
+    }
+
+    // Fallback: Basic landing page
+    return this.generateLandingPageFallback(brief, grandSlamOffer);
+  }
+
+  /**
+   * Fallback method for landing page structure generation
+   */
+  async generateLandingPageFallback(brief, grandSlamOffer) {
+    return {
+      metadata: {
+        generated_at: new Date().toISOString(),
+        method: 'fallback',
+        note: 'landing-page-structure skill unavailable'
+      },
+      sections: [
+        {
+          section_id: 'hero',
+          title: 'Transform Your Experience',
+          content: brief,
+          cta: {
+            text: 'Get Started Now',
+            style: 'primary'
+          }
+        },
+        {
+          section_id: 'offer',
+          title: 'Special Offer',
+          content: grandSlamOffer?.offer?.value_stack ?
+            `Get ${grandSlamOffer.offer.value_stack.core_offer.name} for only $${grandSlamOffer.offer.value_stack.actual_price}` :
+            'Limited time offer available',
+          cta: {
+            text: 'Claim Offer',
+            style: 'primary'
+          }
+        }
+      ],
+      html_skeleton: '<div class="landing-page"><div class="hero">Hero Section</div><div class="offer">Offer Section</div></div>'
+    };
+  }
+
+  /**
+   * Log skill usage for analytics
+   */
+  logSkillUsage(skillName, status, errorMessage = null) {
+    this.skillsUsageLog.push({
+      skill: skillName,
+      status: status, // 'success', 'fallback', 'unavailable'
+      timestamp: new Date().toISOString(),
+      sessionId: this.currentSession?.id,
+      error: errorMessage
+    });
   }
 
   /**
@@ -403,21 +1105,73 @@ export class ContentOrchestrator {
   }
 
   /**
-   * Compile final results for return
+   * Helper: Detect language from brief content
+   * Default: Spanish (es) for Alex Seis / Latin America market
+   */
+  detectLanguageFromBrief(brief) {
+    if (!brief || typeof brief !== 'string') {
+      return 'es'; // Default Spanish
+    }
+
+    const lowerBrief = brief.toLowerCase();
+
+    // English indicators
+    const englishIndicators = [
+      /\b(the|and|this|that|with|for|from|your|you|our|we|are|is)\b/g,
+      /\b(marketing|business|product|service|customer|company)\b/g
+    ];
+
+    // Spanish indicators
+    const spanishIndicators = [
+      /\b(el|la|los|las|un|una|de|del|que|para|con|por|su|tu|nuestro)\b/g,
+      /\b(sistema|transformación|solución|negocio|cliente|empresa|producto)\b/g
+    ];
+
+    let englishScore = 0;
+    let spanishScore = 0;
+
+    englishIndicators.forEach(regex => {
+      const matches = lowerBrief.match(regex);
+      if (matches) englishScore += matches.length;
+    });
+
+    spanishIndicators.forEach(regex => {
+      const matches = lowerBrief.match(regex);
+      if (matches) spanishScore += matches.length;
+    });
+
+    // If inconclusive or equal, default to Spanish (primary market)
+    return spanishScore >= englishScore ? 'es' : 'en';
+  }
+
+  /**
+   * Compile final results for return (UPDATED - Phase 4.3)
    */
   compileFinalResults(session) {
     const processingTime = Date.now() - session.startTime;
-    
+
     return {
       success: true,
       sessionId: session.id,
+
+      // Content Assets (Images + Video)
       images: [
         session.results.product_image,
         session.results.avatar_image
       ],
       video: session.results.video_generation,
+
+      // Strategic Components (Phase 4 - NEW)
+      customer_avatar: session.results.customer_avatar_profile,
+      unique_mechanism: session.results.unique_mechanism,
+      grand_slam_offer: session.results.grand_slam_offer,
+
+      // Content Generation
       copy: session.results.copy_generation,
+      landing_page: session.results.landing_page_structure,
       variants: session.results.platform_variants,
+
+      // Metadata
       metadata: {
         processingTime,
         nicheUsed: session.results.niche_context.niche,
@@ -425,7 +1179,13 @@ export class ContentOrchestrator {
         stepsCompleted: session.steps.length,
         platforms: session.config.platforms,
         voicePreference: session.config.voicePreference,
-        productImageRef: session.results.product_image?.localPath || null
+        productImageRef: session.results.product_image?.localPath || null,
+
+        // Phase 4 metadata (NEW)
+        pipelineVersion: '4.3.0',
+        mechanismQuality: session.results.unique_mechanism?.mechanism_variants?.[0]?.scores?.overall_quality || null,
+        offerScore: session.results.grand_slam_offer?.scores?.overall_grand_slam_score || null,
+        landingSections: session.results.landing_page_structure?.sections?.length || null
       }
     };
   }

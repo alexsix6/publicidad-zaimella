@@ -1,8 +1,8 @@
-// API Endpoints for JSON Context Profiles
-// Provides RESTful API for context profile management
+// API Endpoints for JSON Context Profiles - FIXED for Vercel serverless
+// Provides RESTful API for context profile management with unified handler
 
-import { contextProfileManager } from '../lib/context-profile-manager.js';
-import { enhancePromptWithContext, analyzePromptCompatibility } from '../lib/context-enhancer.js';
+import { contextProfileManager } from '../../lib/context-profile-manager.js';
+import { enhancePromptWithContext, analyzePromptCompatibility } from '../../lib/context-enhancer.js';
 
 // 🏗️ Initialize context manager
 async function ensureInitialized() {
@@ -11,11 +11,72 @@ async function ensureInitialized() {
   }
 }
 
-// 📝 GET /api/context-profiles - List all profiles
-export async function listContextProfiles(req, res) {
+// 🎯 Main handler for Vercel serverless
+export default async function handler(req, res) {
+  const { method } = req;
+  const url = new URL(req.url, `http://${req.headers.host}`);
+  const pathParts = url.pathname.split('/').filter(Boolean);
+  console.log("🔍 DEBUG URL:", req.url);
+  console.log("🔍 DEBUG pathParts:", pathParts);
+  console.log("🔍 DEBUG method:", method);
+  
+  // Extract ID from path: /api/context-profiles/[id]
+  const id = pathParts[2]; // api, context-profiles, [id]
+  
   try {
     await ensureInitialized();
     
+    // Route based on method and path
+    if (method === 'GET' && !id) {
+      return await listContextProfiles(req, res);
+    } else if (method === 'GET' && pathParts[2] === 'templates') {
+      return await listTemplates(req, res);
+    } else if (method === 'GET' && id && !pathParts[3]) {
+      return await getContextProfile(req, res, id);
+    } else if (method === 'GET' && id && pathParts[3] === 'stats') {
+      return await getProfileStats(req, res, id);
+    } else if (method === 'POST' && !id) {
+      return await createContextProfile(req, res);
+    } else if (method === 'POST' && id && pathParts[3] === 'enhance') {
+      return await enhancePrompt(req, res, id);
+    } else if (method === 'POST' && id && pathParts[3] === 'analyze') {
+      return await analyzePrompt(req, res, id);
+    } else if (method === 'POST' && pathParts[2] === 'quick-create') {
+      return await quickCreateProfile(req, res);
+    } else if (method === 'PUT' && id) {
+      return await updateContextProfile(req, res, id);
+    } else if (method === 'DELETE' && id) {
+      return await deleteContextProfile(req, res, id);
+    } else {
+      res.status(404).json({
+        success: false,
+        error: 'Endpoint not found',
+        availableEndpoints: [
+          'GET /api/context-profiles',
+          'GET /api/context-profiles/:id',
+          'POST /api/context-profiles',
+          'PUT /api/context-profiles/:id',
+          'DELETE /api/context-profiles/:id',
+          'POST /api/context-profiles/:id/enhance',
+          'POST /api/context-profiles/:id/analyze',
+          'GET /api/context-profiles/:id/stats',
+          'POST /api/context-profiles/quick-create',
+          'GET /api/context-profiles/templates'
+        ]
+      });
+    }
+  } catch (error) {
+    console.error('❌ Context Profiles API Error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+}
+
+// 📝 GET /api/context-profiles - List all profiles
+async function listContextProfiles(req, res) {
+  try {
     const profiles = contextProfileManager.listProfiles();
     
     res.json({
@@ -33,11 +94,8 @@ export async function listContextProfiles(req, res) {
 }
 
 // 📖 GET /api/context-profiles/:id - Get specific profile
-export async function getContextProfile(req, res) {
+async function getContextProfile(req, res, id) {
   try {
-    await ensureInitialized();
-    
-    const { id } = req.params;
     const profile = await contextProfileManager.loadProfile(id);
     
     if (!profile) {
@@ -61,10 +119,8 @@ export async function getContextProfile(req, res) {
 }
 
 // 🆕 POST /api/context-profiles - Create new profile
-export async function createContextProfile(req, res) {
+async function createContextProfile(req, res) {
   try {
-    await ensureInitialized();
-    
     const profileData = req.body;
     
     // Validate required fields
@@ -107,11 +163,8 @@ export async function createContextProfile(req, res) {
 }
 
 // 🔄 PUT /api/context-profiles/:id - Update profile
-export async function updateContextProfile(req, res) {
+async function updateContextProfile(req, res, id) {
   try {
-    await ensureInitialized();
-    
-    const { id } = req.params;
     const updates = req.body;
     
     const result = await contextProfileManager.updateProfile(id, updates);
@@ -138,11 +191,8 @@ export async function updateContextProfile(req, res) {
 }
 
 // 🗑️ DELETE /api/context-profiles/:id - Delete profile
-export async function deleteContextProfile(req, res) {
+async function deleteContextProfile(req, res, id) {
   try {
-    await ensureInitialized();
-    
-    const { id } = req.params;
     const result = await contextProfileManager.deleteProfile(id);
     
     if (result.success) {
@@ -166,11 +216,8 @@ export async function deleteContextProfile(req, res) {
 }
 
 // 🎯 POST /api/context-profiles/:id/enhance - Enhance prompt with profile
-export async function enhancePrompt(req, res) {
+async function enhancePrompt(req, res, id) {
   try {
-    await ensureInitialized();
-    
-    const { id } = req.params;
     const { prompt, options = {} } = req.body;
     
     if (!prompt) {
@@ -193,11 +240,8 @@ export async function enhancePrompt(req, res) {
 }
 
 // 📊 POST /api/context-profiles/:id/analyze - Analyze prompt compatibility
-export async function analyzePrompt(req, res) {
+async function analyzePrompt(req, res, id) {
   try {
-    await ensureInitialized();
-    
-    const { id } = req.params;
     const { prompt } = req.body;
     
     if (!prompt) {
@@ -235,11 +279,8 @@ export async function analyzePrompt(req, res) {
 }
 
 // 📈 GET /api/context-profiles/:id/stats - Get profile statistics
-export async function getProfileStats(req, res) {
+async function getProfileStats(req, res, id) {
   try {
-    await ensureInitialized();
-    
-    const { id } = req.params;
     const profile = await contextProfileManager.loadProfile(id);
     
     if (!profile) {
@@ -287,10 +328,9 @@ export async function getProfileStats(req, res) {
 }
 
 // 🎨 POST /api/context-profiles/quick-create - Quick profile creation with templates
-export async function quickCreateProfile(req, res) {
+async function quickCreateProfile(req, res) {
+  console.log("🎯 quickCreateProfile called with body:", req.body);
   try {
-    await ensureInitialized();
-    
     const { template, name, customizations = {} } = req.body;
     
     if (!template || !name) {
@@ -414,7 +454,7 @@ export async function quickCreateProfile(req, res) {
 }
 
 // 📋 GET /api/context-profiles/templates - List available templates
-export async function listTemplates(req, res) {
+async function listTemplates(req, res) {
   try {
     const templates = [
       {
@@ -460,4 +500,4 @@ export async function listTemplates(req, res) {
       error: error.message
     });
   }
-} 
+}

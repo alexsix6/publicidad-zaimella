@@ -70,9 +70,9 @@ class ContentGenerationMCPServer {
                   type: 'array',
                   items: {
                     type: 'string',
-                    enum: ['instagram', 'tiktok', 'linkedin', 'x-twitter', 'facebook']
+                    enum: ['instagram', 'tiktok', 'linkedin', 'x-twitter', 'facebook', 'pinterest', 'youtube', 'email', 'google', 'kick']
                   },
-                  description: 'Target platforms for content variants'
+                  description: 'Target platforms for content variants (11 platforms supported)'
                 },
                 voice_preference: {
                   type: 'string',

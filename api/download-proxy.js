@@ -58,7 +58,7 @@ export default async function handler(req, res) {
       });
     }
 
-    console.log(`🔄 Proxying download for: ${url}`);
+    //console.log(`🔄 Proxying download for: ${url}`);
 
     // Hacer la petición al archivo original
     const response = await fetch(url, {

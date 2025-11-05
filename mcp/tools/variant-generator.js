@@ -141,18 +141,89 @@ export class VariantGenerator {
       demographics: 'Older Millennials and Gen X, community-focused'
     });
 
+    // Kick.com specifications (streaming platform)
+    this.platformSpecs.set('kick', {
+      name: 'Kick',
+      formats: {
+        stream: { aspectRatio: '16:9', quality: '4K @ 60 FPS' },
+        thumbnail: { aspectRatio: '16:9' },
+        panel: { aspectRatio: '16:9' }
+      },
+      copyLimits: {
+        title: 140,
+        titleVisible: 30,
+        description: 2000
+      },
+      bestPractices: [
+        'Titles: 140 chars max (first 30 most visible) - RESULTS-focused NOT technical',
+        'Hook viewers first 10 seconds with WOW factor (dashboards, ROI, transformation)',
+        '90% show RESULTS (dashboards, KPIs, ROI counter), 10% explain architecture',
+        'Decision Room format: Split-screen traditional vs system with ROI counter always visible',
+        'Language: Use Sistema/Transformación/Solución NOT Arquitectura/MCP/Código',
+        'Interactive strategy: Followers expose problems → develop → show solution next stream',
+        'Emphasis on ROI and time savings (e.g., 4h→30s, 270% ROI, $180K/year saved)',
+        'Entertainment + Business value: Make it visual brutal (before/after simultaneous)',
+        'Monetization: 95% creator revenue share - Build audience naturally NOT direct pitch',
+        'Stream quality: 4K @ 60 FPS support, professional production quality'
+      ],
+      toneOfVoice: 'results-focused, transformational, business-value, entertainment + wow-factor',
+      contentTypes: ['live-streaming', 'product-demos', 'roi-demonstrations', 'business-transformation'],
+      optimalTimes: ['12pm-3pm', '7pm-11pm'], // Prime streaming hours
+      demographics: 'Entrepreneurs and business decision-makers 18-35, cliente final (NOT developers), conversion-ready'
+    });
+
     //console.log(`📋 Loaded specifications for ${this.platformSpecs.size} platforms`);
   }
 
   /**
-   * Generate platform-specific variant
+   * Get generic platform specifications for unknown platforms (NUEVO - Phase 3)
+   * Similar to niche-manager graceful fallback - supports ANY platform
+   */
+  getGenericPlatformSpec(platform) {
+    // Capitalize platform name for display
+    const displayName = platform.split('-').map(word =>
+      word.charAt(0).toUpperCase() + word.slice(1)
+    ).join(' ');
+
+    // Generic specs that work for most social/video platforms
+    return {
+      name: displayName,
+      formats: {
+        post: { aspectRatio: '1:1', maxDuration: '60s' },
+        video: { aspectRatio: '16:9', maxDuration: '120s' }
+      },
+      copyLimits: {
+        caption: 2000,
+        hashtags: 20,
+        headline: 100
+      },
+      bestPractices: [
+        'Use high-quality visuals',
+        'Craft engaging, platform-appropriate copy',
+        'Include clear call-to-actions',
+        'Post during optimal engagement times'
+      ],
+      toneOfVoice: 'conversational, engaging, authentic',
+      contentTypes: ['informative', 'entertaining', 'promotional', 'educational'],
+      optimalTimes: ['9am-11am', '12pm-2pm', '7pm-9pm'],
+      demographics: 'General audience',
+      isGeneric: true // Flag to indicate this is a generated fallback
+    };
+  }
+
+  /**
+   * Generate platform-specific variant (ENHANCED - Phase 3: Generic Platform Support)
+   * Now supports ANY platform, not limited to 5 predefined platforms
    */
   async generateVariant(platform, contentAssets) {
     //console.log(`📱 Generating ${platform} variant...`);
 
-    const platformSpec = this.platformSpecs.get(platform);
+    let platformSpec = this.platformSpecs.get(platform);
+
+    // GRACEFUL FALLBACK: Create generic specs for unknown platforms
     if (!platformSpec) {
-      throw new Error(`Unsupported platform: ${platform}`);
+      console.log(`  ℹ️  No definition for platform '${platform}', generating generic specs`);
+      platformSpec = this.getGenericPlatformSpec(platform);
     }
 
     const { images, video, copy, niche } = contentAssets;
@@ -192,41 +263,58 @@ export class VariantGenerator {
   }
 
   /**
-   * Select optimal format for platform based on content
+   * Select optimal format for platform based on content (ENHANCED - Phase 3)
+   * Now supports generic platforms with graceful fallback
    */
   selectOptimalFormat(platform, contentAssets) {
-    const platformSpec = this.platformSpecs.get(platform);
+    let platformSpec = this.platformSpecs.get(platform);
+
+    // GRACEFUL FALLBACK: Use generic specs if platform not known
+    if (!platformSpec) {
+      platformSpec = this.getGenericPlatformSpec(platform);
+    }
+
     const availableFormats = Object.keys(platformSpec.formats);
 
     // Logic to select best format based on content type and platform
     switch (platform) {
       case 'instagram':
         return contentAssets.video ? 'reel' : 'post';
-        
+
       case 'tiktok':
         return 'video'; // TikTok is primarily video
-        
+
       case 'linkedin':
         return contentAssets.copy?.length > 500 ? 'article' : 'post';
-        
+
       case 'x-twitter':
         return contentAssets.copy?.length > 280 ? 'thread' : 'post';
-        
+
       case 'facebook':
         if (contentAssets.video) return 'reel';
         return 'post';
-        
+
       default:
+        // Generic fallback: video if available, otherwise post
+        if (contentAssets.video && availableFormats.includes('video')) {
+          return 'video';
+        }
         return availableFormats[0]; // Default to first available format
     }
   }
 
   /**
-   * Adapt copy content for specific platform
+   * Adapt copy content for specific platform (ENHANCED - Phase 3)
+   * Now supports generic platforms with graceful fallback
    */
   async adaptCopyForPlatform(originalCopy, platform, niche) {
-    const platformSpec = this.platformSpecs.get(platform);
-    
+    let platformSpec = this.platformSpecs.get(platform);
+
+    // GRACEFUL FALLBACK: Use generic specs if platform not known
+    if (!platformSpec) {
+      platformSpec = this.getGenericPlatformSpec(platform);
+    }
+
     if (!originalCopy) {
       return this.generateDefaultCopy(platform, niche);
     }

@@ -53,4 +53,13 @@ yarn-error.log*
 
 # Cache de sistemas
 .cache/
-*.cache 
+*.cache
+
+# Generated content (images, videos, media)
+public/generated/
+public/videos/
+mcp/tests/output/
+*.mp4
+*.mov
+*.avi
+*.webm

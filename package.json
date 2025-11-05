@@ -1,19 +1,27 @@
 {
   "name": "image-hosting-generator",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Static image hosting extended with AI generation capabilities",
   "type": "module",
   "main": "index.html",
   "scripts": {
-    "dev": "vercel dev",
     "build": "echo 'Static build complete'",
-    "deploy": "vercel --prod"
+    "deploy": "vercel --prod",
+    "test": "node test-complete-integration.js",
+    "test:context": "node -e \"import('./lib/unified/enhancer.js').then(e => e.unifiedEnhancer.getStats()).then(console.log)\"",
+    "logs": "vercel logs",
+    "env": "vercel env ls"
   },
   "dependencies": {
     "@fal-ai/client": "^1.5.0",
+    "@modelcontextprotocol/sdk": "^0.6.0",
     "@openrouter/ai-sdk-provider": "^0.7.1",
+    "@qdrant/qdrant-js": "^1.15.1",
     "axios": "^1.6.0",
+    "dotenv": "^17.2.0",
+    "node-cache": "^5.1.2",
     "replicate": "^0.25.2",
+    "sharp": "^0.34.4",
     "tslib": "^2.8.1"
   },
   "devDependencies": {

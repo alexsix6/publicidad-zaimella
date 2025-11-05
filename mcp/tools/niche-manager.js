@@ -176,41 +176,105 @@ export class NicheManager {
   }
 
   /**
-   * Auto-detect niche from brief content
+   * Auto-detect niche from brief content (ENHANCED - Phase 2: Generic Detection)
+   * Now supports ANY industry, not limited to 6 predefined niches
    */
   async detectNiche(brief) {
+    // STEP 1: Try known niches first (for optimization with existing definitions)
     const briefLower = brief.toLowerCase();
     const nicheScores = new Map();
 
-    // Score each niche based on keyword matches
     for (const [nicheId, niche] of this.niches) {
       let score = 0;
-      
+
       for (const keyword of niche.keywords) {
         if (briefLower.includes(keyword)) {
           score += 1;
         }
       }
-      
+
       // Normalize score by number of keywords
       const normalizedScore = score / niche.keywords.length;
       nicheScores.set(nicheId, normalizedScore);
     }
 
-    // Find the highest scoring niche
-    let bestNiche = 'marketing-agency'; // default
-    let bestScore = 0;
+    // Find the highest scoring known niche
+    let bestKnownNiche = null;
+    let bestKnownScore = 0;
 
     for (const [nicheId, score] of nicheScores) {
-      if (score > bestScore) {
-        bestNiche = nicheId;
-        bestScore = score;
+      if (score > bestKnownScore) {
+        bestKnownNiche = nicheId;
+        bestKnownScore = score;
       }
     }
 
-    //console.log(`🎯 Auto-detected niche: ${bestNiche} (confidence: ${(bestScore * 100).toFixed(1)}%)`);
-    
-    return bestNiche;
+    // If we found a good match in known niches (>40% confidence), use it
+    if (bestKnownScore > 0.4) {
+      console.log(`🎯 Auto-detected KNOWN niche: ${bestKnownNiche} (confidence: ${(bestKnownScore * 100).toFixed(1)}%)`);
+      return bestKnownNiche;
+    }
+
+    // STEP 2: Generic extraction for unknown industries
+    // Extract industry semantically (similar to skills detection)
+    const extractedNiche = await this.extractIndustryFromBrief(brief);
+
+    console.log(`🎯 Auto-detected GENERIC niche: ${extractedNiche} (semantic extraction)`);
+
+    return extractedNiche;
+  }
+
+  /**
+   * Extract industry from brief using semantic understanding (NUEVO - Phase 2)
+   * Similar to skills trigger detection - understands intention, not keywords
+   */
+  async extractIndustryFromBrief(brief) {
+    // Common industry indicators (semantic patterns, NOT exhaustive list)
+    const industryPatterns = [
+      // Healthcare/Medical
+      { pattern: /\b(health|medical|hospital|clinic|doctor|patient|healthcare|pharmaceutical|wellness center)\b/i, industry: 'healthcare' },
+      // Education
+      { pattern: /\b(school|university|education|learning|course|training|academic|student|teacher)\b/i, industry: 'education' },
+      // Technology
+      { pattern: /\b(software|tech|app|platform|digital|SaaS|AI|cloud|startup)\b/i, industry: 'technology' },
+      // Finance
+      { pattern: /\b(bank|finance|investment|loan|insurance|credit|fintech|trading)\b/i, industry: 'finance' },
+      // Legal
+      { pattern: /\b(law|legal|attorney|lawyer|court|litigation|paralegal)\b/i, industry: 'legal' },
+      // Hospitality/Travel
+      { pattern: /\b(hotel|travel|tourism|resort|vacation|booking|hospitality)\b/i, industry: 'hospitality' },
+      // Construction
+      { pattern: /\b(construction|contractor|building|renovation|architect|engineering)\b/i, industry: 'construction' },
+      // Retail (general)
+      { pattern: /\b(retail|shopping|merchandise|boutique|store front)\b/i, industry: 'retail' },
+      // Professional Services
+      { pattern: /\b(consulting|consultant|professional services|advisory)\b/i, industry: 'professional-services' },
+      // Non-profit
+      { pattern: /\b(nonprofit|charity|foundation|donation|volunteer|NGO)\b/i, industry: 'non-profit' },
+      // Entertainment
+      { pattern: /\b(entertainment|event|concert|festival|performance|venue)\b/i, industry: 'entertainment' }
+    ];
+
+    // Try to match against semantic patterns
+    for (const { pattern, industry } of industryPatterns) {
+      if (pattern.test(brief)) {
+        return industry;
+      }
+    }
+
+    // Fallback: Try to extract dominant noun/theme
+    // Look for capitalized terms or repeated concepts
+    const words = brief.match(/\b[A-Z][a-z]+\b/g) || [];
+    if (words.length > 0) {
+      // Use first capitalized word as industry hint
+      const hint = words[0].toLowerCase();
+      console.log(`  ℹ️  Using extracted term as niche: ${hint}`);
+      return hint;
+    }
+
+    // Final fallback: generic (NOT marketing-agency - neutral default)
+    console.log(`  ⚠️  Could not determine specific niche, using 'generic'`);
+    return 'generic';
   }
 
   /**
@@ -219,9 +283,32 @@ export class NicheManager {
   async analyzeBrief(brief) {
     const detectedNiche = await this.detectNiche(brief);
     const nicheData = this.niches.get(detectedNiche);
-    
+
+    // GRACEFUL FALLBACK: Handle generic niches without throwing error
     if (!nicheData) {
-      throw new Error(`Niche ${detectedNiche} not found`);
+      console.log(`  ℹ️  No definition for niche '${detectedNiche}', generating generic analysis`);
+
+      // Generic confidence (moderate since we did semantic extraction)
+      const confidence = 0.6;
+
+      // Generic video approach
+      const videoApproach = 'Professional presentation highlighting key value proposition';
+
+      // Generic insights based on best practices
+      return {
+        niche: detectedNiche,
+        confidence,
+        recommendedPlatforms: ['instagram', 'facebook', 'linkedin'], // Multi-platform default
+        suggestedStyle: 'professional, clean, modern',
+        videoApproach,
+        insights: [
+          `Target audience: General audience interested in ${detectedNiche}`,
+          `Key messaging should focus on: Value proposition and quality`,
+          `Visual style: Use high-quality professional imagery`,
+          `Tone: Conversational yet authoritative`
+        ],
+        isGeneric: true // Flag to indicate fallback mode
+      };
     }
 
     // Calculate confidence based on keyword matches
@@ -260,25 +347,60 @@ export class NicheManager {
   }
 
   /**
-   * Get detailed insights for a specific niche
+   * Get detailed insights for a specific niche (ENHANCED - Phase 2: Graceful Fallback)
+   * Now supports ANY industry - creates generic insights if niche definition doesn't exist
    */
   async getNicheInsights(nicheId) {
     const niche = this.niches.get(nicheId);
-    
-    if (!niche) {
-      throw new Error(`Niche ${nicheId} not found`);
+
+    // If niche definition exists, use it
+    if (niche) {
+      return {
+        id: niche.id,
+        name: niche.name,
+        targetAudience: niche.targetAudience,
+        keyMessaging: niche.keyMessaging,
+        visualStyle: niche.visualStyle,
+        optimalPlatforms: niche.optimalPlatforms,
+        bestPractices: niche.bestPractices,
+        trends: niche.trends,
+        keywords: niche.keywords
+      };
     }
 
+    // GRACEFUL FALLBACK: Create generic insights for unknown niche
+    console.log(`  ℹ️  No definition for niche '${nicheId}', generating generic insights`);
+
+    // Capitalize niche name for display
+    const displayName = nicheId.split('-').map(word =>
+      word.charAt(0).toUpperCase() + word.slice(1)
+    ).join(' ');
+
     return {
-      id: niche.id,
-      name: niche.name,
-      targetAudience: niche.targetAudience,
-      keyMessaging: niche.keyMessaging,
-      visualStyle: niche.visualStyle,
-      optimalPlatforms: niche.optimalPlatforms,
-      bestPractices: niche.bestPractices,
-      trends: niche.trends,
-      keywords: niche.keywords
+      id: nicheId,
+      name: displayName,
+      targetAudience: 'General audience',
+      keyMessaging: [
+        'Value proposition',
+        'Quality and reliability',
+        'Customer satisfaction',
+        'Innovation and results'
+      ],
+      visualStyle: 'professional, clean, modern',
+      optimalPlatforms: ['instagram', 'facebook', 'linkedin'], // Default multi-platform
+      bestPractices: [
+        'Use high-quality imagery',
+        'Craft clear and compelling messaging',
+        'Include strong call-to-actions',
+        'Highlight unique value proposition'
+      ],
+      trends: [
+        'Digital-first approaches',
+        'Personalized experiences',
+        'Social proof and testimonials'
+      ],
+      keywords: [nicheId, 'professional', 'quality', 'service'],
+      isGeneric: true // Flag to indicate this is a generated fallback
     };
   }
 

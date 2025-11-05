@@ -1,5 +1,5 @@
-module.exports = async function handler(req, res) {
-    console.log('🧠 [Analyze Idea] Request received');
+export default async function handler(req, res) {
+    //console.log('🧠 [Analyze Idea] Request received');
     
     if (req.method !== 'POST') {
         return res.status(405).json({ 
@@ -22,7 +22,7 @@ module.exports = async function handler(req, res) {
             });
         }
 
-        console.log('🧠 [Analyze Idea] Input:', {
+        //console.log('🧠 [Analyze Idea] Input:', {
             rawIdea: rawIdea.substring(0, 100) + '...',
             analysisModel
         });
@@ -101,7 +101,7 @@ Responde ÚNICAMENTE con el JSON solicitado, sin texto adicional.`;
             throw new Error('No analysis response from OpenRouter');
         }
 
-        console.log('🧠 [Analyze Idea] Raw AI response:', analysisResponse.content.substring(0, 200) + '...');
+        //console.log('🧠 [Analyze Idea] Raw AI response:', analysisResponse.content.substring(0, 200) + '...');
 
         // Parsear la respuesta JSON
         let analysisData;
@@ -137,7 +137,7 @@ Responde ÚNICAMENTE con el JSON solicitado, sin texto adicional.`;
         if (!analysisData.imagePrompt) analysisData.imagePrompt = rawIdea;
         if (!analysisData.videoPrompt) analysisData.videoPrompt = rawIdea;
 
-        console.log('🧠 [Analyze Idea] Final analysis:', {
+        //console.log('🧠 [Analyze Idea] Final analysis:', {
             qualityScore: analysisData.qualityScore,
             strengthsCount: analysisData.strengths.length,
             suggestionsCount: analysisData.suggestions.length,

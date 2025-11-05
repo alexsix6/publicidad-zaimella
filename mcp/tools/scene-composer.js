@@ -200,10 +200,11 @@ Duration: 10-12 seconds.`,
 
   /**
    * Compose video scene based on configuration
+   * NOW INCLUDES: Brief context for auto-enhanced prompts
    */
   async composeScene(config) {
-    const { mode = 'presentation', niche, productImage, avatarImage, style } = config;
-    
+    const { mode = 'presentation', niche, productImage, avatarImage, style, brief, enhancedBrief, keyMessaging, targetAudience } = config;
+
     ////console.log(`🎬 Composing ${mode} scene for ${niche} niche`);
 
     // Get template for the mode and niche
@@ -214,12 +215,12 @@ Duration: 10-12 seconds.`,
       throw new Error(`No template found for mode: ${mode}, niche: ${niche}`);
     }
 
-    // Build scene composition
+    // Build scene composition WITH campaign context
     const scene = {
       mode,
       niche,
       template: template.structure,
-      prompt: await this.buildScenePrompt(template, config),
+      prompt: await this.buildScenePrompt(template, config), // Now includes brief/messaging
       technical: {
         cameraMovement: template.cameraMovement,
         lighting: template.lighting,
@@ -228,6 +229,12 @@ Duration: 10-12 seconds.`,
       assets: {
         productImage,
         avatarImage
+      },
+      // ✅ NEW: Metadata about context used
+      contextUsed: {
+        hasBrief: !!brief,
+        hasKeyMessaging: !!keyMessaging,
+        hasTargetAudience: !!targetAudience
       }
     };
 
@@ -237,31 +244,57 @@ Duration: 10-12 seconds.`,
 
   /**
    * Build detailed scene prompt for video generation
+   * NOW AUTO-ENHANCED with brief/messaging context
    */
   async buildScenePrompt(template, config) {
-    const { niche, style, productImage, avatarImage } = config;
-    
+    const { niche, style, productImage, avatarImage, brief, enhancedBrief, keyMessaging, targetAudience } = config;
+
+    // ✅ EXTRACT PRODUCT CONTEXT from brief
+    const productContext = this.extractProductContext(brief, enhancedBrief, keyMessaging);
+
     // Base scene description
     let prompt = `${template.structure.replace(/_/g, ' ')}, `;
-    
+
+    // ✅ ADD PRODUCT/CAMPAIGN CONTEXT (if available)
+    if (productContext.productName) {
+      prompt += `featuring ${productContext.productName}, `;
+    }
+
+    if (productContext.keyBenefit) {
+      prompt += `showcasing ${productContext.keyBenefit}, `;
+    }
+
     // Add lighting
     prompt += `${template.lighting.replace(/_/g, ' ')} lighting, `;
-    
+
     // Add camera movement
     prompt += `${template.cameraMovement.replace(/_/g, ' ')} camera movement, `;
-    
+
     // Add style
     if (style) {
       prompt += `${style} visual style, `;
     }
-    
+
+    // ✅ ADD TARGET AUDIENCE CONTEXT (if available)
+    if (targetAudience) {
+      const audienceTone = this.getAudienceTone(targetAudience);
+      if (audienceTone) {
+        prompt += `${audienceTone} tone for target audience, `;
+      }
+    }
+
     // Add niche-specific elements
-    const elementDescriptions = template.elements.map(element => 
+    const elementDescriptions = template.elements.map(element =>
       this.getElementDescription(element, niche)
     ).join(', ');
-    
+
     prompt += elementDescriptions;
-    
+
+    // ✅ ADD KEY MESSAGING (if available and space permits)
+    if (productContext.keyMessage && prompt.length < 400) {
+      prompt += `, emphasizing: ${productContext.keyMessage}`;
+    }
+
     // Add technical video specifications
     prompt += ', professional video quality, 8 seconds duration, cinematic composition';
 
@@ -271,6 +304,71 @@ Duration: 10-12 seconds.`,
     }
 
     return prompt;
+  }
+
+  /**
+   * Extract product context from brief and messaging
+   */
+  extractProductContext(brief, enhancedBrief, keyMessaging) {
+    const context = {
+      productName: null,
+      keyBenefit: null,
+      keyMessage: null
+    };
+
+    // Try to extract product name from brief (simple heuristic)
+    if (brief) {
+      // Look for patterns like "our [product]", "the [product]", "presenting [product]"
+      const productMatch = brief.match(/(?:our|the|presenting|introducing|new)\s+([a-zA-Z0-9\s-]{3,30})(?:\s+is|\s+that|\s+which|,|\.)/i);
+      if (productMatch) {
+        context.productName = productMatch[1].trim();
+      }
+    }
+
+    // Extract key benefit from keyMessaging
+    if (keyMessaging && Array.isArray(keyMessaging) && keyMessaging.length > 0) {
+      context.keyBenefit = keyMessaging[0]; // First key message
+      if (keyMessaging.length > 1) {
+        context.keyMessage = keyMessaging[1]; // Second key message
+      }
+    } else if (typeof keyMessaging === 'string') {
+      context.keyBenefit = keyMessaging;
+    }
+
+    // Fallback: Extract from enhancedBrief
+    if (!context.keyBenefit && enhancedBrief) {
+      // Look for benefit patterns
+      const benefitMatch = enhancedBrief.match(/(?:benefit|advantage|feature|solve|provide|deliver)(?:s)?:?\s+([^.,!?]{10,60})/i);
+      if (benefitMatch) {
+        context.keyBenefit = benefitMatch[1].trim();
+      }
+    }
+
+    return context;
+  }
+
+  /**
+   * Get tone based on target audience
+   */
+  getAudienceTone(targetAudience) {
+    if (!targetAudience) return null;
+
+    const audienceStr = typeof targetAudience === 'string'
+      ? targetAudience.toLowerCase()
+      : JSON.stringify(targetAudience).toLowerCase();
+
+    // Map audience characteristics to video tone
+    if (audienceStr.includes('professional') || audienceStr.includes('executive') || audienceStr.includes('b2b')) {
+      return 'professional and authoritative';
+    } else if (audienceStr.includes('young') || audienceStr.includes('millennial') || audienceStr.includes('gen z')) {
+      return 'energetic and modern';
+    } else if (audienceStr.includes('luxury') || audienceStr.includes('premium') || audienceStr.includes('high-end')) {
+      return 'elegant and sophisticated';
+    } else if (audienceStr.includes('family') || audienceStr.includes('parent')) {
+      return 'warm and trustworthy';
+    }
+
+    return null; // No specific tone override
   }
 
   /**

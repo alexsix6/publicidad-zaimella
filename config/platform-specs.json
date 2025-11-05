@@ -1,0 +1,173 @@
+{
+  "facebook": {
+    "formats": {
+      "post": "1.91:1",
+      "story": "9:16",
+      "reel": "9:16"
+    },
+    "toneOfVoice": "friendly, community-oriented, family-focused, conversational",
+    "demographics": "Older Millennials and Gen X, community-focused, broad age range",
+    "bestPractices": [
+      "Create engaging, shareable content",
+      "Use Facebook Groups for community building",
+      "Encourage discussions and user-generated content",
+      "Post consistently during peak engagement times"
+    ]
+  },
+  "instagram": {
+    "formats": {
+      "post": "1:1",
+      "story": "9:16",
+      "reel": "9:16"
+    },
+    "toneOfVoice": "casual, visual-first, community-focused, authentic",
+    "demographics": "Millennials and Gen Z, visual-oriented, lifestyle-focused",
+    "bestPractices": [
+      "Use high-quality visuals with vibrant colors",
+      "Include relevant hashtags (5-10 optimal)",
+      "Engage with stories and interactive stickers",
+      "Maintain consistent aesthetic and brand identity"
+    ]
+  },
+  "linkedin": {
+    "formats": {
+      "post": "1.91:1",
+      "article": "1.91:1"
+    },
+    "toneOfVoice": "professional, authoritative, insightful, networking-focused",
+    "demographics": "Working professionals, B2B decision makers, career-focused",
+    "bestPractices": [
+      "Share professional insights and expertise",
+      "Use data and statistics to back claims",
+      "Network professionally and build thought leadership",
+      "Post during business hours for maximum reach"
+    ]
+  },
+  "tiktok": {
+    "formats": {
+      "video": "9:16"
+    },
+    "toneOfVoice": "fun, authentic, trend-aware, energetic, entertaining",
+    "demographics": "Gen Z and younger Millennials, entertainment-focused, mobile-first",
+    "bestPractices": [
+      "Hook viewers in first 3 seconds",
+      "Use trending sounds and effects",
+      "Keep content authentic and relatable",
+      "Leverage challenges and duets for engagement"
+    ]
+  },
+  "twitter": {
+    "formats": {
+      "post": "16:9",
+      "thread": "16:9"
+    },
+    "toneOfVoice": "concise, witty, conversational, timely, news-focused",
+    "demographics": "Tech-savvy, news-oriented, diverse age range, real-time focused",
+    "bestPractices": [
+      "Keep messages concise and impactful (280 chars)",
+      "Use threads for longer content and storytelling",
+      "Share timely content and join trending conversations",
+      "Engage with replies to build community"
+    ]
+  },
+  "x-twitter": {
+    "formats": {
+      "post": "16:9",
+      "thread": "16:9"
+    },
+    "toneOfVoice": "concise, timely, conversational, news-focused",
+    "demographics": "Diverse, news-oriented, real-time focused",
+    "bestPractices": [
+      "Keep messages concise and impactful",
+      "Use threads for longer content",
+      "Share timely content",
+      "Engage authentically with community"
+    ]
+  },
+  "google": {
+    "formats": {
+      "display": "1.91:1",
+      "responsive": "1.91:1",
+      "discovery": "1.91:1",
+      "square": "1:1"
+    },
+    "toneOfVoice": "clear, value-driven, action-oriented, benefit-focused",
+    "demographics": "Intent-driven users actively searching, conversion-ready",
+    "bestPractices": [
+      "Match search intent precisely",
+      "Include clear call-to-action",
+      "Highlight unique value proposition",
+      "Use high-quality images that align with ad copy",
+      "A/B test different variations"
+    ]
+  },
+  "email": {
+    "formats": {
+      "header": "2:1",
+      "inline": "1.91:1",
+      "banner": "6:1"
+    },
+    "toneOfVoice": "personal, direct, value-focused, conversational",
+    "demographics": "Existing customers or opted-in subscribers, relationship-focused",
+    "bestPractices": [
+      "Personalize subject lines and content",
+      "Clear value proposition above the fold",
+      "Mobile-responsive design (60%+ opens on mobile)",
+      "Single clear call-to-action",
+      "Test send times for your audience"
+    ]
+  },
+  "youtube": {
+    "formats": {
+      "thumbnail": "16:9",
+      "channel_art": "16:9",
+      "shorts": "9:16"
+    },
+    "toneOfVoice": "educational, entertaining, storytelling-focused, engaging",
+    "demographics": "Broad age range, video-first learners, entertainment-seekers",
+    "bestPractices": [
+      "Create compelling thumbnails with faces and text",
+      "Hook viewers in first 10 seconds",
+      "Optimize titles and descriptions for search",
+      "Encourage engagement (likes, comments, subscribe)",
+      "Consistent upload schedule"
+    ]
+  },
+  "pinterest": {
+    "formats": {
+      "pin": "2:3",
+      "standard": "1:1",
+      "long_pin": "1:2.1"
+    },
+    "toneOfVoice": "inspirational, aspirational, visual, helpful",
+    "demographics": "Women 25-54, DIY enthusiasts, planners, shopping-focused",
+    "bestPractices": [
+      "Use vertical images (2:3 ratio ideal)",
+      "Include text overlay on images",
+      "Optimize pin descriptions with keywords",
+      "Create multiple pins for same content",
+      "Link to valuable content or products"
+    ]
+  },
+  "kick": {
+    "formats": {
+      "stream": "16:9",
+      "thumbnail": "16:9",
+      "panel": "16:9"
+    },
+    "toneOfVoice": "results-focused, transformational, business-value, entertainment + wow-factor",
+    "demographics": "Entrepreneurs and business decision-makers 18-35, cliente final (NOT developers), conversion-ready",
+    "bestPractices": [
+      "Titles: 140 chars max (first 30 most visible) - RESULTS-focused NOT technical",
+      "Hook viewers first 10 seconds with WOW factor (dashboards, ROI, transformation)",
+      "90% show RESULTS (dashboards, KPIs, ROI counter), 10% explain architecture",
+      "Decision Room format: Split-screen traditional vs system with ROI counter always visible",
+      "Language: Use 'Sistema/Transformación/Solución' NOT 'Arquitectura/MCP/Código'",
+      "Interactive strategy: Followers expose problems → develop → show solution next stream",
+      "Emphasis on ROI and time savings (e.g., '4h→30s', '270% ROI', '$180K/year saved')",
+      "Entertainment + Business value: Make it visual brutal (before/after simultaneous)",
+      "Monetization: 95% creator revenue share - Build audience naturally NOT direct pitch",
+      "Stream quality: 4K @ 60 FPS support, professional production quality"
+    ]
+  }
+}
