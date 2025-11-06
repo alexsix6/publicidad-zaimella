@@ -278,11 +278,241 @@ export class NicheManager {
   }
 
   /**
-   * Analyze brief and provide recommendations
+   * ✅ PHASE 2 - FRAMEWORK SEEDS DETECTION
+   * Detect Todd Brown 5 hook types opportunities in brief
+   */
+  detectHookOpportunities(brief) {
+    const briefLower = brief.toLowerCase();
+
+    // Mechanism hook: unique ingredients, process, technology, system
+    const mechanismPatterns = /\b(formula|ingredient|system|process|technology|method|technique|patented|proprietary|unique|secret|exclusive|with|contains|includes)\b/i;
+    let mechanismHint = null;
+    if (mechanismPatterns.test(brief)) {
+      // Extract mechanism phrase (words around mechanism keyword)
+      const match = brief.match(/\b([\w\s]+(?:formula|ingredient|system|process|technology|method)[\w\s]*)/i);
+      mechanismHint = match ? match[1].trim() : null;
+    }
+
+    // Proof hook: testimonials, reviews, results, studies, customers
+    const proofPatterns = /\b(testimonial|review|rating|customer|client|study|research|proven|verified|certified|award|endorsed)\b/i;
+    const proofHint = proofPatterns.test(brief) ? "Evidence/social proof mentioned" : null;
+
+    // Big promise hook: specific outcomes, timeframes, guarantees
+    const promisePatterns = /\b(reduce|increase|improve|achieve|guarantee|results? in|within|by|up to|\d+%|\d+ (days?|weeks?|months?))\b/i;
+    let promiseHint = null;
+    if (promisePatterns.test(brief)) {
+      // Extract promise phrase
+      const match = brief.match(/\b(reduce|increase|improve|achieve)[\w\s]+(in|within)?\s*\d+\s*(days?|weeks?|months?)/i);
+      promiseHint = match ? match[0].trim() : "Specific outcome promised";
+    }
+
+    // Enemy hook: problem, pain, obstacle, avoid
+    const enemyPatterns = /\b(problem|pain|issue|struggle|difficult|avoid|prevent|eliminate|stop|without)\b/i;
+    let enemyHint = null;
+    if (enemyPatterns.test(brief)) {
+      const match = brief.match(/\b(problem|pain|issue|struggle|difficult|avoid|prevent|eliminate|stop)[\w\s]*/i);
+      enemyHint = match ? match[1].trim() : "Problem/obstacle identified";
+    }
+
+    // Curiosity hook: secret, discover, revealed, surprising, little-known
+    const curiosityPatterns = /\b(secret|discover|reveal|surprising|unknown|little-known|hidden|insider|exclusive access)\b/i;
+    const curiosityHint = curiosityPatterns.test(brief) ? "Curiosity/intrigue element" : null;
+
+    return {
+      mechanism: mechanismHint,
+      proof: proofHint,
+      big_promise: promiseHint,
+      enemy: enemyHint,
+      curiosity: curiosityHint
+    };
+  }
+
+  /**
+   * ✅ PHASE 2 - Extract pain points and dream outcome from brief
+   */
+  extractPainPoints(brief) {
+    const painPoints = [];
+    let dreamOutcome = null;
+
+    // Pain point indicators
+    const painPatterns = [
+      /\b(problem|issue|struggle|difficult|challenge|pain|frustrat\w+|worry|concern|afraid|fear)\b/gi,
+      /\b(avoid|prevent|stop|eliminate|reduce)\s+([\w\s]+)/gi
+    ];
+
+    for (const pattern of painPatterns) {
+      const matches = brief.matchAll(pattern);
+      for (const match of matches) {
+        const context = brief.substring(Math.max(0, match.index - 20), Math.min(brief.length, match.index + 50));
+        painPoints.push(context.trim());
+      }
+    }
+
+    // Dream outcome indicators (positive outcomes)
+    const outcomePatterns = [
+      /\b(achieve|reach|get|obtain|transform|improve|increase|enhance|boost)\s+([\w\s]+)/i,
+      /\b(goal|dream|desire|aspiration|want|need|wish)\s+to\s+([\w\s]+)/i
+    ];
+
+    for (const pattern of outcomePatterns) {
+      const match = brief.match(pattern);
+      if (match) {
+        dreamOutcome = match[0].trim();
+        break; // Take first dream outcome found
+      }
+    }
+
+    // Fallback: extract from promise language
+    if (!dreamOutcome) {
+      const promiseMatch = brief.match(/\b(reduce|increase|improve|achieve|transform)[\w\s]+(results?|outcomes?|benefits?)/i);
+      if (promiseMatch) {
+        dreamOutcome = promiseMatch[0].trim();
+      }
+    }
+
+    return {
+      pain_points: painPoints.slice(0, 3), // Top 3 pain points
+      dream_outcome: dreamOutcome
+    };
+  }
+
+  /**
+   * ✅ PHASE 2 - Detect market sophistication level (Todd Brown Stage 1-5)
+   */
+  detectSophisticationLevel(brief) {
+    const briefLower = brief.toLowerCase();
+
+    // Stage 5: Identity/experience-based (highest sophistication)
+    if (/\b(identity|lifestyle|who you are|belong|community|movement|revolution)\b/i.test(brief)) {
+      return { level: "Stage 5", description: "Identity/experience-based positioning" };
+    }
+
+    // Stage 4: Enhanced mechanism
+    if (/\b(improved|enhanced|advanced|new version|upgraded|better|optimized|2\.0|next generation)\b/i.test(brief)) {
+      return { level: "Stage 4", description: "Enhanced mechanism positioning" };
+    }
+
+    // Stage 3: Unique mechanism
+    if (/\b(unique|proprietary|patented|exclusive|secret|formula|system|process|technology|method)\b/i.test(brief)) {
+      return { level: "Stage 3", description: "Unique mechanism positioning" };
+    }
+
+    // Stage 2: Elaborated claim
+    if (/\b(because|due to|thanks to|powered by|with|using|contains|includes)\b/i.test(brief)) {
+      return { level: "Stage 2", description: "Elaborated claim with reasoning" };
+    }
+
+    // Stage 1: Direct claim (lowest sophistication)
+    return { level: "Stage 1", description: "Direct claim without elaboration" };
+  }
+
+  /**
+   * ✅ PHASE 2 - Extract value indicators (price, guarantees, bonuses, urgency)
+   */
+  extractValueIndicators(brief) {
+    const indicators = {
+      price_mentioned: false,
+      price_value: null,
+      currency: null,
+      bonus_detected: null,
+      urgency_detected: false,
+      guarantee_detected: false
+    };
+
+    // Price detection
+    const pricePatterns = [
+      /\$(\d+(?:\.\d{2})?)/,   // $49.99
+      /€(\d+(?:\.\d{2})?)/,    // €49.99
+      /(\d+(?:\.\d{2})?)\s*(USD|EUR|GBP|MXN|ARS|CLP)/i  // 49.99 USD
+    ];
+
+    for (const pattern of pricePatterns) {
+      const match = brief.match(pattern);
+      if (match) {
+        indicators.price_mentioned = true;
+        indicators.price_value = parseFloat(match[1]);
+        indicators.currency = match[2] || 'USD'; // Default to USD if $ symbol
+        break;
+      }
+    }
+
+    // Bonus detection
+    const bonusPatterns = /\b(bonus|free|gift|complimentary|included|plus|extra|additional|envío gratis|shipping free)\b/i;
+    const bonusMatch = brief.match(bonusPatterns);
+    if (bonusMatch) {
+      // Extract bonus context
+      const bonusContext = brief.substring(Math.max(0, bonusMatch.index - 10), Math.min(brief.length, bonusMatch.index + 40));
+      indicators.bonus_detected = bonusContext.trim();
+    }
+
+    // Urgency detection
+    const urgencyPatterns = /\b(limited|exclusive|only|hurry|now|today|expires|deadline|last chance|while supplies last|act fast)\b/i;
+    indicators.urgency_detected = urgencyPatterns.test(brief);
+
+    // Guarantee detection
+    const guaranteePatterns = /\b(guarantee|warranty|refund|money.?back|satisfaction|risk.?free|trial)\b/i;
+    indicators.guarantee_detected = guaranteePatterns.test(brief);
+
+    return indicators;
+  }
+
+  /**
+   * ✅ PHASE 2 - Extract demographics (age, gender) from brief
+   */
+  extractDemographics(brief) {
+    const demographics = {
+      gender: null,
+      age_range: null
+    };
+
+    // Gender detection
+    const genderPatterns = [
+      { pattern: /\b(women|female|ladies|mujeres|femenino)\b/i, gender: 'mujeres' },
+      { pattern: /\b(men|male|hombres|masculino|guys)\b/i, gender: 'hombres' },
+      { pattern: /\b(unisex|everyone|all|todos|ambos|any gender)\b/i, gender: 'todos' }
+    ];
+
+    for (const { pattern, gender } of genderPatterns) {
+      if (pattern.test(brief)) {
+        demographics.gender = gender;
+        break;
+      }
+    }
+
+    // Age range detection
+    const agePatterns = [
+      { pattern: /\b(\d{2})-(\d{2})\s*(years?|años?)\b/i, extract: (m) => m[0] },
+      { pattern: /\b(18-24|25-34|35-44|45-54|55-64|65\+)\b/i, extract: (m) => m[0] },
+      { pattern: /\b(teens?|teenager|adolescente)\b/i, age: '13-19' },
+      { pattern: /\b(young adults?|jóvenes)\b/i, age: '18-30' },
+      { pattern: /\b(adults?|adultos)\b/i, age: '25-55' },
+      { pattern: /\b(seniors?|elderly|mayores)\b/i, age: '60+' }
+    ];
+
+    for (const { pattern, extract, age } of agePatterns) {
+      const match = brief.match(pattern);
+      if (match) {
+        demographics.age_range = extract ? extract(match) : age;
+        break;
+      }
+    }
+
+    return demographics;
+  }
+
+  /**
+   * Analyze brief and provide recommendations (✅ ENHANCED - Phase 2 with framework_seeds)
    */
   async analyzeBrief(brief) {
     const detectedNiche = await this.detectNiche(brief);
     const nicheData = this.niches.get(detectedNiche);
+
+    // ✅ PHASE 2: Generate framework seeds (before niche-specific processing)
+    const hookOpportunities = this.detectHookOpportunities(brief);
+    const painPointsData = this.extractPainPoints(brief);
+    const sophisticationData = this.detectSophisticationLevel(brief);
+    const valueIndicators = this.extractValueIndicators(brief);
+    const demographics = this.extractDemographics(brief);
 
     // GRACEFUL FALLBACK: Handle generic niches without throwing error
     if (!nicheData) {
@@ -307,7 +537,18 @@ export class NicheManager {
           `Visual style: Use high-quality professional imagery`,
           `Tone: Conversational yet authoritative`
         ],
-        isGeneric: true // Flag to indicate fallback mode
+        isGeneric: true, // Flag to indicate fallback mode
+
+        // ✅ PHASE 2: Framework seeds included
+        framework_seeds: {
+          hook_opportunities: hookOpportunities,
+          pain_points: painPointsData.pain_points,
+          dream_outcome: painPointsData.dream_outcome,
+          sophistication_level: sophisticationData.level,
+          sophistication_description: sophisticationData.description,
+          value_indicators: valueIndicators,
+          target_demographics: demographics
+        }
       };
     }
 
@@ -342,12 +583,88 @@ export class NicheManager {
         `Key messaging should focus on: ${nicheData.keyMessaging.slice(0, 2).join(' and ')}`,
         `Visual style should be: ${nicheData.visualStyle}`,
         `Best performing platforms: ${nicheData.optimalPlatforms.join(', ')}`
-      ]
+      ],
+
+      // ✅ PHASE 2: Framework seeds included
+      framework_seeds: {
+        hook_opportunities: hookOpportunities,
+        pain_points: painPointsData.pain_points,
+        dream_outcome: painPointsData.dream_outcome,
+        sophistication_level: sophisticationData.level,
+        sophistication_description: sophisticationData.description,
+        value_indicators: valueIndicators,
+        target_demographics: demographics
+      }
     };
   }
 
   /**
-   * Get detailed insights for a specific niche (ENHANCED - Phase 2: Graceful Fallback)
+   * ✅ PHASE 2 - Generate default framework metadata for unknown/generic niches
+   */
+  generateDefaultFrameworkMetadata(nicheId) {
+    return {
+      avatar_profile_seeds: {
+        typical_demographics: {
+          age_range: "25-55",
+          gender_distribution: "50% female, 50% male",
+          income_range: "$30K-$80K annually",
+          occupation_clusters: ["professionals", "business owners", "consumers"]
+        },
+        typical_psychographics: {
+          core_values: ["quality", "value", "reliability"],
+          lifestyle: "modern, digital-first",
+          aspirations: ["improvement", "success", "satisfaction"],
+          fears: ["wasted money", "poor quality", "bad service"]
+        },
+        common_pain_points: [
+          "Hard to find reliable solutions",
+          "Too many options to choose from",
+          "Unsure about quality"
+        ],
+        typical_dream_outcomes: [
+          "Find the right solution",
+          "Get value for money",
+          "Achieve desired results"
+        ]
+      },
+      mechanism_patterns: {
+        effective_mechanisms: ["Quality guarantee", "Expert service", "Proven results"],
+        proof_types: {
+          most_effective: "testimonials",
+          ranking: ["testimonials", "reviews", "case studies"]
+        },
+        credibility_elements: ["certifications", "awards", "expertise"]
+      },
+      offer_positioning_patterns: {
+        typical_price_ranges: {
+          budget: "$10-$50",
+          mid_range: "$50-$200",
+          premium: "$200+"
+        },
+        guarantee_structures: ["satisfaction guaranteed", "money-back"],
+        common_bonuses: ["free consultation", "bonus materials"],
+        urgency_tactics: ["limited time offer", "special discount"]
+      },
+      hook_preferences: {
+        effectiveness_ranking: [
+          { type: "mechanism", effectiveness: 75, note: "Focus on unique approach" },
+          { type: "proof", effectiveness: 80, note: "Social proof is universal" },
+          { type: "big_promise", effectiveness: 70, note: "Specific outcomes" },
+          { type: "enemy", effectiveness: 65, note: "Problem awareness" },
+          { type: "curiosity", effectiveness: 60, note: "Generate interest" }
+        ],
+        typical_sophistication: "Stage 2-3",
+        effective_angles: [
+          "Value angle: Get more for less",
+          "Quality angle: Premium quality",
+          "Results angle: Achieve your goals"
+        ]
+      }
+    };
+  }
+
+  /**
+   * Get detailed insights for a specific niche (✅ ENHANCED - Phase 2 with framework_metadata)
    * Now supports ANY industry - creates generic insights if niche definition doesn't exist
    */
   async getNicheInsights(nicheId) {
@@ -364,7 +681,10 @@ export class NicheManager {
         optimalPlatforms: niche.optimalPlatforms,
         bestPractices: niche.bestPractices,
         trends: niche.trends,
-        keywords: niche.keywords
+        keywords: niche.keywords,
+
+        // ✅ PHASE 2: Framework metadata (use niche-specific if exists, else default)
+        framework_metadata: niche.framework_metadata || this.generateDefaultFrameworkMetadata(nicheId)
       };
     }
 
@@ -400,7 +720,10 @@ export class NicheManager {
         'Social proof and testimonials'
       ],
       keywords: [nicheId, 'professional', 'quality', 'service'],
-      isGeneric: true // Flag to indicate this is a generated fallback
+      isGeneric: true, // Flag to indicate this is a generated fallback
+
+      // ✅ PHASE 2: Framework metadata (use default for unknown niches)
+      framework_metadata: this.generateDefaultFrameworkMetadata(nicheId)
     };
   }
 
