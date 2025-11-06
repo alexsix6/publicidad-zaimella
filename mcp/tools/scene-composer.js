@@ -200,12 +200,12 @@ Duration: 10-12 seconds.`,
 
   /**
    * Compose video scene based on configuration
-   * NOW INCLUDES: Brief context for auto-enhanced prompts
+   * ENHANCED: Now with strategic frameworks (avatar, mechanism, offer)
    */
   async composeScene(config) {
-    const { mode = 'presentation', niche, productImage, avatarImage, style, brief, enhancedBrief, keyMessaging, targetAudience } = config;
+    const { mode = 'presentation', niche, productImage, avatarImage, style, brief, enhancedBrief, keyMessaging, targetAudience, avatarProfile, mechanism, offer } = config;
 
-    ////console.log(`🎬 Composing ${mode} scene for ${niche} niche`);
+    ////console.log(`🎬 Composing ${mode} scene for ${niche} niche with strategic frameworks`);
 
     // Get template for the mode and niche
     const modeTemplates = this.sceneTemplates.get(mode);
@@ -215,12 +215,12 @@ Duration: 10-12 seconds.`,
       throw new Error(`No template found for mode: ${mode}, niche: ${niche}`);
     }
 
-    // Build scene composition WITH campaign context
+    // Build scene composition WITH campaign context + strategic frameworks
     const scene = {
       mode,
       niche,
       template: template.structure,
-      prompt: await this.buildScenePrompt(template, config), // Now includes brief/messaging
+      prompt: await this.buildScenePrompt(template, config), // Now includes frameworks
       technical: {
         cameraMovement: template.cameraMovement,
         lighting: template.lighting,
@@ -230,11 +230,14 @@ Duration: 10-12 seconds.`,
         productImage,
         avatarImage
       },
-      // ✅ NEW: Metadata about context used
+      // ✅ ENHANCED: Metadata about context AND frameworks used
       contextUsed: {
         hasBrief: !!brief,
         hasKeyMessaging: !!keyMessaging,
-        hasTargetAudience: !!targetAudience
+        hasTargetAudience: !!targetAudience,
+        hasAvatarProfile: !!avatarProfile,
+        hasMechanism: !!mechanism,
+        hasOffer: !!offer
       }
     };
 
@@ -244,10 +247,10 @@ Duration: 10-12 seconds.`,
 
   /**
    * Build detailed scene prompt for video generation
-   * NOW AUTO-ENHANCED with brief/messaging context
+   * ENHANCED: Now with strategic frameworks (avatar, mechanism, offer)
    */
   async buildScenePrompt(template, config) {
-    const { niche, style, productImage, avatarImage, brief, enhancedBrief, keyMessaging, targetAudience } = config;
+    const { niche, style, productImage, avatarImage, brief, enhancedBrief, keyMessaging, targetAudience, avatarProfile, mechanism, offer } = config;
 
     // ✅ EXTRACT PRODUCT CONTEXT from brief
     const productContext = this.extractProductContext(brief, enhancedBrief, keyMessaging);
@@ -264,6 +267,21 @@ Duration: 10-12 seconds.`,
       prompt += `showcasing ${productContext.keyBenefit}, `;
     }
 
+    // ✅ ADD UNIQUE MECHANISM (if available)
+    if (mechanism && mechanism.mechanism_variants && mechanism.mechanism_variants.length > 0) {
+      const topMechanism = mechanism.mechanism_variants[0];
+      const mechanismName = topMechanism.name || 'innovative solution';
+      prompt += `demonstrating ${mechanismName}, `;
+    }
+
+    // ✅ ADD AVATAR PROFILE PSYCHOGRAPHICS (if available)
+    if (avatarProfile && avatarProfile.pain_points_and_desires) {
+      const dreamOutcome = avatarProfile.pain_points_and_desires.dream_outcome?.description;
+      if (dreamOutcome) {
+        prompt += `visualizing transformation: ${dreamOutcome}, `;
+      }
+    }
+
     // Add lighting
     prompt += `${template.lighting.replace(/_/g, ' ')} lighting, `;
 
@@ -275,8 +293,15 @@ Duration: 10-12 seconds.`,
       prompt += `${style} visual style, `;
     }
 
-    // ✅ ADD TARGET AUDIENCE CONTEXT (if available)
-    if (targetAudience) {
+    // ✅ ADD TARGET AUDIENCE CONTEXT (enhanced with avatar profile)
+    if (avatarProfile) {
+      const demographics = avatarProfile.demographics || {};
+      const ageRange = demographics.age_range || '';
+      const gender = demographics.gender || '';
+      if (ageRange && gender) {
+        prompt += `appealing to ${gender} ${ageRange}, `;
+      }
+    } else if (targetAudience) {
       const audienceTone = this.getAudienceTone(targetAudience);
       if (audienceTone) {
         prompt += `${audienceTone} tone for target audience, `;

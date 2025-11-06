@@ -164,32 +164,13 @@ export class ContentOrchestrator {
         return await this.applyNicheContext(session.config.niche, session.results.context_gathering);
       });
 
-      // STEP 4: Product Image Generation
-      await this.executeStep('product_image', async () => {
-        return await this.generateProductImage(session.results.niche_context);
-      });
-
-      // STEP 5: Avatar/Person Image Generation
-      await this.executeStep('avatar_image', async () => {
-        return await this.generateAvatarImage(session.results.niche_context, session.results.product_image);
-      });
-
-      // STEP 6: Video Scene Composition
-      await this.executeStep('video_generation', async () => {
-        return await this.generateVideoContent(
-          session.results.product_image,
-          session.results.avatar_image,
-          session.results.niche_context,
-          session.config.brief // ✅ Pass original brief for context
-        );
-      });
-
-      // STEP 6.5: Customer Avatar Profile Generation (uses avatar-construction skill)
+      // ✅ STEP 4: Customer Avatar Profile Generation (MOVED UP - Priority #1)
+      // Generate strategic frameworks BEFORE visual assets
       await this.executeStep('customer_avatar_profile', async () => {
         return await this.generateCustomerAvatarProfile(session.config.brief, session.results.niche_context);
       });
 
-      // STEP 6.6: Unique Mechanism Generation (NEW - Phase 4.1)
+      // ✅ STEP 5: Unique Mechanism Generation (MOVED UP - Priority #2)
       await this.executeStep('unique_mechanism', async () => {
         return await this.generateUniqueMechanism(
           session.config.brief,
@@ -198,7 +179,7 @@ export class ContentOrchestrator {
         );
       });
 
-      // STEP 6.7: Grand Slam Offer Generation (NEW - Phase 4.2)
+      // ✅ STEP 6: Grand Slam Offer Generation (MOVED UP - Priority #3)
       await this.executeStep('grand_slam_offer', async () => {
         return await this.generateGrandSlamOffer(
           session.config.brief,
@@ -209,7 +190,39 @@ export class ContentOrchestrator {
         );
       });
 
-      // STEP 7: Copy Generation (uses ad-copy-generation skill + mechanism + offer)
+      // ✅ STEP 7: Product Image Generation (NOW WITH FRAMEWORKS)
+      await this.executeStep('product_image', async () => {
+        return await this.generateProductImage(
+          session.results.niche_context,
+          session.results.customer_avatar_profile,
+          session.results.unique_mechanism,
+          session.results.grand_slam_offer
+        );
+      });
+
+      // ✅ STEP 8: Avatar/Person Image Generation (NOW WITH AVATAR PROFILE)
+      await this.executeStep('avatar_image', async () => {
+        return await this.generateAvatarImage(
+          session.results.niche_context,
+          session.results.product_image,
+          session.results.customer_avatar_profile
+        );
+      });
+
+      // ✅ STEP 9: Video Scene Composition (NOW WITH FRAMEWORKS)
+      await this.executeStep('video_generation', async () => {
+        return await this.generateVideoContent(
+          session.results.product_image,
+          session.results.avatar_image,
+          session.results.niche_context,
+          session.config.brief,
+          session.results.customer_avatar_profile,
+          session.results.unique_mechanism,
+          session.results.grand_slam_offer
+        );
+      });
+
+      // ✅ STEP 10: Copy Generation (uses ad-copy-generation skill + mechanism + offer)
       await this.executeStep('copy_generation', async () => {
         return await this.generateCopyContent(
           session.config.brief,
@@ -220,7 +233,7 @@ export class ContentOrchestrator {
         );
       });
 
-      // STEP 7.5: Landing Page Structure Generation (NEW - uses landing-page-structure skill)
+      // ✅ STEP 11: Landing Page Structure Generation (uses landing-page-structure skill)
       await this.executeStep('landing_page_structure', async () => {
         return await this.generateLandingPageStructure(
           session.config.brief,
@@ -232,7 +245,7 @@ export class ContentOrchestrator {
         );
       });
 
-      // STEP 8: Platform Variants
+      // STEP 12: Platform Variants
       await this.executeStep('platform_variants', async () => {
         return await this.generatePlatformVariants(
           session.config.platforms,
@@ -240,7 +253,7 @@ export class ContentOrchestrator {
         );
       });
 
-      // STEP 9: Cache Storage
+      // STEP 13: Cache Storage
       await this.executeStep('cache_storage', async () => {
         return await this.storeInSemanticCache(session.config.brief, session.results);
       });
@@ -389,13 +402,13 @@ export class ContentOrchestrator {
   }
 
   /**
-   * STEP 4: Product Image Generation
+   * STEP 7: Product Image Generation (ENHANCED - Now with strategic frameworks)
    */
-  async generateProductImage(nicheContext) {
-    //console.log('🎨 Generating product image...');
-    
-    const productPrompt = await this.buildProductPrompt(nicheContext);
-    
+  async generateProductImage(nicheContext, avatarProfile = null, mechanism = null, offer = null) {
+    //console.log('🎨 Generating product image with strategic frameworks...');
+
+    const productPrompt = await this.buildProductPrompt(nicheContext, avatarProfile, mechanism, offer);
+
     const imageOptions = {
       model: 'flux-kontext', // Máxima calidad para productos
       aspectRatio: '1:1', // Square for product shots
@@ -404,27 +417,32 @@ export class ContentOrchestrator {
     };
 
     const result = await this.apiBridge.generateImage(productPrompt, imageOptions);
-    
+
     return {
       type: 'product',
       prompt: productPrompt,
+      usedFrameworks: {
+        avatar: !!avatarProfile,
+        mechanism: !!mechanism,
+        offer: !!offer
+      },
       ...result
     };
   }
 
   /**
-   * STEP 5: Avatar/Person Image Generation
+   * STEP 8: Avatar/Person Image Generation (ENHANCED - Now with avatar profile)
    */
-  async generateAvatarImage(nicheContext, productImageResult = null) {
-    //console.log('👤 Generating avatar image...');
-    
+  async generateAvatarImage(nicheContext, productImageResult = null, avatarProfile = null) {
+    //console.log('👤 Generating avatar image with avatar profile...');
+
     const productImageRef = productImageResult?.localPath || null;
-    const avatarPrompt = await this.buildAvatarPrompt(nicheContext, productImageRef);
-    
+    const avatarPrompt = await this.buildAvatarPrompt(nicheContext, productImageRef, avatarProfile);
+
     // Detect if trained model is requested
     const detectedModel = this.detectTrainedModel(nicheContext.enhancedBrief);
     //console.log(`🎯 Detected model for avatar: ${detectedModel}`);
-    
+
     const imageOptions = {
       model: detectedModel, // Smart model selection
       aspectRatio: '9:16', // Portrait for social
@@ -433,35 +451,40 @@ export class ContentOrchestrator {
     };
 
     const result = await this.apiBridge.generateImage(avatarPrompt, imageOptions);
-    
+
     return {
       type: 'avatar',
       prompt: avatarPrompt,
+      usedAvatarProfile: !!avatarProfile,
       ...result
     };
   }
 
   /**
-   * STEP 6: Video Scene Composition
+   * STEP 9: Video Scene Composition (ENHANCED - Now with strategic frameworks)
    * OPTIONAL COMPOSITION: Only combines product + avatar if avatarImage exists
    * Otherwise uses product image alone with brief context
-   * NOW INCLUDES: Brief context for auto-enhanced video prompts
+   * NOW INCLUDES: Brief context + Avatar profile + Mechanism + Offer for persuasive videos
    */
-  async generateVideoContent(productImage, avatarImage, nicheContext, brief) {
-    //console.log('🎬 Generating video content...');
+  async generateVideoContent(productImage, avatarImage, nicheContext, brief, avatarProfile = null, mechanism = null, offer = null) {
+    //console.log('🎬 Generating video content with strategic frameworks...');
 
-    // Use SceneComposer to create video scenes
+    // Use SceneComposer to create video scenes with strategic frameworks
     const sceneConfig = {
       mode: 'presentation', // presentation, interaction, demonstration
       productImage: productImage.publicUrl,
       avatarImage: avatarImage?.publicUrl || null, // Optional
       niche: nicheContext.niche,
       style: nicheContext.visualStyle,
-      // ✅ NEW: Pass campaign context for auto-enhancement
+      // ✅ Campaign context
       brief: brief, // Original brief
       enhancedBrief: nicheContext.enhancedBrief, // Brief + niche context
       keyMessaging: nicheContext.keyMessaging, // Key messages from niche
-      targetAudience: nicheContext.targetAudience // Target audience
+      targetAudience: nicheContext.targetAudience, // Target audience
+      // ✅ NEW: Strategic frameworks for persuasive videos
+      avatarProfile: avatarProfile, // Customer avatar profile
+      mechanism: mechanism, // Unique mechanism
+      offer: offer // Grand slam offer
     };
 
     const videoScene = await this.sceneComposer.composeScene(sceneConfig);
@@ -524,6 +547,11 @@ export class ContentOrchestrator {
             layout: layout,
             localPath: composedPath
           },
+          usedFrameworks: {
+            avatar: !!avatarProfile,
+            mechanism: !!mechanism,
+            offer: !!offer
+          },
           ...result
         };
 
@@ -546,6 +574,11 @@ export class ContentOrchestrator {
           scene: videoScene,
           compositionFailed: true,
           usedProductOnly: true,
+          usedFrameworks: {
+            avatar: !!avatarProfile,
+            mechanism: !!mechanism,
+            offer: !!offer
+          },
           ...result
         };
       }
@@ -567,6 +600,11 @@ export class ContentOrchestrator {
         scene: videoScene,
         usedProductOnly: true,
         avatarNotProvided: true,
+        usedFrameworks: {
+          avatar: !!avatarProfile,
+          mechanism: !!mechanism,
+          offer: !!offer
+        },
         ...result
       };
     }
@@ -1190,20 +1228,62 @@ export class ContentOrchestrator {
     };
   }
 
-  // Helper methods for prompt building
-  async buildProductPrompt(nicheContext) {
-    return `${nicheContext.enhancedBrief}, product photography style, ${nicheContext.visualStyle}, professional lighting, clean background`;
+  // Helper methods for prompt building (ENHANCED - Now with strategic frameworks)
+  async buildProductPrompt(nicheContext, avatarProfile = null, mechanism = null, offer = null) {
+    let prompt = `${nicheContext.enhancedBrief}, product photography style, ${nicheContext.visualStyle}`;
+
+    // ✅ Enrich with avatar demographics if available
+    if (avatarProfile && avatarProfile.demographics) {
+      const demographics = avatarProfile.demographics;
+      const ageRange = demographics.age_range || 'general audience';
+      const gender = demographics.gender || 'all genders';
+      const income = demographics.income_range || 'mid-range income';
+      prompt += `, appealing to ${gender} aged ${ageRange} with ${income}`;
+    }
+
+    // ✅ Enrich with unique mechanism if available
+    if (mechanism && mechanism.mechanism_variants && mechanism.mechanism_variants.length > 0) {
+      const topMechanism = mechanism.mechanism_variants[0];
+      const mechanismName = topMechanism.name || 'innovative solution';
+      prompt += `, emphasizing ${mechanismName}`;
+    }
+
+    // ✅ Enrich with offer positioning if available
+    if (offer && offer.offer && offer.offer.value_stack) {
+      const valueRatio = offer.offer.value_stack.value_to_price_ratio || 3;
+      prompt += `, premium packaging highlighting ${valueRatio}x value`;
+    }
+
+    prompt += `, professional lighting, clean background`;
+    return prompt;
   }
 
-  async buildAvatarPrompt(nicheContext, productImageRef = null) {
-    const demographics = nicheContext.targetAudience;
-    let basePrompt = `${demographics}, ${nicheContext.visualStyle}, professional portrait, engaging expression, high quality`;
-    
+  async buildAvatarPrompt(nicheContext, productImageRef = null, avatarProfile = null) {
+    let basePrompt;
+
+    // ✅ Use avatar profile if available (strategic approach)
+    if (avatarProfile) {
+      const demographics = avatarProfile.demographics || {};
+      const psychographics = avatarProfile.psychographics || {};
+
+      const gender = demographics.gender || 'person';
+      const ageRange = demographics.age_range || '25-45';
+      const lifestyle = psychographics.lifestyle || 'professional lifestyle';
+      const coreValues = psychographics.core_values || ['quality', 'success'];
+      const values = coreValues.slice(0, 2).join(' and ');
+
+      basePrompt = `${gender} aged ${ageRange}, embodying ${lifestyle} lifestyle with values of ${values}, ${nicheContext.visualStyle}, professional portrait, authentic expression, engaging demeanor, high quality`;
+    } else {
+      // Fallback to generic demographics
+      const demographics = nicheContext.targetAudience;
+      basePrompt = `${demographics}, ${nicheContext.visualStyle}, professional portrait, engaging expression, high quality`;
+    }
+
     // Add product image reference for visual consistency
     if (productImageRef) {
-      basePrompt += `, interacting with product from reference image: ${productImageRef}, same lighting and visual style as reference, consistent color palette and atmosphere`;
+      basePrompt += `, interacting with product, consistent visual style and lighting`;
     }
-    
+
     return basePrompt;
   }
 
