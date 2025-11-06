@@ -1,178 +1,142 @@
 /**
  * Variant Generator - Multi-platform content adaptation
- * Generates platform-specific variants for Instagram, TikTok, LinkedIn, X, Facebook
+ * REFACTORED: Now loads platforms dynamically from platform-specs.json (11+ platforms)
+ * Supports: Instagram, TikTok, LinkedIn, X-Twitter, Facebook, Kick, Google, Email, YouTube, Pinterest, Twitter
  */
+
+import { readFileSync } from 'fs';
+import { resolve, dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 export class VariantGenerator {
   constructor() {
     this.initialized = false;
     this.platformSpecs = new Map();
+    this.platformSpecsPath = resolve(__dirname, '../../config/platform-specs.json');
   }
 
   async initialize() {
     if (this.initialized) return;
 
     //console.log('📱 Initializing Variant Generator...');
-    
-    // Load platform specifications
+
+    // Load platform specifications dynamically from JSON
     this.loadPlatformSpecs();
-    
+
     this.initialized = true;
-    ////console.log(`✅ Variant Generator initialized for ${this.platformSpecs.size} platforms`);
+    //console.log(`✅ Variant Generator initialized for ${this.platformSpecs.size} platforms`);
   }
 
   loadPlatformSpecs() {
-    // Instagram specifications
-    this.platformSpecs.set('instagram', {
-      name: 'Instagram',
-      formats: {
-        post: { aspectRatio: '1:1', maxDuration: '60s' },
-        story: { aspectRatio: '9:16', maxDuration: '15s' },
-        reel: { aspectRatio: '9:16', maxDuration: '30s' }
-      },
-      copyLimits: {
-        caption: 2200,
-        hashtags: 30,
-        bioLink: 150
-      },
-      bestPractices: [
-        'Use high-quality visuals with vibrant colors',
-        'Include relevant hashtags for discoverability',
-        'Engage with stories and interactive elements',
-        'Post consistently for algorithm favor'
-      ],
-      toneOfVoice: 'casual, visual-first, community-focused',
-      contentTypes: ['lifestyle', 'behind-the-scenes', 'user-generated', 'product-showcase'],
-      optimalTimes: ['11am-1pm', '7pm-9pm'],
-      demographics: 'Millennials and Gen Z, visual-oriented'
+    try {
+      // ✅ Load platform specifications dynamically from JSON
+      const platformSpecsJson = readFileSync(this.platformSpecsPath, 'utf-8');
+      const platformSpecsData = JSON.parse(platformSpecsJson);
+
+      // Convert JSON object to Map with enhanced structure
+      for (const [platformKey, platformData] of Object.entries(platformSpecsData)) {
+        this.platformSpecs.set(platformKey, {
+          name: platformKey.charAt(0).toUpperCase() + platformKey.slice(1).replace('-', ' '),
+          formats: platformData.formats || {},
+          copyLimits: this.inferCopyLimits(platformData),
+          bestPractices: platformData.bestPractices || [],
+          toneOfVoice: platformData.toneOfVoice || 'professional, clear',
+          contentTypes: this.inferContentTypes(platformKey),
+          optimalTimes: this.inferOptimalTimes(platformKey),
+          demographics: platformData.demographics || 'General audience'
+        });
+      }
+
+      //console.log(`📋 Loaded specifications for ${this.platformSpecs.size} platforms dynamically from platform-specs.json`);
+    } catch (error) {
+      console.error('❌ Failed to load platform-specs.json:', error.message);
+      console.log('⚠️ Falling back to minimal platform support');
+      // Minimal fallback: at least support the most common platforms
+      this.loadMinimalFallbackSpecs();
+    }
+  }
+
+  /**
+   * Infer copy limits from platform data or use intelligent defaults
+   */
+  inferCopyLimits(platformData) {
+    // If platform has explicit limits, use them
+    if (platformData.copyLimits) return platformData.copyLimits;
+
+    // Otherwise infer from platform type
+    return {
+      post: 2200,
+      caption: 2200,
+      headline: 150,
+      description: 500
+    };
+  }
+
+  /**
+   * Infer content types based on platform
+   */
+  inferContentTypes(platform) {
+    const contentTypesMap = {
+      'instagram': ['lifestyle', 'behind-the-scenes', 'user-generated', 'product-showcase'],
+      'tiktok': ['educational', 'entertainment', 'trends', 'quick-tips'],
+      'linkedin': ['thought-leadership', 'industry-insights', 'company-updates', 'professional-tips'],
+      'facebook': ['community-content', 'event-promotion', 'family-friendly', 'local-business'],
+      'twitter': ['news-updates', 'quick-thoughts', 'live-commentary', 'link-sharing'],
+      'x-twitter': ['news-updates', 'quick-thoughts', 'live-commentary', 'link-sharing'],
+      'kick': ['live-streaming', 'product-demos', 'roi-demonstrations', 'business-transformation'],
+      'youtube': ['video-content', 'tutorials', 'vlogs', 'product-reviews'],
+      'pinterest': ['inspiration', 'diy', 'recipes', 'visual-guides'],
+      'google': ['search-ads', 'display-ads', 'shopping-ads'],
+      'email': ['newsletters', 'promotions', 'transactional', 'nurture-campaigns']
+    };
+
+    return contentTypesMap[platform] || ['general-content'];
+  }
+
+  /**
+   * Infer optimal posting times based on platform
+   */
+  inferOptimalTimes(platform) {
+    const timesMap = {
+      'instagram': ['11am-1pm', '7pm-9pm'],
+      'tiktok': ['6am-10am', '7pm-9pm'],
+      'linkedin': ['8am-10am', '12pm-2pm', '5pm-6pm'],
+      'facebook': ['1pm-3pm', '7pm-9pm'],
+      'twitter': ['9am-10am', '12pm-3pm', '5pm-6pm'],
+      'x-twitter': ['9am-10am', '12pm-3pm', '5pm-6pm'],
+      'kick': ['12pm-3pm', '7pm-11pm'],
+      'youtube': ['2pm-4pm', '7pm-9pm'],
+      'pinterest': ['8pm-11pm'],
+      'google': ['anytime'],
+      'email': ['10am-11am', '8pm-9pm']
+    };
+
+    return timesMap[platform] || ['9am-5pm'];
+  }
+
+  /**
+   * Minimal fallback if JSON loading fails
+   */
+  loadMinimalFallbackSpecs() {
+    const minimalPlatforms = ['instagram', 'facebook', 'linkedin', 'twitter', 'google'];
+
+    minimalPlatforms.forEach(platform => {
+      this.platformSpecs.set(platform, {
+        name: platform.charAt(0).toUpperCase() + platform.slice(1),
+        formats: { post: { aspectRatio: '1:1' } },
+        copyLimits: { post: 2200 },
+        bestPractices: ['Create engaging content', 'Post consistently', 'Engage with audience'],
+        toneOfVoice: 'professional, conversational',
+        contentTypes: ['general-content'],
+        optimalTimes: ['9am-5pm'],
+        demographics: 'General audience'
+      });
     });
 
-    // TikTok specifications
-    this.platformSpecs.set('tiktok', {
-      name: 'TikTok',
-      formats: {
-        video: { aspectRatio: '9:16', maxDuration: '60s' }
-      },
-      copyLimits: {
-        caption: 150,
-        hashtags: 100 // characters, not count
-      },
-      bestPractices: [
-        'Hook viewers in first 3 seconds',
-        'Use trending sounds and effects',
-        'Keep content authentic and entertaining',
-        'Participate in challenges and trends'
-      ],
-      toneOfVoice: 'fun, authentic, trend-aware, energetic',
-      contentTypes: ['educational', 'entertainment', 'trends', 'quick-tips'],
-      optimalTimes: ['6am-10am', '7pm-9pm'],
-      demographics: 'Gen Z and younger Millennials, entertainment-focused'
-    });
-
-    // LinkedIn specifications
-    this.platformSpecs.set('linkedin', {
-      name: 'LinkedIn',
-      formats: {
-        post: { aspectRatio: '1.91:1', maxDuration: '10min' },
-        article: { aspectRatio: '1.91:1', unlimited: true }
-      },
-      copyLimits: {
-        post: 3000,
-        headline: 150,
-        article: 125000
-      },
-      bestPractices: [
-        'Share professional insights and expertise',
-        'Use data and statistics to support points',
-        'Engage in meaningful business discussions',
-        'Network and build professional relationships'
-      ],
-      toneOfVoice: 'professional, authoritative, insightful, networking-focused',
-      contentTypes: ['thought-leadership', 'industry-insights', 'company-updates', 'professional-tips'],
-      optimalTimes: ['8am-10am', '12pm-2pm', '5pm-6pm'],
-      demographics: 'Working professionals, B2B decision makers'
-    });
-
-    // X (Twitter) specifications
-    this.platformSpecs.set('x-twitter', {
-      name: 'X (Twitter)',
-      formats: {
-        post: { aspectRatio: '16:9', maxDuration: '140s' },
-        thread: { aspectRatio: '16:9', unlimited: true }
-      },
-      copyLimits: {
-        tweet: 280,
-        thread: 280 // per tweet
-      },
-      bestPractices: [
-        'Keep messages concise and impactful',
-        'Use threads for longer-form content',
-        'Engage in real-time conversations',
-        'Share timely and relevant content'
-      ],
-      toneOfVoice: 'concise, timely, conversational, news-focused',
-      contentTypes: ['news-updates', 'quick-thoughts', 'live-commentary', 'link-sharing'],
-      optimalTimes: ['9am-10am', '12pm-3pm', '5pm-6pm'],
-      demographics: 'Diverse, news-oriented, real-time focused'
-    });
-
-    // Facebook specifications
-    this.platformSpecs.set('facebook', {
-      name: 'Facebook',
-      formats: {
-        post: { aspectRatio: '16:9', maxDuration: '240min' },
-        story: { aspectRatio: '9:16', maxDuration: '20s' },
-        reel: { aspectRatio: '9:16', maxDuration: '90s' }
-      },
-      copyLimits: {
-        post: 63206,
-        headline: 125,
-        description: 155
-      },
-      bestPractices: [
-        'Create engaging, shareable content',
-        'Use Facebook Groups for community building',
-        'Leverage Facebook Events for promotion',
-        'Encourage comments and discussions'
-      ],
-      toneOfVoice: 'friendly, community-oriented, family-focused, conversational',
-      contentTypes: ['community-content', 'event-promotion', 'family-friendly', 'local-business'],
-      optimalTimes: ['1pm-3pm', '7pm-9pm'],
-      demographics: 'Older Millennials and Gen X, community-focused'
-    });
-
-    // Kick.com specifications (streaming platform)
-    this.platformSpecs.set('kick', {
-      name: 'Kick',
-      formats: {
-        stream: { aspectRatio: '16:9', quality: '4K @ 60 FPS' },
-        thumbnail: { aspectRatio: '16:9' },
-        panel: { aspectRatio: '16:9' }
-      },
-      copyLimits: {
-        title: 140,
-        titleVisible: 30,
-        description: 2000
-      },
-      bestPractices: [
-        'Titles: 140 chars max (first 30 most visible) - RESULTS-focused NOT technical',
-        'Hook viewers first 10 seconds with WOW factor (dashboards, ROI, transformation)',
-        '90% show RESULTS (dashboards, KPIs, ROI counter), 10% explain architecture',
-        'Decision Room format: Split-screen traditional vs system with ROI counter always visible',
-        'Language: Use Sistema/Transformación/Solución NOT Arquitectura/MCP/Código',
-        'Interactive strategy: Followers expose problems → develop → show solution next stream',
-        'Emphasis on ROI and time savings (e.g., 4h→30s, 270% ROI, $180K/year saved)',
-        'Entertainment + Business value: Make it visual brutal (before/after simultaneous)',
-        'Monetization: 95% creator revenue share - Build audience naturally NOT direct pitch',
-        'Stream quality: 4K @ 60 FPS support, professional production quality'
-      ],
-      toneOfVoice: 'results-focused, transformational, business-value, entertainment + wow-factor',
-      contentTypes: ['live-streaming', 'product-demos', 'roi-demonstrations', 'business-transformation'],
-      optimalTimes: ['12pm-3pm', '7pm-11pm'], // Prime streaming hours
-      demographics: 'Entrepreneurs and business decision-makers 18-35, cliente final (NOT developers), conversion-ready'
-    });
-
-    //console.log(`📋 Loaded specifications for ${this.platformSpecs.size} platforms`);
+    console.log(`⚠️ Loaded ${this.platformSpecs.size} platforms in fallback mode`);
   }
 
   /**

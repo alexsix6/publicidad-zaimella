@@ -601,55 +601,95 @@ class ContentGenerationMCPServer {
     }
   }
 
-  // 🆕 NEW: Handle copy content generation
+  // 🆕 NEW: Handle copy content generation - REFACTORED to use ad-copy-generation skill
   async handleCopyContentGeneration(args) {
     try {
-      const { 
-        brief, 
-        platform, 
-        format = 'post', 
-        niche = 'marketing-agency', 
-        copyType = 'complete' 
-      } = args;
-
-      // Import VariantGenerator for platform specs
-      const { VariantGenerator } = await import('./tools/variant-generator.js');
-      const variantGenerator = new VariantGenerator();
-      await variantGenerator.initialize();
-
-      // Get platform specifications
-      const platformSpec = variantGenerator.platformSpecs.get(platform);
-      if (!platformSpec) {
-        throw new Error(`Platform ${platform} not supported`);
-      }
-
-      // Build context for copy generation
-      const copyContext = {
+      const {
         brief,
         platform,
-        format,
-        niche,
-        toneOfVoice: platformSpec.toneOfVoice,
-        demographics: platformSpec.demographics,
-        copyLimits: platformSpec.copyLimits,
-        bestPractices: platformSpec.bestPractices,
-        contentTypes: platformSpec.contentTypes
-      };
+        format = 'post',
+        niche = 'marketing-agency',
+        copyType = 'complete'
+      } = args;
 
-      // Generate platform-specific copy
-      const copyResult = await variantGenerator.generatePlatformCopy(copyContext);
+      // ✅ STEP 1: Load platform specifications from JSON (dynamic)
+      const fs = await import('fs');
+      const path = await import('path');
+      const { fileURLToPath } = await import('url');
+      const __filename = fileURLToPath(import.meta.url);
+      const __dirname = path.dirname(__filename);
 
-      if (copyResult.success) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `✅ Marketing Copy Generated Successfully!\n\n**Platform:** ${platform} (${format})\n**Niche:** ${niche}\n**Tone:** ${platformSpec.toneOfVoice}\n\n**Generated Copy:**\n${copyResult.copy}\n\n**Hashtags:** ${copyResult.hashtags || 'N/A'}\n\n**Character Count:** ${copyResult.copy.length}/${platformSpec.copyLimits[format] || platformSpec.copyLimits.post}\n\n**Recommendations:**\n${platformSpec.bestPractices.slice(0, 3).map(tip => `• ${tip}`).join('\n')}\n\n**Next Steps:**\n1. Review and refine copy as needed\n2. Use this copy for image generation (Phase 1)\n3. Generate avatar with this context (Phase 2)\n4. Create video incorporating this messaging (Phase 3)`
+      const platformSpecsPath = path.resolve(__dirname, '../config/platform-specs.json');
+      const platformSpecsData = JSON.parse(fs.readFileSync(platformSpecsPath, 'utf-8'));
+
+      // Validate platform exists
+      const platformSpec = platformSpecsData[platform];
+      if (!platformSpec) {
+        const availablePlatforms = Object.keys(platformSpecsData).join(', ');
+        throw new Error(`Platform "${platform}" not supported. Available platforms: ${availablePlatforms}`);
+      }
+
+      // ✅ STEP 2: Try to use ad-copy-generation skill (Todd Brown + Hormozi)
+      const { SkillDetector } = await import('./tools/skill-detector.js');
+      const skillDetector = new SkillDetector();
+      await skillDetector.initialize();
+
+      if (skillDetector.hasSkill('ad-copy-generation')) {
+        try {
+          const copySkill = skillDetector.getSkill('ad-copy-generation');
+
+          // Generate using skill (5 variants with differentiated hooks)
+          const copyResult = await copySkill.generate({
+            brief: brief,
+            platform: platform,
+            niche: niche,
+            language: 'es', // Default to Spanish, could be detected
+            platformSpecification: {
+              platform: platform,
+              toneOfVoice: platformSpec.toneOfVoice,
+              demographics: platformSpec.demographics,
+              bestPractices: platformSpec.bestPractices,
+              formats: platformSpec.formats
             }
-          ]
-        };
+          });
+
+          // ✅ Format output with 5 variants (Todd Brown hooks)
+          const variantsText = copyResult.variants.map((variant, idx) => {
+            return `**Variant ${idx + 1}** (${variant.hook_type || 'N/A'})\n` +
+                   `📰 Headline: ${variant.headline}\n` +
+                   `🎯 Hook: ${variant.hook}\n` +
+                   `📝 Body:\n${variant.body}\n` +
+                   `🔥 CTA: ${variant.cta}\n` +
+                   `📊 Sophistication: ${variant.market_sophistication || 'N/A'}\n`;
+          }).join('\n---\n\n');
+
+          return {
+            content: [
+              {
+                type: 'text',
+                text: `✅ Professional Ad Copy Generated via Skill!\n\n` +
+                      `**Platform:** ${platform} (${format})\n` +
+                      `**Niche:** ${niche}\n` +
+                      `**Tone:** ${platformSpec.toneOfVoice}\n` +
+                      `**Framework:** Todd Brown (5 Hook Types) + Hormozi Value Stack\n\n` +
+                      `**${copyResult.variants.length} High-Converting Variants:**\n\n` +
+                      `${variantsText}\n` +
+                      `**Platform Best Practices:**\n${platformSpec.bestPractices.slice(0, 3).map(tip => `• ${tip}`).join('\n')}\n\n` +
+                      `**Next Steps:**\n` +
+                      `1. Select best performing variant for A/B testing\n` +
+                      `2. Use for image generation (Phase 1)\n` +
+                      `3. Generate avatar with this context (Phase 2)\n` +
+                      `4. Create video incorporating messaging (Phase 3)`
+              }
+            ]
+          };
+
+        } catch (skillError) {
+          console.error('❌ Skill execution failed:', skillError.message);
+          throw new Error(`Skill failed: ${skillError.message}. Please ensure ad-copy-generation v1.0.3-tone-fix is installed.`);
+        }
       } else {
-        throw new Error(copyResult.error);
+        throw new Error('ad-copy-generation skill not found. Please install the skill from creator_skills directory.');
       }
 
     } catch (error) {
@@ -659,7 +699,8 @@ class ContentGenerationMCPServer {
             type: 'text',
             text: `❌ Copy Generation Failed: ${error.message}`
           }
-        ]
+        ],
+        isError: true
       };
     }
   }
