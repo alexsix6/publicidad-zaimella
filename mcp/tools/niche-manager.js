@@ -501,9 +501,145 @@ export class NicheManager {
   }
 
   /**
-   * Analyze brief and provide recommendations (✅ ENHANCED - Phase 2 with framework_seeds)
+   * ✅ PHASE 3 - MVP BIGQUERY DATA INTEGRATION
+   * Fetch real client business data from BigQuery to enrich content generation
+   * @param {string} clientId - Client identifier in BigQuery
+   * @param {string} dataset - BigQuery dataset name (default: 'client_analytics')
+   * @returns {Promise<Object>} business_intelligence object with real client data
    */
-  async analyzeBrief(brief) {
+  async fetchClientBusinessData(clientId, dataset = 'client_analytics') {
+    try {
+      console.log(`📊 Fetching business intelligence for client: ${clientId} from BigQuery...`);
+
+      // Query 1: Top selling products (last 6 months)
+      const topProductsQuery = `
+        SELECT
+          product_name,
+          SUM(units_sold) as total_units_sold,
+          SUM(revenue) as total_revenue,
+          ROUND(AVG(customer_rating), 1) as avg_rating
+        FROM \`${dataset}.sales\`
+        WHERE client_id = '${clientId}'
+          AND order_date >= DATE_SUB(CURRENT_DATE(), INTERVAL 6 MONTH)
+        GROUP BY product_name
+        ORDER BY total_revenue DESC
+        LIMIT 5
+      `;
+
+      // Query 2: Real customer demographics
+      const demographicsQuery = `
+        SELECT
+          ROUND(AVG(customer_age), 0) as avg_age,
+          ROUND(COUNT(CASE WHEN gender='F' THEN 1 END)*100.0/COUNT(*), 1) as female_pct,
+          ROUND(COUNT(CASE WHEN gender='M' THEN 1 END)*100.0/COUNT(*), 1) as male_pct,
+          ROUND(AVG(order_value), 2) as avg_order_value,
+          COUNT(DISTINCT customer_id) as total_customers
+        FROM \`${dataset}.customers\`
+        WHERE client_id = '${clientId}'
+      `;
+
+      // Query 3: Best performing ad copy phrases (highest conversion)
+      const bestPhrasesQuery = `
+        SELECT
+          ad_copy_phrase,
+          ROUND(conversion_rate * 100, 2) as conversion_rate_pct,
+          impressions,
+          clicks,
+          conversions
+        FROM \`${dataset}.campaign_performance\`
+        WHERE client_id = '${clientId}'
+          AND campaign_date >= DATE_SUB(CURRENT_DATE(), INTERVAL 3 MONTH)
+        ORDER BY conversion_rate DESC
+        LIMIT 5
+      `;
+
+      // Query 4: Seasonal sales patterns (identify peak months)
+      const seasonalQuery = `
+        SELECT
+          FORMAT_DATE('%Y-%m', order_date) as month,
+          COUNT(*) as order_count,
+          ROUND(SUM(revenue), 2) as total_revenue
+        FROM \`${dataset}.sales\`
+        WHERE client_id = '${clientId}'
+          AND order_date >= DATE_SUB(CURRENT_DATE(), INTERVAL 12 MONTH)
+        GROUP BY month
+        ORDER BY total_revenue DESC
+        LIMIT 3
+      `;
+
+      // Execute all 4 queries in parallel using MCP BigQuery
+      const [topProducts, demographics, bestPhrases, seasonal] = await Promise.all([
+        this.executeBigQuerySafe(topProductsQuery, 'top_products'),
+        this.executeBigQuerySafe(demographicsQuery, 'demographics'),
+        this.executeBigQuerySafe(bestPhrasesQuery, 'best_phrases'),
+        this.executeBigQuerySafe(seasonalQuery, 'seasonal_patterns')
+      ]);
+
+      // Structure business intelligence
+      const businessIntelligence = {
+        client_id: clientId,
+        top_selling_products: topProducts || [],
+        real_customer_demographics: demographics || null,
+        proven_copy_phrases: bestPhrases || [],
+        seasonal_patterns: seasonal || [],
+        data_source: 'BigQuery',
+        dataset: dataset,
+        fetched_at: new Date().toISOString(),
+        has_real_data: !!(topProducts?.length || demographics || bestPhrases?.length)
+      };
+
+      console.log(`✅ Business intelligence fetched successfully for ${clientId}`);
+      console.log(`   - Top products: ${topProducts?.length || 0}`);
+      console.log(`   - Demographics: ${demographics ? 'Available' : 'Not found'}`);
+      console.log(`   - Proven phrases: ${bestPhrases?.length || 0}`);
+      console.log(`   - Seasonal patterns: ${seasonal?.length || 0}`);
+
+      return businessIntelligence;
+
+    } catch (error) {
+      // ✅ GRACEFUL DEGRADATION: If BigQuery fails, return null (Tool #2 continues without business data)
+      console.warn(`⚠️  BigQuery data fetch failed for client ${clientId}:`, error.message);
+      console.warn(`   Continuing with Phase 2 functionality (framework_seeds only)`);
+
+      return null;
+    }
+  }
+
+  /**
+   * Helper method to execute BigQuery queries safely with error handling
+   * @param {string} query - SQL query to execute
+   * @param {string} queryType - Query identifier for logging
+   * @returns {Promise<Array|null>} Query results or null on error
+   */
+  async executeBigQuerySafe(query, queryType) {
+    try {
+      // Call MCP BigQuery Intelligence tool
+      const result = await mcp__bigquery_intelligence__query({
+        sql: query,
+        maximumBytesBilled: '10000000' // 10 MB limit per query (safety)
+      });
+
+      // Extract rows from result
+      if (result && result.data && result.data.rows) {
+        return result.data.rows;
+      }
+
+      console.warn(`   ⚠️  No data returned for ${queryType}`);
+      return null;
+
+    } catch (error) {
+      console.warn(`   ⚠️  Query failed for ${queryType}:`, error.message);
+      return null;
+    }
+  }
+
+  /**
+   * Analyze brief and provide recommendations (✅ ENHANCED - Phase 2 + Phase 3 with BigQuery)
+   * @param {string} brief - Content brief to analyze
+   * @param {string} clientId - Optional client ID for BigQuery data enrichment
+   * @param {string} dataset - Optional BigQuery dataset (default: 'client_analytics')
+   */
+  async analyzeBrief(brief, clientId = null, dataset = 'client_analytics') {
     const detectedNiche = await this.detectNiche(brief);
     const nicheData = this.niches.get(detectedNiche);
 
@@ -513,6 +649,12 @@ export class NicheManager {
     const sophisticationData = this.detectSophisticationLevel(brief);
     const valueIndicators = this.extractValueIndicators(brief);
     const demographics = this.extractDemographics(brief);
+
+    // ✅ PHASE 3: Fetch business intelligence from BigQuery (if clientId provided)
+    let businessIntelligence = null;
+    if (clientId) {
+      businessIntelligence = await this.fetchClientBusinessData(clientId, dataset);
+    }
 
     // GRACEFUL FALLBACK: Handle generic niches without throwing error
     if (!nicheData) {
@@ -539,7 +681,7 @@ export class NicheManager {
         ],
         isGeneric: true, // Flag to indicate fallback mode
 
-        // ✅ PHASE 2: Framework seeds included
+        // ✅ PHASE 2 + PHASE 3: Framework seeds + Business Intelligence
         framework_seeds: {
           hook_opportunities: hookOpportunities,
           pain_points: painPointsData.pain_points,
@@ -547,7 +689,9 @@ export class NicheManager {
           sophistication_level: sophisticationData.level,
           sophistication_description: sophisticationData.description,
           value_indicators: valueIndicators,
-          target_demographics: demographics
+          target_demographics: demographics,
+          // ✅ PHASE 3: Real client business data from BigQuery
+          business_intelligence: businessIntelligence
         }
       };
     }
@@ -585,7 +729,7 @@ export class NicheManager {
         `Best performing platforms: ${nicheData.optimalPlatforms.join(', ')}`
       ],
 
-      // ✅ PHASE 2: Framework seeds included
+      // ✅ PHASE 2 + PHASE 3: Framework seeds + Business Intelligence
       framework_seeds: {
         hook_opportunities: hookOpportunities,
         pain_points: painPointsData.pain_points,
@@ -593,7 +737,9 @@ export class NicheManager {
         sophistication_level: sophisticationData.level,
         sophistication_description: sophisticationData.description,
         value_indicators: valueIndicators,
-        target_demographics: demographics
+        target_demographics: demographics,
+        // ✅ PHASE 3: Real client business data from BigQuery
+        business_intelligence: businessIntelligence
       }
     };
   }
