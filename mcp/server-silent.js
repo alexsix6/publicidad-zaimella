@@ -93,13 +93,21 @@ class ContentGenerationMCPServer {
           },
           {
             name: 'analyze_content_context',
-            description: 'Analyze content brief and suggest optimal generation parameters',
+            description: 'Analyze content brief and suggest optimal generation parameters. ✨ Phase 3: Supports BigQuery data integration for ultra-personalized content.',
             inputSchema: {
               type: 'object',
               properties: {
                 brief: {
                   type: 'string',
                   description: 'Content brief to analyze'
+                },
+                clientId: {
+                  type: 'string',
+                  description: '✨ Phase 3: Optional client ID for BigQuery business intelligence integration (e.g., "BOUTIQUE_FASHION_001"). When provided, fetches real business data: top products, customer demographics, proven copy phrases, seasonal patterns.'
+                },
+                dataset: {
+                  type: 'string',
+                  description: '✨ Phase 3: Optional BigQuery dataset name (default: "client_analytics"). Use custom dataset if client data is in different location.'
                 }
               },
               required: ['brief']
@@ -389,25 +397,81 @@ class ContentGenerationMCPServer {
   }
 
   /**
-   * Handle content context analysis
+   * Handle content context analysis (✨ PHASE 3: Enhanced with BigQuery integration)
    */
   async handleContextAnalysis(args) {
-    const { brief } = args;
+    const { brief, clientId = null, dataset = 'client_analytics' } = args;
 
     try {
-      const analysis = await this.nicheManager.analyzeBrief(brief);
-      
+      // ✨ PHASE 3: Pass clientId and dataset to analyzeBrief for BigQuery integration
+      const analysis = await this.nicheManager.analyzeBrief(brief, clientId, dataset);
+
+      // Extract BigQuery business intelligence if available
+      const bizIntel = analysis.framework_seeds?.business_intelligence;
+      const hasBigQueryData = bizIntel && bizIntel.has_real_data;
+
       return {
         content: [
           {
             type: 'text',
-            text: `📊 **Content Analysis Results**\n\n` +
+            text: `📊 **Content Analysis Results** ${hasBigQueryData ? '✨ (Enhanced with BigQuery Data)' : ''}\n\n` +
                   `🎯 **Detected Niche**: ${analysis.niche}\n` +
                   `📈 **Confidence**: ${(analysis.confidence * 100).toFixed(1)}%\n` +
                   `📱 **Recommended Platforms**: ${analysis.recommendedPlatforms.join(', ')}\n` +
                   `🎨 **Suggested Style**: ${analysis.suggestedStyle}\n` +
                   `🎬 **Video Approach**: ${analysis.videoApproach}\n\n` +
-                  `**Key Insights:**\n${analysis.insights.map(insight => `• ${insight}`).join('\n')}`
+                  `**Key Insights:**\n${analysis.insights.map(insight => `• ${insight}`).join('\n')}\n\n` +
+
+                  // ✨ PHASE 3: Display BigQuery business intelligence if available
+                  (hasBigQueryData ?
+                    `---\n\n` +
+                    `## ✨ BigQuery Business Intelligence (Client: ${bizIntel.client_id})\n\n` +
+                    `**📊 Top Selling Products:**\n` +
+                    (bizIntel.top_selling_products && bizIntel.top_selling_products.length > 0 ?
+                      bizIntel.top_selling_products.slice(0, 3).map((product, idx) =>
+                        `${idx + 1}. ${product.product_name || 'N/A'} - Revenue: $${product.total_revenue?.toLocaleString() || 'N/A'} (Rating: ${product.avg_rating || 'N/A'}/5)`
+                      ).join('\n') + (bizIntel.top_selling_products.length > 3 ? `\n   ... and ${bizIntel.top_selling_products.length - 3} more` : '')
+                      : '   No product data available'
+                    ) + `\n\n` +
+
+                    `**👥 Real Customer Demographics:**\n` +
+                    (bizIntel.real_customer_demographics ?
+                      `   • Average Age: ${Math.round(bizIntel.real_customer_demographics.avg_age) || 'N/A'} years\n` +
+                      `   • Gender Distribution: ${bizIntel.real_customer_demographics.female_pct?.toFixed(1) || 'N/A'}% Female, ${bizIntel.real_customer_demographics.male_pct?.toFixed(1) || 'N/A'}% Male\n` +
+                      `   • Average Order Value: $${bizIntel.real_customer_demographics.avg_order_value?.toFixed(2) || 'N/A'}\n` +
+                      `   • Total Customers: ${bizIntel.real_customer_demographics.total_customers?.toLocaleString() || 'N/A'}`
+                      : '   No demographic data available'
+                    ) + `\n\n` +
+
+                    `**🎯 Proven High-Converting Copy Phrases:**\n` +
+                    (bizIntel.proven_copy_phrases && bizIntel.proven_copy_phrases.length > 0 ?
+                      bizIntel.proven_copy_phrases.slice(0, 3).map((phrase, idx) =>
+                        `${idx + 1}. "${phrase.ad_copy_phrase || 'N/A'}" - Conversion Rate: ${phrase.conversion_rate_pct?.toFixed(2) || 'N/A'}% (${phrase.impressions?.toLocaleString() || 'N/A'} impressions)`
+                      ).join('\n')
+                      : '   No copy performance data available'
+                    ) + `\n\n` +
+
+                    `**📅 Seasonal Sales Patterns (Peak Months):**\n` +
+                    (bizIntel.seasonal_patterns && bizIntel.seasonal_patterns.length > 0 ?
+                      bizIntel.seasonal_patterns.slice(0, 3).map((pattern, idx) =>
+                        `${idx + 1}. ${pattern.month || 'N/A'} - ${pattern.order_count?.toLocaleString() || 'N/A'} orders, $${pattern.total_revenue?.toLocaleString() || 'N/A'} revenue`
+                      ).join('\n')
+                      : '   No seasonal pattern data available'
+                    ) + `\n\n` +
+                    `*Data Source: BigQuery (${bizIntel.dataset}) - Fetched: ${new Date(bizIntel.fetched_at).toLocaleTimeString()}*\n\n` +
+                    `---\n\n`
+                  : '') +
+
+                  `**Framework Seeds Generated:**\n` +
+                  `• Hook Opportunities: ${Object.values(analysis.framework_seeds.hook_opportunities).filter(v => v).length} detected\n` +
+                  `• Pain Points: ${analysis.framework_seeds.pain_points.length} identified\n` +
+                  `• Market Sophistication: ${analysis.framework_seeds.sophistication_level}\n` +
+                  `• Demographics: ${analysis.framework_seeds.target_demographics.gender || 'N/A'}, ${analysis.framework_seeds.target_demographics.age_range || 'N/A'}\n\n` +
+
+                  (hasBigQueryData ?
+                    `💡 **Next Step:** Use \`generate_complete_content\` to create ultra-personalized content based on this real business data.`
+                    : `💡 **Next Step:** Use \`generate_complete_content\` to create content. Add \`clientId\` parameter for ultra-personalized content based on real business data.`
+                  )
           }
         ]
       };
@@ -416,7 +480,11 @@ class ContentGenerationMCPServer {
         content: [
           {
             type: 'text',
-            text: `❌ Analysis failed: ${error.message}`
+            text: `❌ Analysis failed: ${error.message}\n\n` +
+                  `**Troubleshooting:**\n` +
+                  `• If BigQuery error: Check client_id exists in dataset\n` +
+                  `• If dataset error: Verify dataset name is correct\n` +
+                  `• System gracefully degraded to Phase 2 functionality`
           }
         ],
         isError: true
