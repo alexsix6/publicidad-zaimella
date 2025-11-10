@@ -176,7 +176,7 @@ class ContentGenerationMCPServer {
   async handleCompleteContentGeneration(args) {
     const { brief, niche, platforms = ['instagram'], voice_preference = 'generic', context_gathering = 'hybrid' } = args;
 
-    //console.log(`🚀 Starting complete content generation for: "${brief}"`);
+    //console.log(`[START] Starting complete content generation for: "${brief}"`);
 
     try {
       // Step 1: Initialize orchestrator with parameters
@@ -195,14 +195,14 @@ class ContentGenerationMCPServer {
         content: [
           {
             type: 'text',
-            text: `✅ Content generation completed successfully!\n\n` +
-                  `📝 **Copy Generated**: ${result.copy ? 'Yes' : 'No'}\n` +
+            text: `[INFO] Content generation completed successfully!\n\n` +
+                  `[NOTE] **Copy Generated**: ${result.copy ? 'Yes' : 'No'}\n` +
                   `🎨 **Images Generated**: ${result.images?.length || 0}\n` +
-                  `🎬 **Video Generated**: ${result.video ? 'Yes' : 'No'}\n` +
+                  ` **Video Generated**: ${result.video ? 'Yes' : 'No'}\n` +
                   `📱 **Platform Variants**: ${result.variants?.length || 0}\n\n` +
                   `⏱️ **Total Time**: ${result.metadata.processingTime}ms\n` +
-                  `🎯 **Niche Detected**: ${result.metadata.nicheUsed}\n` +
-                  `💾 **Cache Hit**: ${result.metadata.cacheHit ? 'Yes' : 'No'}\n\n` +
+                  ` **Niche Detected**: ${result.metadata.nicheUsed}\n` +
+                  `[SAVE] **Cache Hit**: ${result.metadata.cacheHit ? 'Yes' : 'No'}\n\n` +
                   `**Generated Content URLs:**\n` +
                   (result.images?.map(img => `🖼️ ${img.publicUrl}`).join('\n') || '') +
                   (result.video ? `\n🎬 ${result.video.publicUrl}` : '') +
@@ -211,12 +211,12 @@ class ContentGenerationMCPServer {
         ]
       };
     } catch (error) {
-      console.error('❌ Content generation failed:', error);
+      console.error('[ERROR] Content generation failed:', error);
       return {
         content: [
           {
             type: 'text',
-            text: `❌ Content generation failed: ${error.message}\n\nPlease check the logs for more details.`
+            text: `[ERROR] Content generation failed: ${error.message}\n\nPlease check the logs for more details.`
           }
         ],
         isError: true
@@ -237,12 +237,12 @@ class ContentGenerationMCPServer {
         content: [
           {
             type: 'text',
-            text: `📊 **Content Analysis Results**\n\n` +
-                  `🎯 **Detected Niche**: ${analysis.niche}\n` +
+            text: `[DATA] **Content Analysis Results**\n\n` +
+                  ` **Detected Niche**: ${analysis.niche}\n` +
                   `📈 **Confidence**: ${(analysis.confidence * 100).toFixed(1)}%\n` +
                   `📱 **Recommended Platforms**: ${analysis.recommendedPlatforms.join(', ')}\n` +
                   `🎨 **Suggested Style**: ${analysis.suggestedStyle}\n` +
-                  `🎬 **Video Approach**: ${analysis.videoApproach}\n\n` +
+                  ` **Video Approach**: ${analysis.videoApproach}\n\n` +
                   `**Key Insights:**\n${analysis.insights.map(insight => `• ${insight}`).join('\n')}`
           }
         ]
@@ -252,7 +252,7 @@ class ContentGenerationMCPServer {
         content: [
           {
             type: 'text',
-            text: `❌ Analysis failed: ${error.message}`
+            text: `[ERROR] Analysis failed: ${error.message}`
           }
         ],
         isError: true
@@ -273,7 +273,7 @@ class ContentGenerationMCPServer {
         content: [
           {
             type: 'text',
-            text: `🎯 **${niche.toUpperCase()} Industry Insights**\n\n` +
+            text: ` **${niche.toUpperCase()} Industry Insights**\n\n` +
                   `**Target Audience**: ${insights.targetAudience}\n` +
                   `**Key Messaging**: ${insights.keyMessaging.join(', ')}\n` +
                   `**Visual Style**: ${insights.visualStyle}\n` +
@@ -288,7 +288,7 @@ class ContentGenerationMCPServer {
         content: [
           {
             type: 'text',
-            text: `❌ Failed to get niche insights: ${error.message}`
+            text: `[ERROR] Failed to get niche insights: ${error.message}`
           }
         ],
         isError: true
@@ -309,15 +309,15 @@ class ContentGenerationMCPServer {
         content: [
           {
             type: 'text',
-            text: `💾 **Cache Status for: "${query}"**\n\n` +
-                  `🎯 **Similar Content Found**: ${cacheResult.found ? 'Yes' : 'No'}\n` +
+            text: `[SAVE] **Cache Status for: "${query}"**\n\n` +
+                  ` **Similar Content Found**: ${cacheResult.found ? 'Yes' : 'No'}\n` +
                   (cacheResult.found ? 
-                    `📊 **Similarity Score**: ${(cacheResult.score * 100).toFixed(1)}%\n` +
+                    `[DATA] **Similarity Score**: ${(cacheResult.score * 100).toFixed(1)}%\n` +
                     `📅 **Generated**: ${cacheResult.metadata.timestamp}\n` +
                     `🎨 **Assets Available**: ${cacheResult.metadata.assetsCount}\n` +
                     `⚡ **Reusable**: ${cacheResult.reusable ? 'Yes' : 'No'}`
                     : 
-                    `💡 **Recommendation**: Fresh generation required`
+                    ` **Recommendation**: Fresh generation required`
                   )
           }
         ]
@@ -327,7 +327,7 @@ class ContentGenerationMCPServer {
         content: [
           {
             type: 'text',
-            text: `❌ Cache check failed: ${error.message}`
+            text: `[ERROR] Cache check failed: ${error.message}`
           }
         ],
         isError: true
@@ -336,7 +336,7 @@ class ContentGenerationMCPServer {
   }
 
   async start() {
-    console.log('🚀 Starting Content Generation MCP Server...');
+    console.log('[START] Starting Content Generation MCP Server...');
     
     try {
       // Initialize components
@@ -344,15 +344,15 @@ class ContentGenerationMCPServer {
       await this.qdrantConnector.initialize();
       await this.nicheManager.initialize();
       
-      console.log('✅ All components initialized successfully');
+      console.log('[INFO] All components initialized successfully');
       
       // Start server
       const transport = new StdioServerTransport();
       await this.server.connect(transport);
       
-      console.log('✅ Content Generation MCP Server running on stdio');
+      console.log('[INFO] Content Generation MCP Server running on stdio');
     } catch (error) {
-      console.error('❌ Failed to start MCP server:', error);
+      console.error('[ERROR] Failed to start MCP server:', error);
       process.exit(1);
     }
   }

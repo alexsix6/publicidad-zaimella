@@ -287,6 +287,23 @@ class ContentGenerationMCPServer {
               },
               required: ['name', 'description']
             }
+          },
+          {
+            name: 'get_client_business_intelligence',
+            description: 'Get real business intelligence from BigQuery for personalized content generation. Pass dataset as INPUT parameter for multi-client support.',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                clientId: {
+                  type: 'string',
+                  description: 'Client ID (optional - for multi-client schemas like CMF, Insurance, Fashion)'
+                },
+                dataset: {
+                  type: 'string',
+                  description: 'BigQuery dataset as INPUT parameter (e.g., "CMF_TABLAS_TEMPORALES" for CMF client, "INSURANCE_DATA" for Insurance client). This makes the architecture REPLICABLE across clients.'
+                }
+              }
+            }
           }
         ]
       };
@@ -309,7 +326,8 @@ class ContentGenerationMCPServer {
           
           case 'check_cache_status':
             return await this.handleCacheCheck(args);
-          
+
+
           case 'generate_product_image':
             return await this.handleProductImageGeneration(args);
           
@@ -324,7 +342,10 @@ class ContentGenerationMCPServer {
           
           case 'create_context_profile':
             return await this.handleContextProfileCreation(args);
-          
+
+          case 'get_client_business_intelligence':
+            return await this.handleBusinessIntelligence(args);
+
           default:
             throw new Error(`Unknown tool: ${name}`);
         }
@@ -567,6 +588,7 @@ class ContentGenerationMCPServer {
     }
   }
 
+
   async start() {
     //console.log('🚀 Starting Content Generation MCP Server...');
     
@@ -723,12 +745,14 @@ class ContentGenerationMCPServer {
 
           // ✅ Format output with 5 variants (Todd Brown hooks)
           const variantsText = copyResult.variants.map((variant, idx) => {
+            // Access copy fields correctly (skill returns variant.copy.headline not variant.headline)
+            const copy = variant.copy || variant; // Fallback for backward compatibility
             return `**Variant ${idx + 1}** (${variant.hook_type || 'N/A'})\n` +
-                   `📰 Headline: ${variant.headline}\n` +
-                   `🎯 Hook: ${variant.hook}\n` +
-                   `📝 Body:\n${variant.body}\n` +
-                   `🔥 CTA: ${variant.cta}\n` +
-                   `📊 Sophistication: ${variant.market_sophistication || 'N/A'}\n`;
+                   `📰 Headline: ${copy.headline || 'N/A'}\n` +
+                   `🎯 Hook: ${copy.hook || 'N/A'}\n` +
+                   `📝 Body:\n${copy.body || 'N/A'}\n` +
+                   `🔥 CTA: ${copy.cta || 'N/A'}\n` +
+                   `📊 Sophistication: ${variant.market_sophistication || variant.sophistication_match || 'N/A'}\n`;
           }).join('\n---\n\n');
 
           return {
@@ -753,7 +777,7 @@ class ContentGenerationMCPServer {
           };
 
         } catch (skillError) {
-          console.error('❌ Skill execution failed:', skillError.message);
+          console.error('[ERROR] Skill execution failed:', skillError.message);
           throw new Error(`Skill failed: ${skillError.message}. Please ensure ad-copy-generation v1.0.3-tone-fix is installed.`);
         }
       } else {
@@ -845,6 +869,89 @@ class ContentGenerationMCPServer {
             text: `❌ Context Profile Creation Failed: ${error.message}`
           }
         ]
+      };
+    }
+  }
+
+  /**
+   * Handle business intelligence data retrieval from BigQuery
+   * Phase 3.3 - CMF Integration (Multi-client replicable architecture)
+   */
+  async handleBusinessIntelligence(args) {
+    const { clientId = null, dataset = null } = args;
+
+    try {
+      // Fetch business intelligence from BigQuery via niche-manager
+      const intelligence = await this.nicheManager.fetchClientBusinessData(clientId, dataset);
+
+      if (!intelligence) {
+        return {
+          content: [{
+            type: 'text',
+            text: `⚠️ No business intelligence available.\n\nPossible causes:\n` +
+                  `- BigQuery MCP not configured\n` +
+                  `- No data available for specified dataset: ${dataset || 'N/A'}`
+          }],
+          isError: false
+        };
+      }
+
+      // Format response with CORRECT property names (snake_case)
+      const response = `📊 **Business Intelligence (Real BigQuery Data)**\n\n` +
+        `**Schema**: ${intelligence.schema || 'N/A'}\n` +
+        `**Dataset**: ${intelligence.dataset || dataset || 'N/A'}\n` +
+        `**Has Real Data**: ${intelligence.has_real_data ? 'Yes' : 'No'}\n\n` +
+
+        `**Top Products** (${intelligence.top_selling_products?.length || 0} items):\n` +
+        (intelligence.top_selling_products?.length > 0 ?
+          intelligence.top_selling_products.slice(0, 5).map((product, i) =>
+            `${i + 1}. ${product.product_name || 'N/A'}: $${product.total_revenue?.toLocaleString() || 'N/A'} revenue, avg rating ${product.avg_rating || 'N/A'}/5`
+          ).join('\n')
+          : 'No data available') +
+
+        `\n\n**Demographics**:\n` +
+        (intelligence.real_customer_demographics ?
+          `- Total Customers: ${intelligence.real_customer_demographics.total_customers?.toLocaleString() || 'N/A'}\n` +
+          `- Avg Age: ${Math.round(intelligence.real_customer_demographics.avg_age) || 'N/A'} years\n` +
+          `- Gender: ${intelligence.real_customer_demographics.female_pct?.toFixed(1) || 'N/A'}% F / ${intelligence.real_customer_demographics.male_pct?.toFixed(1) || 'N/A'}% M\n` +
+          `- Avg Order Value: $${intelligence.real_customer_demographics.avg_order_value?.toFixed(2) || 'N/A'}`
+          : 'No data available') +
+
+        `\n\n**Seasonal Patterns** (last 6 months):\n` +
+        (intelligence.seasonal_patterns?.length > 0 ?
+          intelligence.seasonal_patterns.slice(0, 6).map(pattern =>
+            `- ${pattern.month || 'N/A'}: $${pattern.total_revenue?.toLocaleString() || 'N/A'} (${pattern.order_count?.toLocaleString() || 'N/A'} transactions)`
+          ).join('\n')
+          : 'No data available') +
+
+        `\n\n**Proven Phrases** (top 5):\n` +
+        (intelligence.proven_copy_phrases?.length > 0 ?
+          intelligence.proven_copy_phrases.slice(0, 5).map((phrase, i) =>
+            `${i + 1}. "${phrase.ad_copy_phrase || 'N/A'}" - ${phrase.conversion_rate_pct?.toFixed(2) || 'N/A'}% conversion, ${phrase.impressions?.toLocaleString() || 'N/A'} impressions`
+          ).join('\n')
+          : 'Not available for this schema') +
+
+        `\n\n💡 **Usage**: This business intelligence can be passed to content generation tools for personalized marketing content.\n` +
+        `*Data fetched at: ${intelligence.fetched_at || new Date().toISOString()}*`;
+
+      return {
+        content: [{
+          type: 'text',
+          text: response
+        }]
+      };
+
+    } catch (error) {
+      return {
+        content: [{
+          type: 'text',
+          text: `❌ Failed to fetch business intelligence: ${error.message}\n\n` +
+                `**Debug Info:**\n` +
+                `- ClientId: ${clientId || 'N/A'}\n` +
+                `- Dataset: ${dataset || 'N/A'}\n` +
+                `- Error: ${error.stack || error.message}`
+        }],
+        isError: true
       };
     }
   }

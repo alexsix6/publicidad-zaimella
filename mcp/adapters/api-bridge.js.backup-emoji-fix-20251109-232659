@@ -1,0 +1,342 @@
+/**
+ * API Bridge - Non-invasive connector to existing Publicidad Zaimella APIs
+ * Provides seamless integration without modifying existing architecture
+ */
+
+import axios from 'axios';
+import NodeCache from 'node-cache';
+
+export class ApiBridge {
+  constructor() {
+    this.baseUrl = process.env.VERCEL_URL 
+      ? `https://${process.env.VERCEL_URL}` 
+      : 'http://localhost:3000';
+    
+    // L1 Cache for API responses (TTL: 5 minutes)
+    this.cache = new NodeCache({ stdTTL: 300 });
+    
+    this.initialized = false;
+  }
+
+  async initialize() {
+    if (this.initialized) return;
+    
+    //console.log(`🔗 Initializing API Bridge to: ${this.baseUrl}`);
+    
+    try {
+      // Test connectivity to existing APIs
+      await this.healthCheck();
+      this.initialized = true;
+      //console.log('✅ API Bridge initialized successfully');
+    } catch (error) {
+      //console.error('❌ API Bridge initialization failed:', error.message);
+      throw error;
+    }
+  }
+
+  /**
+   * Health check for existing APIs
+   */
+  async healthCheck() {
+    try {
+      // Check if the main site is accessible
+      const response = await axios.get(this.baseUrl, { timeout: 5000 });
+      if (response.status !== 200) {
+        throw new Error(`Health check failed: ${response.status}`);
+      }
+      return true;
+    } catch (error) {
+      //console.warn('⚠️ Health check failed, but continuing (might be running locally)');
+      return false;
+    }
+  }
+
+  /**
+   * Generate image using existing /api/generate-image endpoint
+   */
+  async generateImage(prompt, options = {}) {
+    const cacheKey = `image_${this.hashString(prompt + JSON.stringify(options))}`;
+    const cached = this.cache.get(cacheKey);
+    
+    if (cached) {
+      //console.log('💾 Using cached image result');
+      return { ...cached, fromCache: true };
+    }
+
+    const requestData = {
+      prompt,
+      enhanceWithAI: options.enhanceWithAI ?? true,
+      enhancementModel: options.enhancementModel || 'deepseek/deepseek-r1',
+      model: options.model || 'pro-ultra',
+      aspectRatio: options.aspectRatio || '16:9',
+      outputFormat: options.outputFormat || 'png',
+      saveLocally: options.saveLocally ?? true,
+      contextProfileId: options.contextProfileId || null,
+      ...options
+    };
+
+    ////console.log(`🎨 Generating image via API: "${prompt}"`);
+    
+    try {
+      const response = await axios.post(`${this.baseUrl}/api/generate-image`, requestData, {
+        timeout: 180000, // 3 minutes
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const result = response.data;
+      
+      if (result.success) {
+        // Cache successful result
+        this.cache.set(cacheKey, result);
+        ////console.log(`✅ Image generated: ${result.publicUrl}`);
+        return { ...result, fromCache: false };
+      } else {
+        throw new Error(result.error || 'Image generation failed');
+      }
+    } catch (error) {
+      //console.error('❌ Image generation failed:', error.message);
+      throw new Error(`Image generation failed: ${error.message}`);
+    }
+  }
+
+  /**
+   * Generate video using existing /api/generate-video endpoint
+   */
+  async generateVideo(prompt, options = {}) {
+    const cacheKey = `video_${this.hashString(prompt + JSON.stringify(options))}`;
+    const cached = this.cache.get(cacheKey);
+    
+    if (cached) {
+      //console.log('💾 Using cached video result');
+      return { ...cached, fromCache: true };
+    }
+
+    const requestData = {
+      prompt,
+      imageUrl: options.imageUrl || null,
+      videoStyle: options.videoStyle || 'cinematic',
+      enhanceWithAI: options.enhanceWithAI ?? true,
+      enhancementModel: options.enhancementModel || 'deepseek/deepseek-r1',
+      useUtilsEnhancement: options.useUtilsEnhancement ?? true,
+      aspectRatio: options.aspectRatio || '16:9',
+      duration: options.duration || '8s',
+      saveLocally: options.saveLocally ?? true,
+      ...options
+    };
+
+    ////console.log(`🎬 Generating video via API: "${prompt}"`);
+    
+    try {
+      const response = await axios.post(`${this.baseUrl}/api/generate-video`, requestData, {
+        timeout: 300000, // 5 minutes
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const result = response.data;
+      
+      if (result.success) {
+        // Cache successful result
+        this.cache.set(cacheKey, result);
+        ////console.log(`✅ Video generated: ${result.publicUrl}`);
+        return { ...result, fromCache: false };
+      } else {
+        throw new Error(result.error || 'Video generation failed');
+      }
+    } catch (error) {
+      //console.error('❌ Video generation failed:', error.message);
+      throw new Error(`Video generation failed: ${error.message}`);
+    }
+  }
+
+  /**
+   * Generate complete content using existing /api/generate-complete endpoint
+   */
+  async generateComplete(imagePrompt, videoPrompt = null, options = {}) {
+    const cacheKey = `complete_${this.hashString(imagePrompt + (videoPrompt || '') + JSON.stringify(options))}`;
+    const cached = this.cache.get(cacheKey);
+    
+    if (cached) {
+      //console.log('💾 Using cached complete generation result');
+      return { ...cached, fromCache: true };
+    }
+
+    const requestData = {
+      imagePrompt,
+      videoPrompt: videoPrompt || imagePrompt,
+      model: options.model || 'pro-ultra',
+      contextProfileId: options.contextProfileId || null,
+      autoSelectProfile: options.autoSelectProfile ?? true,
+      imageModel: options.imageModel || options.model || 'pro-ultra',
+      imageAspectRatio: options.imageAspectRatio || '16:9',
+      imageFormat: options.imageFormat || 'png',
+      videoStyle: options.videoStyle || 'cinematic',
+      videoAspectRatio: options.videoAspectRatio || '16:9',
+      videoDuration: options.videoDuration || '8s',
+      enhancePrompts: options.enhancePrompts ?? true,
+      enhancementModel: options.enhancementModel || 'deepseek/deepseek-r1',
+      useImageAsBase: options.useImageAsBase ?? true,
+      saveLocally: options.saveLocally ?? true,
+      ...options
+    };
+
+    ////console.log(`🚀 Generating complete content via API: "${imagePrompt}"`);
+    
+    try {
+      const response = await axios.post(`${this.baseUrl}/api/generate-complete`, requestData, {
+        timeout: 360000, // 6 minutes
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const result = response.data;
+      
+      if (result.success) {
+        // Cache successful result
+        this.cache.set(cacheKey, result);
+        ////console.log(`✅ Complete content generated - Image: ${result.image?.publicUrl}, Video: ${result.video?.publicUrl}`);
+        return { ...result, fromCache: false };
+      } else {
+        throw new Error(result.error || 'Complete generation failed');
+      }
+    } catch (error) {
+      //console.error('❌ Complete generation failed:', error.message);
+      throw new Error(`Complete generation failed: ${error.message}`);
+    }
+  }
+
+  /**
+   * Get context profiles using existing /api/context-profiles endpoint
+   */
+  async getContextProfiles() {
+    const cacheKey = 'context_profiles_list';
+    const cached = this.cache.get(cacheKey);
+    
+    if (cached) {
+      //console.log('💾 Using cached context profiles');
+      return cached;
+    }
+
+    try {
+      const response = await axios.get(`${this.baseUrl}/api/context-profiles`, {
+        timeout: 10000,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const result = response.data;
+      
+      if (result.success) {
+        // Cache for 5 minutes
+        this.cache.set(cacheKey, result.profiles, 300);
+        ////console.log(`✅ Retrieved ${result.profiles.length} context profiles`);
+        return result.profiles;
+      } else {
+        throw new Error(result.error || 'Failed to get context profiles');
+      }
+    } catch (error) {
+      //console.error('❌ Failed to get context profiles:', error.message);
+      return []; // Return empty array as fallback
+    }
+  }
+
+  /**
+   * Create context profile using existing API
+   */
+  async createContextProfile(profileData) {
+    try {
+      const response = await axios.post(`${this.baseUrl}/api/context-profiles`, profileData, {
+        timeout: 30000,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const result = response.data;
+      
+      if (result.success) {
+        // Clear cache to force refresh
+        this.cache.del('context_profiles_list');
+        ////console.log(`✅ Context profile created: ${result.profileId}`);
+        return result;
+      } else {
+        throw new Error(result.error || 'Failed to create context profile');
+      }
+    } catch (error) {
+      //console.error('❌ Failed to create context profile:', error.message);
+      throw new Error(`Context profile creation failed: ${error.message}`);
+    }
+  }
+
+  /**
+   * Enhance prompt with context profile
+   */
+  async enhanceWithContextProfile(prompt, profileId, options = {}) {
+    try {
+      const response = await axios.post(`${this.baseUrl}/api/context-profiles/${profileId}/enhance`, {
+        prompt,
+        options
+      }, {
+        timeout: 30000,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const result = response.data;
+      
+      if (result.success) {
+        ////console.log(`✅ Prompt enhanced with profile: ${profileId}`);
+        return result;
+      } else {
+        throw new Error(result.error || 'Failed to enhance prompt');
+      }
+    } catch (error) {
+      //console.error('❌ Failed to enhance prompt:', error.message);
+      throw new Error(`Prompt enhancement failed: ${error.message}`);
+    }
+  }
+
+  /**
+   * Get cache statistics
+   */
+  getCacheStats() {
+    const stats = this.cache.getStats();
+    return {
+      keys: stats.keys,
+      hits: stats.hits,
+      misses: stats.misses,
+      hitRate: stats.hits / (stats.hits + stats.misses) || 0
+    };
+  }
+
+  /**
+   * Clear cache
+   */
+  clearCache() {
+    this.cache.flushAll();
+    //console.log('🗑️ API Bridge cache cleared');
+  }
+
+  /**
+   * Simple hash function for cache keys
+   */
+  hashString(str) {
+    let hash = 0;
+    if (str.length === 0) return hash;
+    for (let i = 0; i < str.length; i++) {
+      const char = str.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // Convert to 32-bit integer
+    }
+    return Math.abs(hash).toString(36);
+  }
+}
+
+
+

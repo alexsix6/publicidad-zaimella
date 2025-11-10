@@ -1,0 +1,136 @@
+{
+  "profile": {
+    "id": "apex_smart_band_product_hero_1762751643464",
+    "name": "APEX Smart Band - Product Hero",
+    "description": "Premium biometric fitness wearable for APEX Performance Studio. Executive-grade smart band with matte black strap and champagne gold accents. Used as hero product in all marketing campaigns targeting C-level executives 30-45 years. Represents intersection of luxury, technology, and performance.",
+    "version": "1.0.0",
+    "created": "2025-11-10T05:14:03.464Z",
+    "updated": "2025-11-10T05:14:03.464Z"
+  },
+  "context": {
+    "user_preferences": {
+      "style": "clean product photography",
+      "mood": "Premium, sophisticated, executive, high-performance",
+      "language": "es"
+    },
+    "project_context": {
+      "theme": "fitness_wearable",
+      "target_audience": "general consumers",
+      "industry": "consumer goods"
+    },
+    "technical_preferences": {
+      "quality": "ultra-high",
+      "aspect_ratio": "1:1 for feed, 9:16 for reels/stories",
+      "color_accuracy": "Critical - champagne gold must be accurate"
+    },
+    "brand_guidelines": {
+      "primary_colors": {
+        "matte_black": "#141414",
+        "champagne_gold": "#D4AF37"
+      },
+      "typography": "Modern sans-serif, clean lines",
+      "visual_style": "Apple product photography aesthetic",
+      "mood": "Premium, sophisticated, executive, high-performance",
+      "photography_rules": [
+        "Always use pure matte black background",
+        "3/4 angle product shots preferred",
+        "Champagne gold accents must be highlighted",
+        "Screen should show active biometric data",
+        "Lighting: dramatic with golden rim light"
+      ]
+    },
+    "product_specifications": {
+      "sku": "APEX-BAND-001",
+      "category": "fitness_wearable",
+      "pack_dimensions_mm": {
+        "width": 45,
+        "height": 12,
+        "depth": 230
+      },
+      "display": "OLED touchscreen",
+      "materials": "Matte silicone strap + champagne gold stainless steel",
+      "key_features": [
+        "Real-time biometric tracking",
+        "800 calorie burn detection",
+        "Heart rate zones (Peak/Cardio/Fat Burn)",
+        "EPOC measurement",
+        "APEX app integration",
+        "Water resistant 50m"
+      ]
+    },
+    "validation_rules": {
+      "must_include": [],
+      "forbidden": [],
+      "tolerance": {
+        "color": "ΔE < 2",
+        "dimensions_mm": "±1 mm"
+      }
+    },
+    "reference_assets": {},
+    "framework_metadata": {
+      "market_sophistication": {
+        "level": "Stage 2-3",
+        "rationale": "Default sophistication for new profiles - adjust based on market research",
+        "messaging_approach": "Focus on unique value proposition with supporting evidence"
+      },
+      "recommended_hooks": {
+        "primary": "mechanism",
+        "secondary": "proof",
+        "tertiary": "big_promise",
+        "note": "Adjust based on industry and target audience"
+      },
+      "value_stack_template": {
+        "dream_outcome": "Achieve desired results with confidence",
+        "proof_requirements": [
+          "testimonials",
+          "case studies",
+          "guarantees"
+        ],
+        "urgency_type": "limited time offer",
+        "risk_reversal": "Money-back guarantee"
+      },
+      "strategic_positioning": {
+        "tier": "mid-range",
+        "competitor_angle": "Value-driven positioning",
+        "usp_focus": "Quality and reliability at competitive price",
+        "social_proof_priority": [
+          "testimonials",
+          "reviews",
+          "certifications"
+        ]
+      },
+      "content_generation_hints": {
+        "tone_strategic": "Professional yet approachable - build trust while showing expertise",
+        "conversion_priorities": [
+          "proof (35%)",
+          "value (30%)",
+          "mechanism (25%)",
+          "urgency (10%)"
+        ],
+        "a_b_testing_recommendations": [
+          "Test hook type (mechanism vs proof)",
+          "Test urgency level (scarcity vs savings)",
+          "Test CTA wording (benefit-driven vs action-driven)"
+        ],
+        "platform_specific": {
+          "instagram": "Visual storytelling, lifestyle integration, hashtag strategy",
+          "facebook": "Longer narrative, community building, detailed benefits",
+          "email": "Personalized messaging, segmented offers, educational content"
+        }
+      }
+    }
+  },
+  "memory": {
+    "successful_prompts": [],
+    "learned_patterns": {},
+    "usage_stats": {
+      "total_generations": 0,
+      "success_rate": 0,
+      "last_used": null
+    }
+  },
+  "relationships": {
+    "semantic_connections": {},
+    "style_associations": {}
+  }
+}

@@ -1,0 +1,299 @@
+import axios from 'axios';
+
+const OPENROUTER_API_BASE = 'https://openrouter.ai/api/v1';
+
+// 🆕 MODELOS RAZONADORES DE BAJO COSTO
+export const REASONING_MODELS = {
+  // Ultra bajo costo
+  'deepseek/deepseek-r1': {
+    name: 'DeepSeek R1',
+    cost: 'Ultra Low', 
+    reasoning: true
+  },
+  'google/gemini-2.5-flash-preview-05-20': {
+    name: 'Gemini 2.5 Flash',
+    cost: 'Ultra Low',
+    reasoning: true
+  },
+  'google/gemini-2.0-flash-exp': {
+    name: 'Gemini 2.0 Flash Exp',
+    cost: 'Ultra Low',
+    reasoning: false
+  },
+  'openai/gpt-4o-mini': {
+    name: 'GPT-4O Mini',
+    cost: 'Low',
+    reasoning: false,
+    specialized: 'structured-prompts'
+  },
+  'meta-llama/llama-3.1-8b-instruct': {
+    name: 'Llama 3.1 8B',
+    cost: 'Ultra Low',
+    reasoning: false
+  },
+  
+  // Bajo costo pero más potentes
+  'openai/o3-mini': {
+    name: 'GPT-o3 Mini',
+    cost: 'Low',
+    reasoning: true
+  },
+  'anthropic/claude-3.5-sonnet': {
+    name: 'Claude 3.5 Sonnet',
+    cost: 'Medium',
+    reasoning: true
+  },
+  'openai/o1-mini': {
+    name: 'GPT-o1 Mini',
+    cost: 'Medium',
+    reasoning: true
+  }
+};
+
+export async function enhancePrompt(originalPrompt, type = 'image', model = 'deepseek/deepseek-r1', enhanceEnabled = true, isDigitalTwin = false, platformContext = null) {
+  try {
+    // 🆕 VERIFICAR SI ENHANCEMENT ESTÁ HABILITADO
+    if (!enhanceEnabled) {
+      console.log('📝 Prompt enhancement disabled, using original prompt');
+      return {
+        success: true,
+        originalPrompt,
+        enhancedPrompt: originalPrompt,
+        model: 'none',
+        type,
+        enhanced: false
+      };
+    }
+
+    // 🎯 FIXED: LÍMITES ADAPTATIVOS PARA DIGITAL TWINS
+    const limits = {
+      image: {
+        maxOutput: isDigitalTwin ? 1500 : 1000, // 🎯 Más tokens para Digital Twins
+        targetLength: isDigitalTwin ? '400-600 words' : '200-400 words' // 🎯 ADAPTATIVO
+      },
+      video: {
+        maxOutput: 800, // 🆕 Más tokens para templates Veo3 completos
+        targetLength: 'MAXIMUM 250 words (optimal: 200-250 words)'
+      }
+    };
+
+    const currentLimits = limits[type] || limits.image;
+
+    // 🆕 CONSTRUIR CONTEXTO DE PLATAFORMA
+    let platformGuidance = '';
+    if (platformContext) {
+      platformGuidance = `
+PLATFORM-SPECIFIC REQUIREMENTS:
+- Platform: ${platformContext.platform || 'generic'}
+- Tone of Voice: ${platformContext.toneOfVoice || 'professional'}
+- Target Audience: ${platformContext.demographics || 'general audience'}
+- Best Practices: ${platformContext.bestPractices ? platformContext.bestPractices.slice(0, 3).join(', ') : 'high-quality visuals'}
+- Content Type: ${platformContext.contentTypes ? platformContext.contentTypes[0] : 'product-showcase'}
+
+APPLY THESE GUIDELINES TO YOUR ENHANCEMENT.
+`;
+    }
+
+    const systemPrompts = {
+      image: isDigitalTwin ? 
+      `You are an expert prompt engineer specializing in DIGITAL TWIN product reproduction with FLUX.1.
+
+CRITICAL MISSION: This prompt contains EXACT product specifications that must be PRESERVED, not rewritten.
+
+Your task: ENHANCE the technical quality and photorealism while MAINTAINING every specific detail:
+- PRESERVE all exact colors, Pantone codes, hex values
+- PRESERVE all dimensions, measurements, and proportions  
+- PRESERVE all text elements, logos, and brand specifications
+- PRESERVE all material descriptions (HDPE, termosellada, etc.)
+- PRESERVE all layout descriptions (upper section, lower section, etc.)
+
+ONLY ADD:
+- Technical camera settings (f-stop, ISO, lens type)
+- Professional lighting terminology (key light positioning already specified)
+- Surface material rendering details (reflectance, subsurface scattering)
+- Depth of field and focus specifications
+- Professional photography quality modifiers
+
+DO NOT CHANGE:
+- Color specifications or add new colors
+- Layout or composition (already specified)
+- Brand elements or text content
+- Product dimensions or proportions
+
+Target length: ${currentLimits.targetLength}
+
+${platformGuidance}
+
+Return the enhanced prompt maintaining ALL original specifications while adding only technical photographic improvements.` :
+
+      `You are an expert prompt engineer for AI image generation with FLUX.1 Kontext Max. 
+
+Your task: Transform the user's basic prompt into a detailed, professional prompt that will generate stunning images.
+
+Guidelines:
+- Add specific visual details (lighting, composition, style)
+- Include technical parameters (camera angles, depth of field)
+- Enhance artistic direction (mood, atmosphere, colors)
+- Keep core concept intact
+- Target length: ${currentLimits.targetLength}
+- Focus on visual elements that FLUX excels at
+
+${platformGuidance}
+
+Return ONLY the enhanced prompt, nothing else.`,
+
+      video: `You are an expert prompt engineer for Veo3 video generation using PROVEN SUCCESS TEMPLATES.
+
+🎯 VEO3 OPTIMIZATION RULES:
+- Maximum 250 words (optimal: 200-250 words)
+- Structure: [Shot Type] + [Subject + Action] + [Environment] + [Audio]
+- ALWAYS include AUDIO: descriptions
+- Dialogue format: Character: "text" (prevents subtitles)
+
+📋 PROVEN VEO3 TEMPLATES:
+1. PRODUCT + AVATAR: "Close-up of [product], camera pulls back revealing [character] interacting. Medium shot [character]: 'This is exactly what I needed.' Wide shot showing complete interaction. AUDIO: Clear dialogue, ambient warmth."
+
+2. TRANSFORMATION: "Product appears in elegant setting, magical transformation effect, close-up of stunning result. AUDIO: Subtle transformation sound, professional atmosphere."
+
+3. PRESENTATION: "Medium shot of [character] presenting [product], dynamic camera movement highlighting features, close-up of positive reaction. AUDIO: Confident presentation tone."
+
+Transform the input into a Veo3-optimized prompt using these proven structures. Include specific AUDIO and dialogue elements.
+
+${platformGuidance}
+
+Return ONLY the enhanced video prompt with AUDIO: descriptions.`
+    };
+
+    // 🆕 CONFIGURACIÓN ESPECÍFICA PARA MODELOS RAZONADORES
+    const modelConfig = REASONING_MODELS[model];
+    let requestConfig = {
+      model: model,
+      messages: [
+        {
+          role: "system",
+          content: systemPrompts[type] || systemPrompts.image
+        },
+        {
+          role: "user",
+          content: originalPrompt
+        }
+      ],
+      temperature: 0.7,
+      max_tokens: currentLimits.maxOutput
+    };
+
+    // 🆕 AJUSTES ESPECÍFICOS PARA MODELOS RAZONADORES
+    if (modelConfig?.reasoning) {
+      requestConfig.temperature = 0.3; // Más determinista para razonadores
+      if (model.includes('deepseek-r1')) {
+        requestConfig.temperature = 0.1; // DeepSeek R1 funciona mejor con temp baja
+      }
+    }
+
+    //console.log(`🧠 Using reasoning model: ${modelConfig?.name || model}`);
+    //console.log(`💰 Cost level: ${modelConfig?.cost || 'Unknown'}`);
+    //console.log(`🎯 Target length for ${type}: ${currentLimits.targetLength}`);
+    //console.log(`🎯 Digital Twin mode: ${isDigitalTwin}`); // 🆕 NEW LOG
+
+    const response = await axios.post(`${OPENROUTER_API_BASE}/chat/completions`, requestConfig, {
+      headers: {
+        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        'Content-Type': 'application/json',
+        'X-Title': 'AI Content Generator - Prompt Enhancement'
+      }
+    });
+
+    const enhancedPrompt = response.data.choices[0].message.content.trim();
+    
+    // 🆕 VALIDACIÓN CRÍTICA PARA VIDEOS
+    if (type === 'video' && enhancedPrompt.length > 500) {
+      console.warn(`⚠️ Enhanced video prompt too long (${enhancedPrompt.length} chars), truncating...`);
+      const truncatedPrompt = enhancedPrompt.substring(0, 497) + '...';
+      
+      return {
+        success: true,
+        originalPrompt,
+        enhancedPrompt: truncatedPrompt,
+        model,
+        type,
+        enhanced: true,
+        warning: `Prompt truncated from ${enhancedPrompt.length} to ${truncatedPrompt.length} characters for Veo 3 compatibility`,
+        originalLength: enhancedPrompt.length,
+        finalLength: truncatedPrompt.length
+      };
+    }
+    
+    return {
+      success: true,
+      originalPrompt,
+      enhancedPrompt,
+      model,
+      type,
+      enhanced: true,
+      modelInfo: modelConfig,
+      promptLength: enhancedPrompt.length,
+      withinLimits: type === 'video' ? enhancedPrompt.length <= 500 : true,
+      digitalTwinMode: isDigitalTwin // 🆕 NEW FIELD
+    };
+
+  } catch (error) {
+    console.error('❌ Error enhancing prompt:', error);
+    
+    // 🆕 FALLBACK MEJORADO
+    return {
+      success: false,
+      error: error.message,
+      fallbackPrompt: originalPrompt,
+      enhanced: false,
+      model: 'fallback'
+    };
+  }
+}
+
+export async function analyzeAndImprove(prompt, analysisType = 'creative', model = 'deepseek/deepseek-r1') {
+  try {
+    const analysisPrompts = {
+      creative: `Analyze this prompt for creative potential and suggest improvements for viral content generation. Be concise but insightful:`,
+      technical: `Analyze this prompt for technical accuracy and suggest improvements for professional content. Focus on specific technical details:`,
+      marketing: `Analyze this prompt for marketing appeal and suggest improvements for engagement. Consider viral potential:`
+    };
+
+    // 🆕 CONFIGURACIÓN PARA ANÁLISIS
+    const modelConfig = REASONING_MODELS[model];
+    let requestConfig = {
+      model: model,
+      messages: [
+        {
+          role: "user",
+          content: `${analysisPrompts[analysisType]} "${prompt}"`
+        }
+      ],
+      temperature: modelConfig?.reasoning ? 0.2 : 0.3,
+      max_tokens: 800
+    };
+
+    console.log(`🔍 Analyzing with: ${modelConfig?.name || model}`);
+
+    const response = await axios.post(`${OPENROUTER_API_BASE}/chat/completions`, requestConfig, {
+      headers: {
+        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        'Content-Type': 'application/json',
+        'X-Title': 'AI Content Generator - Prompt Analysis'
+      }
+    });
+
+    return {
+      success: true,
+      analysis: response.data.choices[0].message.content,
+      model,
+      analysisType,
+      modelInfo: modelConfig
+    };
+
+  } catch (error) {
+    return {
+      success: false,
+      error: error.message
+    };
+  }
+}

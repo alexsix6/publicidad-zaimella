@@ -1,0 +1,309 @@
+/**
+ * Qdrant Connector - Semantic caching and content similarity search
+ * Enables intelligent caching with 95% hit rate target
+ */
+
+import { QdrantClient } from '@qdrant/qdrant-js';
+import crypto from 'crypto';
+
+export class QdrantConnector {
+  constructor() {
+    this.client = null;
+    this.collectionName = 'content_cache';
+    this.initialized = false;
+    
+    // Qdrant configuration
+    this.config = {
+      url: process.env.QDRANT_URL || 'http://localhost:6333',
+      apiKey: process.env.QDRANT_API_KEY || null
+    };
+  }
+
+  async initialize() {
+    if (this.initialized) return;
+
+    //console.log(`🔗 Initializing Qdrant connector to: ${this.config.url}`);
+
+    try {
+      // Initialize Qdrant client
+      this.client = new QdrantClient({
+        url: this.config.url,
+        apiKey: this.config.apiKey
+      });
+
+      // Test connection
+      await this.testConnection();
+
+      // Ensure collection exists
+      await this.ensureCollection();
+
+      this.initialized = true;
+      //console.log('✅ Qdrant connector initialized successfully');
+    } catch (error) {
+      //console.warn('⚠️ Qdrant not available, running without semantic caching:', error.message);
+      // Continue without Qdrant - graceful degradation
+      this.initialized = false;
+    }
+  }
+
+  async testConnection() {
+    if (!this.client) return false;
+    
+    try {
+      await this.client.getCollections();
+      return true;
+    } catch (error) {
+      throw new Error(`Qdrant connection failed: ${error.message}`);
+    }
+  }
+
+  async ensureCollection() {
+    if (!this.client) return;
+
+    try {
+      // Check if collection exists
+      const collections = await this.client.getCollections();
+      const exists = collections.collections.some(c => c.name === this.collectionName);
+
+      if (!exists) {
+        //console.log(`📦 Creating Qdrant collection: ${this.collectionName}`);
+        
+        await this.client.createCollection(this.collectionName, {
+          vectors: {
+            size: 384, // Sentence transformer embedding size
+            distance: 'Cosine'
+          }
+        });
+        
+        ////console.log(`✅ Collection ${this.collectionName} created`);
+      } else {
+        ////console.log(`✅ Collection ${this.collectionName} exists`);
+      }
+    } catch (error) {
+      throw new Error(`Failed to ensure collection: ${error.message}`);
+    }
+  }
+
+  /**
+   * Store content in semantic cache
+   */
+  async storeContent(query, content, metadata = {}) {
+    if (!this.initialized || !this.client) {
+      //console.log('📝 Qdrant not available, skipping cache storage');
+      return false;
+    }
+
+    try {
+      const embedding = await this.generateEmbedding(query);
+      const contentId = this.generateContentId(query, content);
+
+      const point = {
+        id: contentId,
+        vector: embedding,
+        payload: {
+          query,
+          content,
+          metadata: {
+            ...metadata,
+            timestamp: new Date().toISOString(),
+            contentType: this.detectContentType(content),
+            queryHash: this.hashString(query)
+          }
+        }
+      };
+
+      await this.client.upsert(this.collectionName, {
+        wait: true,
+        points: [point]
+      });
+
+      ////console.log(`💾 Content cached with ID: ${contentId}`);
+      return true;
+    } catch (error) {
+      //console.error('❌ Failed to store content in cache:', error.message);
+      return false;
+    }
+  }
+
+  /**
+   * Search for similar content in cache
+   */
+  async searchSimilar(query, threshold = 0.85, limit = 3) {
+    if (!this.initialized || !this.client) {
+      //console.log('🔍 Qdrant not available, no cache search');
+      return { found: false, results: [] };
+    }
+
+    try {
+      const embedding = await this.generateEmbedding(query);
+
+      const searchResult = await this.client.search(this.collectionName, {
+        vector: embedding,
+        limit,
+        score_threshold: threshold,
+        with_payload: true
+      });
+
+      const results = searchResult.map(hit => ({
+        id: hit.id,
+        score: hit.score,
+        query: hit.payload.query,
+        content: hit.payload.content,
+        metadata: hit.payload.metadata,
+        reusable: hit.score >= threshold
+      }));
+
+      if (results.length > 0) {
+        //console.log(`🎯 Found ${results.length} similar content entries (threshold: ${threshold})`);
+        return { 
+          found: true, 
+          results,
+          bestMatch: results[0],
+          score: results[0].score,
+          metadata: results[0].metadata,
+          reusable: results[0].score >= threshold
+        };
+      }
+
+      return { found: false, results: [] };
+    } catch (error) {
+      //console.error('❌ Cache search failed:', error.message);
+      return { found: false, results: [], error: error.message };
+    }
+  }
+
+  /**
+   * Get cache statistics
+   */
+  async getCacheStats() {
+    if (!this.initialized || !this.client) {
+      return { available: false, error: 'Qdrant not available' };
+    }
+
+    try {
+      const info = await this.client.getCollection(this.collectionName);
+      
+      return {
+        available: true,
+        totalPoints: info.points_count,
+        vectorsCount: info.vectors_count,
+        indexedVectorsCount: info.indexed_vectors_count,
+        status: info.status
+      };
+    } catch (error) {
+      return { available: false, error: error.message };
+    }
+  }
+
+  /**
+   * Clear cache (delete all points)
+   */
+  async clearCache() {
+    if (!this.initialized || !this.client) {
+      //console.log('🗑️ Qdrant not available, nothing to clear');
+      return false;
+    }
+
+    try {
+      // Delete all points in collection
+      await this.client.delete(this.collectionName, {
+        filter: {} // Empty filter = delete all
+      });
+
+      //console.log('🗑️ Semantic cache cleared');
+      return true;
+    } catch (error) {
+      //console.error('❌ Failed to clear cache:', error.message);
+      return false;
+    }
+  }
+
+  /**
+   * Generate embedding for text (simple mock implementation)
+   * In production, this would use a proper embedding model
+   */
+  async generateEmbedding(text) {
+    // Mock embedding generation - in production use sentence-transformers or OpenAI embeddings
+    const hash = crypto.createHash('sha256').update(text).digest();
+    const embedding = [];
+    
+    // Generate 384-dimensional vector from hash
+    for (let i = 0; i < 384; i++) {
+      const byteIndex = i % hash.length;
+      const normalized = (hash[byteIndex] - 128) / 128; // Normalize to [-1, 1]
+      embedding.push(normalized);
+    }
+    
+    return embedding;
+  }
+
+  /**
+   * Generate unique content ID
+   */
+  generateContentId(query, content) {
+    const combined = query + (typeof content === 'string' ? content : JSON.stringify(content));
+    return crypto.createHash('md5').update(combined).digest('hex');
+  }
+
+  /**
+   * Detect content type from content structure
+   */
+  detectContentType(content) {
+    if (typeof content === 'string') {
+      return 'text';
+    }
+    
+    if (content && typeof content === 'object') {
+      if (content.imageUrl || content.publicUrl) return 'image';
+      if (content.videoUrl) return 'video';
+      if (content.image && content.video) return 'complete';
+      if (content.copy) return 'copy';
+    }
+    
+    return 'unknown';
+  }
+
+  /**
+   * Simple hash function
+   */
+  hashString(str) {
+    let hash = 0;
+    if (str.length === 0) return hash;
+    for (let i = 0; i < str.length; i++) {
+      const char = str.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash;
+    }
+    return Math.abs(hash).toString(36);
+  }
+
+  /**
+   * Health check for Qdrant connection
+   */
+  async healthCheck() {
+    if (!this.client) {
+      return { healthy: false, error: 'Client not initialized' };
+    }
+
+    try {
+      await this.client.getCollections();
+      const stats = await this.getCacheStats();
+      
+      return {
+        healthy: true,
+        connected: true,
+        collectionExists: stats.available,
+        pointsCount: stats.totalPoints || 0
+      };
+    } catch (error) {
+      return {
+        healthy: false,
+        connected: false,
+        error: error.message
+      };
+    }
+  }
+}
+
+
+

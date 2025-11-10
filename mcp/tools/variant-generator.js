@@ -27,12 +27,12 @@ export class VariantGenerator {
     this.loadPlatformSpecs();
 
     this.initialized = true;
-    //console.log(`✅ Variant Generator initialized for ${this.platformSpecs.size} platforms`);
+    //console.log(`Variant Generator initialized for ${this.platformSpecs.size} platforms`);
   }
 
   loadPlatformSpecs() {
     try {
-      // ✅ Load platform specifications dynamically from JSON
+      //  Load platform specifications dynamically from JSON
       const platformSpecsJson = readFileSync(this.platformSpecsPath, 'utf-8');
       const platformSpecsData = JSON.parse(platformSpecsJson);
 
@@ -50,10 +50,10 @@ export class VariantGenerator {
         });
       }
 
-      //console.log(`📋 Loaded specifications for ${this.platformSpecs.size} platforms dynamically from platform-specs.json`);
+      //console.log(`Loaded specifications for ${this.platformSpecs.size} platforms dynamically from platform-specs.json`);
     } catch (error) {
-      console.error('❌ Failed to load platform-specs.json:', error.message);
-      console.log('⚠️ Falling back to minimal platform support');
+      console.error(' Failed to load platform-specs.json:', error.message);
+      console.log(' Falling back to minimal platform support');
       // Minimal fallback: at least support the most common platforms
       this.loadMinimalFallbackSpecs();
     }
@@ -136,7 +136,7 @@ export class VariantGenerator {
       });
     });
 
-    console.log(`⚠️ Loaded ${this.platformSpecs.size} platforms in fallback mode`);
+    console.log(`Loaded ${this.platformSpecs.size} platforms in fallback mode`);
   }
 
   /**
@@ -186,7 +186,7 @@ export class VariantGenerator {
 
     // GRACEFUL FALLBACK: Create generic specs for unknown platforms
     if (!platformSpec) {
-      console.log(`  ℹ️  No definition for platform '${platform}', generating generic specs`);
+      console.log(`[INFO]  No definition for platform '${platform}', generating generic specs`);
       platformSpec = this.getGenericPlatformSpec(platform);
     }
 
@@ -222,7 +222,7 @@ export class VariantGenerator {
       }
     };
 
-    ////console.log(`✅ ${platform} variant generated (${optimalFormat} format)`);
+    ////console.log(`${platform} variant generated (${optimalFormat} format)`);
     return variant;
   }
 

@@ -1219,3 +1219,5 @@ El proyecto está **perfectamente posicionado** para:
 *Autor: Análisis Arquitectónico Automatizado*
 
 
+
+

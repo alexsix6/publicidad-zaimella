@@ -1,0 +1,519 @@
+// Context Profile Manager - Core system for JSON Context Profiles
+// Manages creation, storage, and application of context profiles
+
+import { promises as fs } from 'fs';
+import path from 'path';
+import { buildContextualPrompt } from './context-enhancer.js'; // 🆕 IMPORTACIÓN CORREGIDA
+
+export class ContextProfileManager {
+  constructor() {
+    this.profiles = new Map();
+    this.profilesDir = './data/context-profiles';
+    this.activeProfile = null;
+    this.initialized = false;
+  }
+
+  // 🏗️ Initialize the manager and load existing profiles
+  async initialize() {
+    if (this.initialized) return;
+
+    try {
+      // Ensure profiles directory exists
+      await fs.mkdir(this.profilesDir, { recursive: true });
+
+      // Load existing profiles
+      await this.loadAllProfiles();
+
+      this.initialized = true;
+      //console.log(`[INFO] ContextProfileManager initialized with ${this.profiles.size} profiles`);
+    } catch (error) {
+      console.error('[ERROR] Error initializing ContextProfileManager:', error);
+      throw error;
+    }
+  }
+
+  // ✅ PHASE 2 - Generate default framework metadata for context profiles
+  generateDefaultFrameworkMetadata(profileData) {
+    const industry = profileData.context?.product_specifications?.industry ||
+                     profileData.context?.project_context?.industry || 'general';
+
+    return {
+      market_sophistication: {
+        level: "Stage 2-3",
+        rationale: "Default sophistication for new profiles - adjust based on market research",
+        messaging_approach: "Focus on unique value proposition with supporting evidence"
+      },
+      recommended_hooks: {
+        primary: "mechanism",
+        secondary: "proof",
+        tertiary: "big_promise",
+        note: "Adjust based on industry and target audience"
+      },
+      value_stack_template: {
+        dream_outcome: "Achieve desired results with confidence",
+        proof_requirements: ["testimonials", "case studies", "guarantees"],
+        urgency_type: "limited time offer",
+        risk_reversal: "Money-back guarantee"
+      },
+      strategic_positioning: {
+        tier: "mid-range",
+        competitor_angle: "Value-driven positioning",
+        usp_focus: "Quality and reliability at competitive price",
+        social_proof_priority: ["testimonials", "reviews", "certifications"]
+      },
+      content_generation_hints: {
+        tone_strategic: "Professional yet approachable - build trust while showing expertise",
+        conversion_priorities: ["proof (35%)", "value (30%)", "mechanism (25%)", "urgency (10%)"],
+        a_b_testing_recommendations: [
+          "Test hook type (mechanism vs proof)",
+          "Test urgency level (scarcity vs savings)",
+          "Test CTA wording (benefit-driven vs action-driven)"
+        ],
+        platform_specific: {
+          instagram: "Visual storytelling, lifestyle integration, hashtag strategy",
+          facebook: "Longer narrative, community building, detailed benefits",
+          email: "Personalized messaging, segmented offers, educational content"
+        }
+      }
+    };
+  }
+
+  // 📁 Load all profiles from storage
+  async loadAllProfiles() {
+    try {
+      const files = await fs.readdir(this.profilesDir);
+      const jsonFiles = files.filter(file => file.endsWith('.json'));
+      
+      for (const file of jsonFiles) {
+        const profileId = path.basename(file, '.json');
+        const profile = await this.loadProfile(profileId);
+        if (profile) {
+          this.profiles.set(profileId, profile);
+        }
+      }
+      
+      console.log(`📁 Loaded ${this.profiles.size} context profiles`);
+    } catch (error) {
+      console.warn('[WARN] No existing profiles found, starting fresh');
+    }
+  }
+
+  // 🆕 Create a new context profile
+  async createProfile(profileData) {
+    try {
+      // Validate required fields
+      if (!profileData.name || !profileData.context) {
+        throw new Error('Profile must have name and context');
+      }
+
+      // Generate unique ID
+      const profileId = this.generateProfileId(profileData.name);
+      
+      // Create profile structure
+      const profile = {
+        profile: {
+          id: profileId,
+          name: profileData.name,
+          description: profileData.description || '',
+          version: '1.0.0',
+          created: new Date().toISOString(),
+          updated: new Date().toISOString()
+        },
+        context: {
+          user_preferences: profileData.context.user_preferences || {},
+          project_context: profileData.context.project_context || {},
+          technical_preferences: profileData.context.technical_preferences || {},
+          brand_guidelines: profileData.context.brand_guidelines || {},
+          // 🆕 SOPORTE PARA ESPECIFICACIONES DE PRODUCTO (GEMELO DIGITAL)
+          product_specifications: profileData.context.product_specifications || {},
+          validation_rules: profileData.context.validation_rules || {},
+          reference_assets: profileData.context.reference_assets || {},
+          // ✅ PHASE 2: Framework metadata for strategic content generation
+          framework_metadata: profileData.context.framework_metadata || this.generateDefaultFrameworkMetadata(profileData)
+        },
+        memory: {
+          successful_prompts: [],
+          learned_patterns: {},
+          usage_stats: {
+            total_generations: 0,
+            success_rate: 0,
+            last_used: null
+          }
+        },
+        relationships: {
+          semantic_connections: profileData.relationships?.semantic_connections || {},
+          style_associations: profileData.relationships?.style_associations || {}
+        }
+      };
+
+      // Validate profile structure
+      this.validateProfile(profile);
+
+      // Save to storage
+      await this.saveProfile(profileId, profile);
+      
+      // Add to memory
+      this.profiles.set(profileId, profile);
+
+      //console.log(`[INFO] Created context profile: ${profileId} (${profile.profile.name})`);
+      
+      return {
+        success: true,
+        profileId: profileId,
+        profile: profile
+      };
+    } catch (error) {
+      console.error('[ERROR] Error creating profile:', error);
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+
+  // 📖 Load a specific profile
+  async loadProfile(profileId) {
+    try {
+      // Check memory first
+      if (this.profiles.has(profileId)) {
+        return this.profiles.get(profileId);
+      }
+
+      // Load from storage
+      const filePath = path.join(this.profilesDir, `${profileId}.json`);
+      const data = await fs.readFile(filePath, 'utf8');
+      const profile = JSON.parse(data);
+      
+      // Validate profile
+      this.validateProfile(profile);
+      
+      // Add to memory
+      this.profiles.set(profileId, profile);
+      
+      console.log(`📖 Loaded profile: ${profileId}`);
+      return profile;
+    } catch (error) {
+      console.error(`[ERROR] Error loading profile ${profileId}:`, error);
+      return null;
+    }
+  }
+
+  // 🔄 Update an existing profile
+  async updateProfile(profileId, updates) {
+    try {
+      const profile = await this.loadProfile(profileId);
+      if (!profile) {
+        throw new Error(`Profile ${profileId} not found`);
+      }
+
+      // Deep merge updates
+      const updatedProfile = this.deepMerge(profile, updates);
+      
+      // Update metadata
+      updatedProfile.profile.updated = new Date().toISOString();
+      updatedProfile.profile.version = this.incrementVersion(profile.profile.version);
+
+      // Validate updated profile
+      this.validateProfile(updatedProfile);
+
+      // Save to storage
+      await this.saveProfile(profileId, updatedProfile);
+      
+      // Update memory
+      this.profiles.set(profileId, updatedProfile);
+
+      //console.log(`🔄 Updated profile: ${profileId}`);
+      
+      return {
+        success: true,
+        profile: updatedProfile
+      };
+    } catch (error) {
+      console.error('[ERROR] Error updating profile:', error);
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+
+  // 🗑️ Delete a profile
+  async deleteProfile(profileId) {
+    try {
+      // Remove from storage
+      const filePath = path.join(this.profilesDir, `${profileId}.json`);
+      await fs.unlink(filePath);
+      
+      // Remove from memory
+      this.profiles.delete(profileId);
+      
+      console.log(`🗑️ Deleted profile: ${profileId}`);
+      
+      return {
+        success: true,
+        message: `Profile ${profileId} deleted successfully`
+      };
+    } catch (error) {
+      console.error('[ERROR] Error deleting profile:', error);
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+
+  // 🎯 Apply context profile to a prompt
+  async applyContextToPrompt(prompt, profileId) {
+    try {
+      const profile = await this.loadProfile(profileId);
+      if (!profile) {
+        console.warn(`[WARN] Profile ${profileId} not found, using original prompt`);
+        return {
+          success: false,
+          enhancedPrompt: prompt,
+          error: 'Profile not found'
+        };
+      }
+
+      // 🆕 CORREGIDO: Usar función mejorada del context-enhancer.js
+      const enhancedPrompt = buildContextualPrompt(prompt, profile, {
+        includeDigitalTwin: this.isDigitalTwinProfile(profile), // 🎯 AUTO-DETECTA
+        includeNegatives: true,
+        separator: ', '
+      });
+      
+      // Record usage
+      await this.recordUsage(profileId, prompt);
+
+      //console.log(`🎯 Applied context ${profileId} to prompt`);
+      console.log(`   Original: "${prompt}"`);
+      console.log(`   Enhanced: "${enhancedPrompt}"`);
+
+      return {
+        success: true,
+        enhancedPrompt: enhancedPrompt,
+        profile: profile,
+        contextApplied: true
+      };
+    } catch (error) {
+      console.error('[ERROR] Error applying context:', error);
+      return {
+        success: false,
+        enhancedPrompt: prompt,
+        error: error.message
+      };
+    }
+  }
+
+  // 🔍 CORREGIDO: Método separado para detectar gemelos digitales
+  isDigitalTwinProfile(profile) {
+    if (!profile || !profile.context) return false;
+    
+    // Criteria para detectar gemelo digital:
+    const hasProductSpecs = profile.context.product_specifications && 
+                           profile.context.product_specifications.pack_dimensions_mm;
+    
+    const hasPantoneColors = profile.context.brand_guidelines && 
+                            profile.context.brand_guidelines.color_spec;
+    
+    const hasTechnicalSpecs = profile.context.technical_preferences && 
+                             profile.context.technical_preferences.color_accuracy;
+    
+    const hasProfessionalLighting = profile.context.user_preferences && 
+                                   profile.context.user_preferences.lighting && 
+                                   profile.context.user_preferences.lighting.includes('studio');
+    
+    // Es gemelo digital si tiene al menos 2 de estos criterios
+    const digitalTwinScore = [
+      hasProductSpecs,
+      hasPantoneColors, 
+      hasTechnicalSpecs,
+      hasProfessionalLighting
+    ].filter(Boolean).length;
+    
+    const isDigitalTwin = digitalTwinScore >= 2;
+    
+    console.log(`[INFO] Profile ${profile.profile?.id}: Digital Twin = ${isDigitalTwin} (score: ${digitalTwinScore}/4)`);
+    
+    return isDigitalTwin;
+  }
+
+  // 🏗️ REMOVIDO: buildContextualPrompt() - Ahora usa el del context-enhancer.js
+  // Esta función se ha movido al context-enhancer.js con capacidades mejoradas de gemelo digital
+
+  // 📊 Record usage statistics
+  async recordUsage(profileId, prompt) {
+    try {
+      const profile = this.profiles.get(profileId);
+      if (!profile) return;
+
+      profile.memory.usage_stats.total_generations++;
+      profile.memory.usage_stats.last_used = new Date().toISOString();
+
+      // Save updated stats
+      await this.saveProfile(profileId, profile);
+    } catch (error) {
+      console.error('[ERROR] Error recording usage:', error);
+    }
+  }
+
+  // 📝 List all profiles
+  listProfiles() {
+    const profileList = Array.from(this.profiles.values()).map(profile => ({
+      id: profile.profile.id,
+      name: profile.profile.name,
+      description: profile.profile.description,
+      created: profile.profile.created,
+      updated: profile.profile.updated,
+      totalGenerations: profile.memory.usage_stats.total_generations,
+      lastUsed: profile.memory.usage_stats.last_used,
+      // 🆕 NUEVO: Indicador de tipo de profile
+      isDigitalTwin: this.isDigitalTwinProfile(profile)
+    }));
+
+    return profileList;
+  }
+
+  // 🆕 NUEVO: Obtener estadísticas detalladas de un profile
+  getProfileStats(profileId) {
+    const profile = this.profiles.get(profileId);
+    if (!profile) return null;
+
+    return {
+      id: profileId,
+      name: profile.profile.name,
+      isDigitalTwin: this.isDigitalTwinProfile(profile),
+      usage: profile.memory.usage_stats,
+      capabilities: {
+        hasProductSpecs: !!(profile.context.product_specifications?.pack_dimensions_mm),
+        hasPantoneColors: !!(profile.context.brand_guidelines?.color_spec),
+        hasTechnicalSpecs: !!(profile.context.technical_preferences?.color_accuracy),
+        hasProfessionalLighting: !!(profile.context.user_preferences?.lighting?.includes('studio'))
+      },
+      successfulPrompts: profile.memory.successful_prompts?.length || 0,
+      lastUsed: profile.memory.usage_stats.last_used
+    };
+  }
+
+  // 🆕 NUEVO: Auto-selección inteligente de profile
+  async autoSelectProfile(prompt, type = 'image') {
+    try {
+      const profiles = Array.from(this.profiles.values());
+      
+      if (profiles.length === 0) {
+        console.log('📝 No profiles available for auto-selection');
+        return { success: false, profileId: null };
+      }
+
+      const promptLower = prompt.toLowerCase();
+      
+      // 🎯 Buscar matches específicos por keywords del producto
+      for (const profile of profiles) {
+        if (profile.context.product_specifications) {
+          const productName = profile.profile.name.toLowerCase();
+          const keywords = productName.split(/[\s_-]+/);
+          
+          if (keywords.some(keyword => keyword.length > 2 && promptLower.includes(keyword))) {
+            //console.log(`🎯 Auto-selected product-specific profile: ${profile.profile.id}`);
+            return { success: true, profileId: profile.profile.id };
+          }
+        }
+      }
+
+      // 🎯 Buscar por categorías
+      const categoryMatches = {
+        'marketing': ['marketing', 'business', 'corporate', 'professional'],
+        'creative': ['artistic', 'creative', 'art', 'design'],
+        'ecommerce': ['product', 'ecommerce', 'shop', 'retail', 'commercial'],
+        'photography': ['photography', 'photo', 'studio', 'lighting']
+      };
+
+      for (const [category, keywords] of Object.entries(categoryMatches)) {
+        if (keywords.some(keyword => promptLower.includes(keyword))) {
+          const matchingProfile = profiles.find(p => 
+            p.profile.name.toLowerCase().includes(category) || 
+            p.profile.description.toLowerCase().includes(category)
+          );
+          
+          if (matchingProfile) {
+            //console.log(`🎯 Auto-selected category profile: ${matchingProfile.profile.id} (${category})`);
+            return { success: true, profileId: matchingProfile.profile.id };
+          }
+        }
+      }
+
+      // 🎯 Fallback: usar el profile más usado
+      const mostUsedProfile = profiles.reduce((prev, current) => 
+        (current.memory.usage_stats.total_generations > prev.memory.usage_stats.total_generations) ? current : prev
+      );
+
+      //console.log(`🎯 Auto-selected most used profile: ${mostUsedProfile.profile.id}`);
+      return { success: true, profileId: mostUsedProfile.profile.id };
+
+    } catch (error) {
+      console.error('[ERROR] Error in auto-selection:', error);
+      return { success: false, profileId: null };
+    }
+  }
+
+  // 💾 Save profile to storage
+  async saveProfile(profileId, profile) {
+    const filePath = path.join(this.profilesDir, `${profileId}.json`);
+    await fs.writeFile(filePath, JSON.stringify(profile, null, 2), 'utf8');
+  }
+
+  // 🔍 Validate profile structure
+  validateProfile(profile) {
+    const required = ['profile', 'context', 'memory', 'relationships'];
+    for (const field of required) {
+      if (!profile[field]) {
+        throw new Error(`Profile missing required field: ${field}`);
+      }
+    }
+
+    if (!profile.profile.id || !profile.profile.name) {
+      throw new Error('Profile metadata incomplete');
+    }
+
+    // 🆕 NUEVO: Validación específica para gemelos digitales
+    if (this.isDigitalTwinProfile(profile)) {
+      //console.log(`[INFO] Digital Twin profile validated: ${profile.profile.id}`);
+    }
+  }
+
+  // 🆔 Generate unique profile ID
+  generateProfileId(name) {
+    const timestamp = Date.now();
+    const sanitized = name.toLowerCase()
+      .replace(/[^a-z0-9]/g, '_')
+      .replace(/_+/g, '_')
+      .replace(/^_|_$/g, '');
+    
+    return `${sanitized}_${timestamp}`;
+  }
+
+  // 🔄 Deep merge objects
+  deepMerge(target, source) {
+    const result = { ...target };
+    
+    for (const key in source) {
+      if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
+        result[key] = this.deepMerge(target[key] || {}, source[key]);
+      } else {
+        result[key] = source[key];
+      }
+    }
+    
+    return result;
+  }
+
+  // 📈 Increment version number
+  incrementVersion(version) {
+    const parts = version.split('.');
+    parts[2] = (parseInt(parts[2]) + 1).toString();
+    return parts.join('.');
+  }
+}
+
+// 🌟 Export singleton instance
+export const contextProfileManager = new ContextProfileManager();

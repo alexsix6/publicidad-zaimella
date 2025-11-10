@@ -5,6 +5,7 @@
 
 import { promises as fs } from 'fs';
 import path from 'path';
+import { getActiveSchema } from '../config/bigquery-schemas.js';
 
 export class NicheManager {
   constructor() {
@@ -16,7 +17,7 @@ export class NicheManager {
   async initialize() {
     if (this.initialized) return;
 
-    //console.log('🎯 Initializing Niche Manager...');
+    //console.log('[INFO] Initializing Niche Manager...');
     
     try {
       // Ensure niches directory exists
@@ -26,9 +27,9 @@ export class NicheManager {
       await this.loadNicheDefinitions();
       
       this.initialized = true;
-      ////console.log(`✅ Niche Manager initialized with ${this.niches.size} niches`);
+      ////console.log(`Niche Manager initialized with ${this.niches.size} niches`);
     } catch (error) {
-      //console.error('❌ Failed to initialize Niche Manager:', error);
+      //console.error(' Failed to initialize Niche Manager:', error);
       throw error;
     }
   }
@@ -167,7 +168,7 @@ export class NicheManager {
       } catch {
         // File doesn't exist, create it
         await fs.writeFile(filePath, JSON.stringify(niche, null, 2));
-        ////console.log(`📝 Created niche definition: ${niche.id}`);
+        ////console.log(`Created niche definition: ${niche.id}`);
       }
       
       // Load into memory
@@ -211,7 +212,7 @@ export class NicheManager {
 
     // If we found a good match in known niches (>40% confidence), use it
     if (bestKnownScore > 0.4) {
-      console.log(`🎯 Auto-detected KNOWN niche: ${bestKnownNiche} (confidence: ${(bestKnownScore * 100).toFixed(1)}%)`);
+      console.log(`Auto-detected KNOWN niche: ${bestKnownNiche} (confidence: ${(bestKnownScore * 100).toFixed(1)}%)`);
       return bestKnownNiche;
     }
 
@@ -219,7 +220,7 @@ export class NicheManager {
     // Extract industry semantically (similar to skills detection)
     const extractedNiche = await this.extractIndustryFromBrief(brief);
 
-    console.log(`🎯 Auto-detected GENERIC niche: ${extractedNiche} (semantic extraction)`);
+    console.log(`Auto-detected GENERIC niche: ${extractedNiche} (semantic extraction)`);
 
     return extractedNiche;
   }
@@ -268,17 +269,17 @@ export class NicheManager {
     if (words.length > 0) {
       // Use first capitalized word as industry hint
       const hint = words[0].toLowerCase();
-      console.log(`  ℹ️  Using extracted term as niche: ${hint}`);
+      console.log(`[INFO]  Using extracted term as niche: ${hint}`);
       return hint;
     }
 
     // Final fallback: generic (NOT marketing-agency - neutral default)
-    console.log(`  ⚠️  Could not determine specific niche, using 'generic'`);
+    console.log(`Could not determine specific niche, using 'generic'`);
     return 'generic';
   }
 
   /**
-   * ✅ PHASE 2 - FRAMEWORK SEEDS DETECTION
+   *  PHASE 2 - FRAMEWORK SEEDS DETECTION
    * Detect Todd Brown 5 hook types opportunities in brief
    */
   detectHookOpportunities(brief) {
@@ -328,7 +329,7 @@ export class NicheManager {
   }
 
   /**
-   * ✅ PHASE 2 - Extract pain points and dream outcome from brief
+   *  PHASE 2 - Extract pain points and dream outcome from brief
    */
   extractPainPoints(brief) {
     const painPoints = [];
@@ -377,7 +378,7 @@ export class NicheManager {
   }
 
   /**
-   * ✅ PHASE 2 - Detect market sophistication level (Todd Brown Stage 1-5)
+   *  PHASE 2 - Detect market sophistication level (Todd Brown Stage 1-5)
    */
   detectSophisticationLevel(brief) {
     const briefLower = brief.toLowerCase();
@@ -407,7 +408,7 @@ export class NicheManager {
   }
 
   /**
-   * ✅ PHASE 2 - Extract value indicators (price, guarantees, bonuses, urgency)
+   *  PHASE 2 - Extract value indicators (price, guarantees, bonuses, urgency)
    */
   extractValueIndicators(brief) {
     const indicators = {
@@ -457,7 +458,7 @@ export class NicheManager {
   }
 
   /**
-   * ✅ PHASE 2 - Extract demographics (age, gender) from brief
+   *  PHASE 2 - Extract demographics (age, gender) from brief
    */
   extractDemographics(brief) {
     const demographics = {
@@ -501,7 +502,218 @@ export class NicheManager {
   }
 
   /**
-   * ✅ PHASE 3 - MVP BIGQUERY DATA INTEGRATION
+   *  PHASE 3.3 - ENTERPRISE-GRADE DYNAMIC QUERY BUILDER
+   * Build client-specific BigQuery queries using schema mappings
+   * Supports multiple client schemas (default, CMF, etc.)
+   * @param {Object} clientConfig - Client schema configuration from bigquery-schemas.js
+   * @param {string} queryType - Type of query: 'products', 'demographics', 'proven_phrases', 'seasonal'
+   * @param {string|null} clientId - Client identifier (null for single-client schemas like CMF)
+   * @returns {string} Dynamic SQL query adapted to client schema
+   */
+  buildQueryForClient(clientConfig, queryType, clientId = null) {
+    const mapping = clientConfig.mappings[queryType];
+
+    // Handle cases where data is not available (e.g., CMF has no ad performance data)
+    if (!mapping || mapping.table === null) {
+      console.log(`Query type "${queryType}" not available for this client schema`);
+      return null;
+    }
+
+    const projectPrefix = clientConfig.project ? `${clientConfig.project}.` : '';
+    const fullTablePath = `${projectPrefix}${clientConfig.dataset}.${mapping.table}`;
+
+    // Build query based on type
+    if (queryType === 'products') {
+      const cols = mapping.columns;
+      const filters = mapping.filters || {};
+
+      let query = `
+        SELECT
+          ${cols.product_name} as product_name,
+          SUM(${cols.revenue}) as total_revenue,
+          ${cols.units_sold === 'COUNT(*)' ? 'COUNT(*)' : 'SUM(' + cols.units_sold + ')'} as total_units_sold,
+          ${cols.rating === 'NULL' ? 'NULL' : 'ROUND(AVG(' + cols.rating + '), 1)'} as avg_rating
+        FROM \`${fullTablePath}\`
+        WHERE ${cols.date} >= DATE_SUB(CURRENT_DATE(), INTERVAL 6 MONTH)
+      `;
+
+      // Add client_id filter only if schema has it
+      if (clientConfig.has_client_id && clientId) {
+        query += `\n          AND client_id = '${clientId}'`;
+      }
+
+      // Add custom filters from schema config
+      Object.values(filters).forEach(filter => {
+        query += `\n          AND ${filter}`;
+      });
+
+      query += `
+        GROUP BY ${mapping.group_by.join(', ')}
+        ORDER BY ${mapping.order_by}
+        LIMIT ${mapping.limit}
+      `;
+
+      return query;
+    }
+
+    if (queryType === 'demographics') {
+      const aggs = mapping.aggregations;
+
+      let query = `
+        SELECT
+          ${aggs.avg_age} as avg_age,
+          ${aggs.female_pct} as female_pct,
+          ${aggs.male_pct} as male_pct,
+          ${aggs.avg_order_value} as avg_order_value,
+          ${aggs.total_customers} as total_customers
+        FROM \`${fullTablePath}\`
+      `;
+
+      // Add client_id filter only if schema has it
+      if (clientConfig.has_client_id && clientId) {
+        query += `\n        WHERE client_id = '${clientId}'`;
+      }
+
+      return query;
+    }
+
+    if (queryType === 'proven_phrases') {
+      const cols = mapping.columns;
+      const filters = mapping.filters || {};
+
+      let query = `
+        SELECT
+          ${cols.phrase} as ad_copy_phrase,
+          ${cols.conversion_rate} as conversion_rate_pct,
+          ${cols.impressions} as impressions,
+          ${cols.clicks} as clicks,
+          ${cols.conversions} as conversions
+        FROM \`${fullTablePath}\`
+        WHERE ${cols.date} >= DATE_SUB(CURRENT_DATE(), INTERVAL 3 MONTH)
+      `;
+
+      // Add client_id filter only if schema has it
+      if (clientConfig.has_client_id && clientId) {
+        query += `\n          AND client_id = '${clientId}'`;
+      }
+
+      // Add custom filters
+      Object.values(filters).forEach(filter => {
+        query += `\n          AND ${filter}`;
+      });
+
+      query += `
+        GROUP BY ${mapping.group_by.join(', ')}
+        ORDER BY ${mapping.order_by}
+        LIMIT ${mapping.limit}
+      `;
+
+      return query;
+    }
+
+    if (queryType === 'seasonal') {
+      const aggs = mapping.aggregations;
+
+      let query = `
+        SELECT
+          ${aggs.month_formatted} as month,
+          ${aggs.order_count} as order_count,
+          ${aggs.total_revenue} as total_revenue
+        FROM \`${fullTablePath}\`
+        WHERE ${mapping.columns.month} >= DATE_SUB(CURRENT_DATE(), INTERVAL 12 MONTH)
+      `;
+
+      // Add client_id filter only if schema has it
+      if (clientConfig.has_client_id && clientId) {
+        query += `\n          AND client_id = '${clientId}'`;
+      }
+
+      // Add custom filters from schema config
+      const filters = mapping.filters || {};
+      Object.values(filters).forEach(filter => {
+        query += `\n          AND ${filter}`;
+      });
+
+      query += `
+        GROUP BY ${mapping.group_by.join(', ')}
+        ORDER BY ${mapping.order_by}
+        LIMIT ${mapping.limit}
+      `;
+
+      return query;
+    }
+
+    console.warn(`Unknown query type: ${queryType}`);
+    return null;
+  }
+
+  /**
+   *  PHASE 3.3 - ENTERPRISE-GRADE MCP ROUTING LAYER
+   * Route BigQuery queries to correct MCP based on client configuration
+   * Supports: bigquery_intelligence MCP (default) and Alba MCP (CMF)
+   * @param {Object} clientConfig - Client schema configuration
+   * @param {string} query - SQL query to execute
+   * @returns {Promise<Array|Object>} Query results
+   */
+  async executeQueryWithMCP(clientConfig, query) {
+    if (!query) {
+      console.log(`No query to execute (data not available for this client)`);
+      return null;
+    }
+
+    if (clientConfig.mcp_type === 'bigquery_intelligence') {
+      // Default schema: Personal BigQuery MCP
+      console.log(`Executing via bigquery MCP (personal)`);
+
+      const result = await mcp__bigquery__query({
+        sql: query,
+        maximumBytesBilled: '10000000' // 10 MB limit per query
+      });
+
+      return result?.rows || [];
+
+    } else if (clientConfig.mcp_type === 'bigquery-cmf') {
+      // CMF schema: bigquery-cmf MCP (client CMF)
+      console.log(`Executing via bigquery-cmf MCP (CMF client)`);
+
+      const result = await mcp__bigquery_cmf__query({
+        sql: query,
+        maximumBytesBilled: '10000000' // 10 MB limit per query
+      });
+
+      return result?.rows || [];
+
+    } else if (clientConfig.mcp_type === 'alba') {
+      // Alba MCP: HTTP endpoint (fallback option)
+      console.log(`Executing via Alba MCP: ${clientConfig.endpoint}`);
+
+      try {
+        const response = await fetch(clientConfig.endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ question: query })
+        });
+
+        if (!response.ok) {
+          throw new Error(`Alba MCP HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+
+        // Alba MCP response format: { results: [...], sql: "...", execution_time: ... }
+        return data?.results || [];
+
+      } catch (error) {
+        console.error(`Alba MCP request failed:`, error.message);
+        throw error;
+      }
+    }
+
+    throw new Error(`Unknown MCP type: ${clientConfig.mcp_type}`);
+  }
+
+  /**
+   *  PHASE 3 - MVP BIGQUERY DATA INTEGRATION
    * Fetch real client business data from BigQuery to enrich content generation
    * @param {string} clientId - Client identifier in BigQuery
    * @param {string} dataset - BigQuery dataset name (default: 'client_analytics')
@@ -509,97 +721,67 @@ export class NicheManager {
    */
   async fetchClientBusinessData(clientId, dataset = 'client_analytics') {
     try {
-      console.log(`📊 Fetching business intelligence for client: ${clientId} from BigQuery...`);
+      //  PHASE 3.3 - ENTERPRISE-GRADE DYNAMIC SCHEMA SUPPORT
+      // Get active schema configuration (supports CMF, default, and future clients)
+      const clientConfig = getActiveSchema();
+      console.log(`Fetching business intelligence for client: ${clientId || 'N/A'}`);
+      console.log(`Schema: ${process.env.BIGQUERY_CLIENT_SCHEMA || 'default'}`);
+      console.log(`MCP: ${clientConfig.mcp_type}`);
+      console.log(`Dataset: ${clientConfig.dataset}`);
 
-      // Query 1: Top selling products (last 6 months)
-      const topProductsQuery = `
-        SELECT
-          product_name,
-          SUM(units_sold) as total_units_sold,
-          SUM(revenue) as total_revenue,
-          ROUND(AVG(customer_rating), 1) as avg_rating
-        FROM \`${dataset}.sales\`
-        WHERE client_id = '${clientId}'
-          AND order_date >= DATE_SUB(CURRENT_DATE(), INTERVAL 6 MONTH)
-        GROUP BY product_name
-        ORDER BY total_revenue DESC
-        LIMIT 5
-      `;
+      // Build dynamic queries using schema configuration
+      const topProductsQuery = this.buildQueryForClient(clientConfig, 'products', clientId);
+      const demographicsQuery = this.buildQueryForClient(clientConfig, 'demographics', clientId);
+      const bestPhrasesQuery = this.buildQueryForClient(clientConfig, 'proven_phrases', clientId);
+      const seasonalQuery = this.buildQueryForClient(clientConfig, 'seasonal', clientId);
 
-      // Query 2: Real customer demographics
-      const demographicsQuery = `
-        SELECT
-          ROUND(AVG(customer_age), 0) as avg_age,
-          ROUND(COUNT(CASE WHEN gender='F' THEN 1 END)*100.0/COUNT(*), 1) as female_pct,
-          ROUND(COUNT(CASE WHEN gender='M' THEN 1 END)*100.0/COUNT(*), 1) as male_pct,
-          ROUND(AVG(order_value), 2) as avg_order_value,
-          COUNT(DISTINCT customer_id) as total_customers
-        FROM \`${dataset}.customers\`
-        WHERE client_id = '${clientId}'
-      `;
-
-      // Query 3: Best performing ad copy phrases (highest conversion)
-      const bestPhrasesQuery = `
-        SELECT
-          ad_copy_phrase,
-          ROUND(conversion_rate * 100, 2) as conversion_rate_pct,
-          impressions,
-          clicks,
-          conversions
-        FROM \`${dataset}.campaign_performance\`
-        WHERE client_id = '${clientId}'
-          AND campaign_date >= DATE_SUB(CURRENT_DATE(), INTERVAL 3 MONTH)
-        ORDER BY conversion_rate DESC
-        LIMIT 5
-      `;
-
-      // Query 4: Seasonal sales patterns (identify peak months)
-      const seasonalQuery = `
-        SELECT
-          FORMAT_DATE('%Y-%m', order_date) as month,
-          COUNT(*) as order_count,
-          ROUND(SUM(revenue), 2) as total_revenue
-        FROM \`${dataset}.sales\`
-        WHERE client_id = '${clientId}'
-          AND order_date >= DATE_SUB(CURRENT_DATE(), INTERVAL 12 MONTH)
-        GROUP BY month
-        ORDER BY total_revenue DESC
-        LIMIT 3
-      `;
-
-      // Execute all 4 queries in parallel using MCP BigQuery
+      // Execute all 4 queries in parallel using appropriate MCP
       const [topProducts, demographics, bestPhrases, seasonal] = await Promise.all([
-        this.executeBigQuerySafe(topProductsQuery, 'top_products'),
-        this.executeBigQuerySafe(demographicsQuery, 'demographics'),
-        this.executeBigQuerySafe(bestPhrasesQuery, 'best_phrases'),
-        this.executeBigQuerySafe(seasonalQuery, 'seasonal_patterns')
+        this.executeQueryWithMCP(clientConfig, topProductsQuery).catch(err => {
+          console.warn(`Top products query failed: ${err.message}`);
+          return null;
+        }),
+        this.executeQueryWithMCP(clientConfig, demographicsQuery).catch(err => {
+          console.warn(`Demographics query failed: ${err.message}`);
+          return null;
+        }),
+        this.executeQueryWithMCP(clientConfig, bestPhrasesQuery).catch(err => {
+          console.warn(`Proven phrases query failed: ${err.message}`);
+          return null;
+        }),
+        this.executeQueryWithMCP(clientConfig, seasonalQuery).catch(err => {
+          console.warn(`Seasonal patterns query failed: ${err.message}`);
+          return null;
+        })
       ]);
 
-      // Structure business intelligence
+      // Structure business intelligence (same output format for backward compatibility)
       const businessIntelligence = {
-        client_id: clientId,
+        client_id: clientId || clientConfig.metadata?.client_name || 'N/A',
         top_selling_products: topProducts || [],
-        real_customer_demographics: demographics || null,
+        real_customer_demographics: demographics?.[0] || null,
         proven_copy_phrases: bestPhrases || [],
         seasonal_patterns: seasonal || [],
         data_source: 'BigQuery',
-        dataset: dataset,
+        dataset: clientConfig.dataset,
+        mcp_type: clientConfig.mcp_type,
+        schema: process.env.BIGQUERY_CLIENT_SCHEMA || 'default',
         fetched_at: new Date().toISOString(),
-        has_real_data: !!(topProducts?.length || demographics || bestPhrases?.length)
+        has_real_data: !!(topProducts?.length || demographics?.[0] || bestPhrases?.length)
       };
 
-      console.log(`✅ Business intelligence fetched successfully for ${clientId}`);
-      console.log(`   - Top products: ${topProducts?.length || 0}`);
-      console.log(`   - Demographics: ${demographics ? 'Available' : 'Not found'}`);
-      console.log(`   - Proven phrases: ${bestPhrases?.length || 0}`);
-      console.log(`   - Seasonal patterns: ${seasonal?.length || 0}`);
+      console.log(`Business intelligence fetched successfully`);
+      console.log(`- Top products: ${topProducts?.length || 0}`);
+      console.log(`- Demographics: ${demographics?.[0] ? 'Available' : 'Not found'}`);
+      console.log(`- Proven phrases: ${bestPhrases?.length || 0}`);
+      console.log(`- Seasonal patterns: ${seasonal?.length || 0}`);
 
       return businessIntelligence;
 
     } catch (error) {
-      // ✅ GRACEFUL DEGRADATION: If BigQuery fails, return null (Tool #2 continues without business data)
-      console.warn(`⚠️  BigQuery data fetch failed for client ${clientId}:`, error.message);
-      console.warn(`   Continuing with Phase 2 functionality (framework_seeds only)`);
+      //  GRACEFUL DEGRADATION: If BigQuery fails, return null (Tool #2 continues without business data)
+      console.warn(`BigQuery data fetch failed for client ${clientId}:`, error.message);
+      console.warn(`Continuing with Phase 2 functionality (framework_seeds only)`);
 
       return null;
     }
@@ -624,17 +806,17 @@ export class NicheManager {
         return result.data.rows;
       }
 
-      console.warn(`   ⚠️  No data returned for ${queryType}`);
+      console.warn(`No data returned for ${queryType}`);
       return null;
 
     } catch (error) {
-      console.warn(`   ⚠️  Query failed for ${queryType}:`, error.message);
+      console.warn(`Query failed for ${queryType}:`, error.message);
       return null;
     }
   }
 
   /**
-   * Analyze brief and provide recommendations (✅ ENHANCED - Phase 2 + Phase 3 with BigQuery)
+   * Analyze brief and provide recommendations ( ENHANCED - Phase 2 + Phase 3 with BigQuery)
    * @param {string} brief - Content brief to analyze
    * @param {string} clientId - Optional client ID for BigQuery data enrichment
    * @param {string} dataset - Optional BigQuery dataset (default: 'client_analytics')
@@ -643,14 +825,14 @@ export class NicheManager {
     const detectedNiche = await this.detectNiche(brief);
     const nicheData = this.niches.get(detectedNiche);
 
-    // ✅ PHASE 2: Generate framework seeds (before niche-specific processing)
+    //  PHASE 2: Generate framework seeds (before niche-specific processing)
     const hookOpportunities = this.detectHookOpportunities(brief);
     const painPointsData = this.extractPainPoints(brief);
     const sophisticationData = this.detectSophisticationLevel(brief);
     const valueIndicators = this.extractValueIndicators(brief);
     const demographics = this.extractDemographics(brief);
 
-    // ✅ PHASE 3: Fetch business intelligence from BigQuery (if clientId provided)
+    //  PHASE 3: Fetch business intelligence from BigQuery (if clientId provided)
     let businessIntelligence = null;
     if (clientId) {
       businessIntelligence = await this.fetchClientBusinessData(clientId, dataset);
@@ -658,7 +840,7 @@ export class NicheManager {
 
     // GRACEFUL FALLBACK: Handle generic niches without throwing error
     if (!nicheData) {
-      console.log(`  ℹ️  No definition for niche '${detectedNiche}', generating generic analysis`);
+      console.log(`[INFO]  No definition for niche '${detectedNiche}', generating generic analysis`);
 
       // Generic confidence (moderate since we did semantic extraction)
       const confidence = 0.6;
@@ -681,7 +863,7 @@ export class NicheManager {
         ],
         isGeneric: true, // Flag to indicate fallback mode
 
-        // ✅ PHASE 2 + PHASE 3: Framework seeds + Business Intelligence
+        //  PHASE 2 + PHASE 3: Framework seeds + Business Intelligence
         framework_seeds: {
           hook_opportunities: hookOpportunities,
           pain_points: painPointsData.pain_points,
@@ -690,7 +872,7 @@ export class NicheManager {
           sophistication_description: sophisticationData.description,
           value_indicators: valueIndicators,
           target_demographics: demographics,
-          // ✅ PHASE 3: Real client business data from BigQuery
+          //  PHASE 3: Real client business data from BigQuery
           business_intelligence: businessIntelligence
         }
       };
@@ -729,7 +911,7 @@ export class NicheManager {
         `Best performing platforms: ${nicheData.optimalPlatforms.join(', ')}`
       ],
 
-      // ✅ PHASE 2 + PHASE 3: Framework seeds + Business Intelligence
+      //  PHASE 2 + PHASE 3: Framework seeds + Business Intelligence
       framework_seeds: {
         hook_opportunities: hookOpportunities,
         pain_points: painPointsData.pain_points,
@@ -738,14 +920,14 @@ export class NicheManager {
         sophistication_description: sophisticationData.description,
         value_indicators: valueIndicators,
         target_demographics: demographics,
-        // ✅ PHASE 3: Real client business data from BigQuery
+        //  PHASE 3: Real client business data from BigQuery
         business_intelligence: businessIntelligence
       }
     };
   }
 
   /**
-   * ✅ PHASE 2 - Generate default framework metadata for unknown/generic niches
+   *  PHASE 2 - Generate default framework metadata for unknown/generic niches
    */
   generateDefaultFrameworkMetadata(nicheId) {
     return {
@@ -810,7 +992,7 @@ export class NicheManager {
   }
 
   /**
-   * Get detailed insights for a specific niche (✅ ENHANCED - Phase 2 with framework_metadata)
+   * Get detailed insights for a specific niche ( ENHANCED - Phase 2 with framework_metadata)
    * Now supports ANY industry - creates generic insights if niche definition doesn't exist
    */
   async getNicheInsights(nicheId) {
@@ -829,13 +1011,13 @@ export class NicheManager {
         trends: niche.trends,
         keywords: niche.keywords,
 
-        // ✅ PHASE 2: Framework metadata (use niche-specific if exists, else default)
+        //  PHASE 2: Framework metadata (use niche-specific if exists, else default)
         framework_metadata: niche.framework_metadata || this.generateDefaultFrameworkMetadata(nicheId)
       };
     }
 
     // GRACEFUL FALLBACK: Create generic insights for unknown niche
-    console.log(`  ℹ️  No definition for niche '${nicheId}', generating generic insights`);
+    console.log(`[INFO]  No definition for niche '${nicheId}', generating generic insights`);
 
     // Capitalize niche name for display
     const displayName = nicheId.split('-').map(word =>
@@ -868,7 +1050,7 @@ export class NicheManager {
       keywords: [nicheId, 'professional', 'quality', 'service'],
       isGeneric: true, // Flag to indicate this is a generated fallback
 
-      // ✅ PHASE 2: Framework metadata (use default for unknown niches)
+      //  PHASE 2: Framework metadata (use default for unknown niches)
       framework_metadata: this.generateDefaultFrameworkMetadata(nicheId)
     };
   }

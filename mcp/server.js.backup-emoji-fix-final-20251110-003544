@@ -1,0 +1,372 @@
+#!/usr/bin/env node
+
+/**
+ * Content Generation MCP Server for Publicidad Zaimella
+ * Enables conversational AI-driven content generation via Claude Desktop
+ * 
+ * Features:
+ * - Orchestrates copy + image + video generation
+ * - Intelligent niche detection and context management
+ * - Multi-platform variant generation
+ * - Semantic caching with Qdrant integration
+ * - Zero disruption to existing architecture
+ */
+
+import { Server } from '@modelcontextprotocol/sdk/server/index.js';
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import {
+  CallToolRequestSchema,
+  ListToolsRequestSchema,
+} from '@modelcontextprotocol/sdk/types.js';
+
+import { ContentOrchestrator } from './tools/content-orchestrator.js';
+import { NicheManager } from './tools/niche-manager.js';
+import { ApiBridge } from './adapters/api-bridge.js';
+import { QdrantConnector } from './adapters/qdrant-connector.js';
+
+class ContentGenerationMCPServer {
+  constructor() {
+    this.server = new Server(
+      {
+        name: 'publicidad-zaimella-content-generator',
+        version: '1.0.0',
+      },
+      {
+        capabilities: {
+          tools: {},
+        },
+      }
+    );
+
+    this.contentOrchestrator = new ContentOrchestrator();
+    this.nicheManager = new NicheManager();
+    this.apiBridge = new ApiBridge();
+    this.qdrantConnector = new QdrantConnector();
+
+    this.setupHandlers();
+  }
+
+  setupHandlers() {
+    // List available tools
+    this.server.setRequestHandler(ListToolsRequestSchema, async () => {
+      return {
+        tools: [
+          {
+            name: 'generate_complete_content',
+            description: 'Generate complete content package (copy + image + video) for marketing campaigns',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                brief: {
+                  type: 'string',
+                  description: 'Campaign brief or content description'
+                },
+                niche: {
+                  type: 'string',
+                  description: 'Industry niche (auto-detected if not provided)',
+                  enum: ['marketing-agency', 'e-commerce', 'real-estate', 'fitness', 'food-beverage', 'auto']
+                },
+                platforms: {
+                  type: 'array',
+                  items: {
+                    type: 'string',
+                    enum: ['instagram', 'tiktok', 'linkedin', 'x-twitter', 'facebook', 'pinterest', 'youtube', 'email', 'google', 'kick']
+                  },
+                  description: 'Target platforms for content variants (11 platforms supported)'
+                },
+                voice_preference: {
+                  type: 'string',
+                  enum: ['generic', 'custom'],
+                  description: 'Voice generation preference (generic = Veo3, custom = ElevenLabs)'
+                },
+                context_gathering: {
+                  type: 'string',
+                  enum: ['proactive', 'reactive', 'hybrid'],
+                  default: 'hybrid',
+                  description: 'Context gathering strategy'
+                }
+              },
+              required: ['brief']
+            }
+          },
+          {
+            name: 'analyze_content_context',
+            description: 'Analyze content brief and suggest optimal generation parameters',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                brief: {
+                  type: 'string',
+                  description: 'Content brief to analyze'
+                }
+              },
+              required: ['brief']
+            }
+          },
+          {
+            name: 'get_niche_insights',
+            description: 'Get industry-specific insights and recommendations',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                niche: {
+                  type: 'string',
+                  description: 'Industry niche to analyze'
+                }
+              },
+              required: ['niche']
+            }
+          },
+          {
+            name: 'check_cache_status',
+            description: 'Check semantic cache for similar content requests',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                query: {
+                  type: 'string',
+                  description: 'Content query to check in cache'
+                }
+              },
+              required: ['query']
+            }
+          }
+        ]
+      };
+    });
+
+    // Handle tool calls
+    this.server.setRequestHandler(CallToolRequestSchema, async (request) => {
+      const { name, arguments: args } = request.params;
+
+      try {
+        switch (name) {
+          case 'generate_complete_content':
+            return await this.handleCompleteContentGeneration(args);
+          
+          case 'analyze_content_context':
+            return await this.handleContextAnalysis(args);
+          
+          case 'get_niche_insights':
+            return await this.handleNicheInsights(args);
+          
+          case 'check_cache_status':
+            return await this.handleCacheCheck(args);
+          
+          default:
+            throw new Error(`Unknown tool: ${name}`);
+        }
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Error executing ${name}: ${error.message}`
+            }
+          ],
+          isError: true
+        };
+      }
+    });
+  }
+
+  /**
+   * Handle complete content generation workflow
+   */
+  async handleCompleteContentGeneration(args) {
+    const { brief, niche, platforms = ['instagram'], voice_preference = 'generic', context_gathering = 'hybrid' } = args;
+
+    //console.log(`🚀 Starting complete content generation for: "${brief}"`);
+
+    try {
+      // Step 1: Initialize orchestrator with parameters
+      await this.contentOrchestrator.initialize({
+        brief,
+        niche: niche || await this.nicheManager.detectNiche(brief),
+        platforms,
+        voicePreference: voice_preference,
+        contextGathering: context_gathering
+      });
+
+      // Step 2: Execute full pipeline
+      const result = await this.contentOrchestrator.generateCompleteContent();
+
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `✅ Content generation completed successfully!\n\n` +
+                  `📝 **Copy Generated**: ${result.copy ? 'Yes' : 'No'}\n` +
+                  `🎨 **Images Generated**: ${result.images?.length || 0}\n` +
+                  `🎬 **Video Generated**: ${result.video ? 'Yes' : 'No'}\n` +
+                  `📱 **Platform Variants**: ${result.variants?.length || 0}\n\n` +
+                  `⏱️ **Total Time**: ${result.metadata.processingTime}ms\n` +
+                  `🎯 **Niche Detected**: ${result.metadata.nicheUsed}\n` +
+                  `💾 **Cache Hit**: ${result.metadata.cacheHit ? 'Yes' : 'No'}\n\n` +
+                  `**Generated Content URLs:**\n` +
+                  (result.images?.map(img => `🖼️ ${img.publicUrl}`).join('\n') || '') +
+                  (result.video ? `\n🎬 ${result.video.publicUrl}` : '') +
+                  `\n\n**Copy:**\n${result.copy || 'Not generated'}`
+          }
+        ]
+      };
+    } catch (error) {
+      console.error('[ERROR] Content generation failed:', error);
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `❌ Content generation failed: ${error.message}\n\nPlease check the logs for more details.`
+          }
+        ],
+        isError: true
+      };
+    }
+  }
+
+  /**
+   * Handle content context analysis
+   */
+  async handleContextAnalysis(args) {
+    const { brief } = args;
+
+    try {
+      const analysis = await this.nicheManager.analyzeBrief(brief);
+      
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `📊 **Content Analysis Results**\n\n` +
+                  `🎯 **Detected Niche**: ${analysis.niche}\n` +
+                  `📈 **Confidence**: ${(analysis.confidence * 100).toFixed(1)}%\n` +
+                  `📱 **Recommended Platforms**: ${analysis.recommendedPlatforms.join(', ')}\n` +
+                  `🎨 **Suggested Style**: ${analysis.suggestedStyle}\n` +
+                  `🎬 **Video Approach**: ${analysis.videoApproach}\n\n` +
+                  `**Key Insights:**\n${analysis.insights.map(insight => `• ${insight}`).join('\n')}`
+          }
+        ]
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `❌ Analysis failed: ${error.message}`
+          }
+        ],
+        isError: true
+      };
+    }
+  }
+
+  /**
+   * Handle niche insights request
+   */
+  async handleNicheInsights(args) {
+    const { niche } = args;
+
+    try {
+      const insights = await this.nicheManager.getNicheInsights(niche);
+      
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `🎯 **${niche.toUpperCase()} Industry Insights**\n\n` +
+                  `**Target Audience**: ${insights.targetAudience}\n` +
+                  `**Key Messaging**: ${insights.keyMessaging.join(', ')}\n` +
+                  `**Visual Style**: ${insights.visualStyle}\n` +
+                  `**Optimal Platforms**: ${insights.optimalPlatforms.join(', ')}\n\n` +
+                  `**Best Practices:**\n${insights.bestPractices.map(practice => `• ${practice}`).join('\n')}\n\n` +
+                  `**Content Trends:**\n${insights.trends.map(trend => `• ${trend}`).join('\n')}`
+          }
+        ]
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `❌ Failed to get niche insights: ${error.message}`
+          }
+        ],
+        isError: true
+      };
+    }
+  }
+
+  /**
+   * Handle cache status check
+   */
+  async handleCacheCheck(args) {
+    const { query } = args;
+
+    try {
+      const cacheResult = await this.qdrantConnector.searchSimilar(query, 0.85);
+      
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `💾 **Cache Status for: "${query}"**\n\n` +
+                  `🎯 **Similar Content Found**: ${cacheResult.found ? 'Yes' : 'No'}\n` +
+                  (cacheResult.found ? 
+                    `📊 **Similarity Score**: ${(cacheResult.score * 100).toFixed(1)}%\n` +
+                    `📅 **Generated**: ${cacheResult.metadata.timestamp}\n` +
+                    `🎨 **Assets Available**: ${cacheResult.metadata.assetsCount}\n` +
+                    `⚡ **Reusable**: ${cacheResult.reusable ? 'Yes' : 'No'}`
+                    : 
+                    `💡 **Recommendation**: Fresh generation required`
+                  )
+          }
+        ]
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `❌ Cache check failed: ${error.message}`
+          }
+        ],
+        isError: true
+      };
+    }
+  }
+
+  async start() {
+    console.log('🚀 Starting Content Generation MCP Server...');
+    
+    try {
+      // Initialize components
+      await this.apiBridge.initialize();
+      await this.qdrantConnector.initialize();
+      await this.nicheManager.initialize();
+      
+      console.log('[INFO] All components initialized successfully');
+      
+      // Start server
+      const transport = new StdioServerTransport();
+      await this.server.connect(transport);
+      
+      console.log('[INFO] Content Generation MCP Server running on stdio');
+    } catch (error) {
+      console.error('[ERROR] Failed to start MCP server:', error);
+      process.exit(1);
+    }
+  }
+}
+
+// Start server if this file is run directly
+if (import.meta.url === `file://${process.argv[1]}`) {
+  const server = new ContentGenerationMCPServer();
+  server.start().catch(error => {
+    //console.error('Fatal error:', error);
+    process.exit(1);
+  });
+}
+
+export { ContentGenerationMCPServer };
+
+

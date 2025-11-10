@@ -1,0 +1,256 @@
+/**
+ * BIGQUERY SCHEMAS CONFIGURATION
+ *
+ * Enterprise-grade multi-client BigQuery schema mapping
+ * Supports dynamic query building for different client datasets
+ *
+ * Phase 3.3: CMF Pilot Integration
+ * Created: 2025-11-06
+ */
+
+const BIGQUERY_SCHEMAS = {
+  /**
+   * DEFAULT SCHEMA
+   * Generic e-commerce schema for testing and development
+   * Used by: Phase 3.1/3.2 tests, demo clients
+   */
+  'default': {
+    mcp_type: 'bigquery_intelligence',
+    project: null,  // Uses default project from MCP
+    dataset: 'client_analytics',
+    has_client_id: true,
+
+    mappings: {
+      // Top selling products query
+      products: {
+        table: 'sales',
+        columns: {
+          product_name: 'product_name',
+          revenue: 'revenue',
+          units_sold: 'units_sold',
+          rating: 'customer_rating',
+          date: 'order_date'
+        },
+        filters: {},
+        group_by: ['product_name'],
+        order_by: 'total_revenue DESC',
+        limit: 5
+      },
+
+      // Customer demographics query
+      demographics: {
+        table: 'customers',
+        columns: {
+          age: 'age',
+          gender: 'gender',
+          order_value: 'order_value',
+          customer_id: 'customer_id'
+        },
+        filters: {},
+        aggregations: {
+          avg_age: 'AVG(age)',
+          female_pct: "ROUND(COUNTIF(gender = 'F') * 100.0 / COUNT(*), 1)",
+          male_pct: "ROUND(COUNTIF(gender = 'M') * 100.0 / COUNT(*), 1)",
+          avg_order_value: 'ROUND(AVG(order_value), 2)',
+          total_customers: 'COUNT(DISTINCT customer_id)'
+        }
+      },
+
+      // Proven ad copy phrases query
+      proven_phrases: {
+        table: 'ad_performance',
+        columns: {
+          phrase: 'ad_copy_phrase',
+          conversion_rate: 'conversion_rate_pct',
+          impressions: 'impressions',
+          clicks: 'clicks',
+          conversions: 'conversions',
+          date: 'campaign_date'
+        },
+        filters: {
+          min_impressions: 'impressions >= 1000'
+        },
+        group_by: ['ad_copy_phrase'],
+        order_by: 'conversion_rate_pct DESC',
+        limit: 5
+      },
+
+      // Seasonal patterns query
+      seasonal: {
+        table: 'sales',
+        columns: {
+          month: 'order_date',
+          revenue: 'revenue',
+          order_count: 'order_id'
+        },
+        filters: {},
+        aggregations: {
+          month_formatted: "FORMAT_DATE('%Y-%m', order_date)",
+          order_count: 'COUNT(DISTINCT order_id)',
+          total_revenue: 'SUM(revenue)'
+        },
+        group_by: ['month_formatted'],
+        order_by: 'month_formatted DESC',
+        limit: 6
+      }
+    }
+  },
+
+  /**
+   * CMF SCHEMA (Cooperativa de Ahorro y Crédito)
+   * Financial institution with pre-approved offers and client data
+   * Dataset: chz-bi-dwh-prod.CMF_TABLAS_TEMPORALES
+   * MCP: bigquery-cmf (Direct BigQuery MCP configured in Claude Desktop)
+   *
+   * REAL TABLES AVAILABLE (validated 2025-11-07):
+   * - AA_CMF_OFERTAS_EXTRA_JUNIO2025: 11,112 offers with scoring (products)
+   * - AA_CMF_PREAPROBADOS_RETAIL_OCT2025: 64,518 pre-approved clients (demographics)
+   * - AA_CASTIGOS_CMF_ROMINA: 16,021 charge-offs (risk analysis)
+   */
+  'CMF': {
+    mcp_type: 'bigquery-cmf',
+    project: 'chz-bi-dwh-prod',
+    dataset: 'chz-bi-dwh-prod.CMF_TABLAS_TEMPORALES',
+    has_client_id: false,  // Single client - no client_id column
+
+    mappings: {
+      // Top financial products/offers by amount and credit score
+      products: {
+        table: 'AA_CMF_OFERTAS_EXTRA_JUNIO2025',  // 11,112 offers with credit scoring
+        columns: {
+          product_name: 'Base',             // Product base (ej: base_extra_regular, base_extra_micro, base_extra_cmf5)
+          revenue: 'oferta',                // Offer amount (NUMERIC)
+          units_sold: 'COUNT(*)',           // Number of offers as "units"
+          rating: 'ScoreLess3',             // Credit score 0-999 (INT64)
+          date: 'fecha1'                    // First contact date (STRING format)
+        },
+        filters: {
+          valid_amount: 'oferta > 0',       // Positive amounts only
+          has_score: 'ScoreLess3 IS NOT NULL'  // Only scored offers
+        },
+        group_by: ['Base'],                 // CORRECTED: Use Base not producto
+        order_by: 'total_revenue DESC',
+        limit: 5,
+        // CMF-specific: Additional useful columns (VALIDATED 2025-11-07)
+        metadata: {
+          score_column: 'ScoreLess3',      // Credit score 0-999 (INT64)
+          interest_rate: 'tasa',            // Interest rate % (STRING format: "6.25%")
+          score_band: 'tramo_apc',          // Score band (STRING: "Score 651 - 700")
+          product_id: 'CustomerProductId',  // Unique product ID (STRING)
+          client_fields: ['nombre', 'apellido', 'cedula', 'email', 'celular'],
+          installment_fields: ['Cuota_6meses', 'Cuota_12meses', 'Cuota_18meses', 'Cuota_24meses', 'Cuota_36meses', 'Cuota_48meses', 'Cuota_60meses']
+        }
+      },
+
+      // Customer demographics from pre-approved retail base
+      demographics: {
+        table: 'AA_CMF_PREAPROBADOS_RETAIL_OCT2025',  // 64,518 pre-approved clients
+        columns: {
+          age: 'NULL',                      // Age not available in this table
+          gender: 'NULL',                   // Gender not available
+          customer_id: 'cedula'             // National ID (identification)
+        },
+        filters: {
+          valid_limit: 'limite > 0'         // Positive credit limit
+        },
+        aggregations: {
+          avg_age: 'NULL',                  // Not available
+          female_pct: 'NULL',               // Not available
+          male_pct: 'NULL',                 // Not available
+          avg_order_value: 'AVG(limite)',   // Average credit limit
+          total_customers: 'COUNT(DISTINCT cedula)'
+        },
+        metadata: {
+          contact_fields: ['email', 'telefono'],
+          name_fields: ['primer_nombre', 'primer_apellido'],
+          program_flags: ['is_novey', 'is_cochez', 'is_redpro']
+        },
+        note: 'CMF pre-approved clients with credit limits and program flags'
+      },
+
+      // Proven ad copy phrases (NOT AVAILABLE - financial institution)
+      proven_phrases: {
+        table: null,  // CMF doesn't track ad performance
+        columns: {},
+        filters: {},
+        note: 'CMF is a financial cooperative - no advertising data available. Will gracefully degrade.'
+      },
+
+      // Seasonal patterns from offers by contact date
+      seasonal: {
+        table: 'AA_CMF_OFERTAS_EXTRA_JUNIO2025',
+        columns: {
+          month: 'fecha1',                  // First contact date
+          revenue: 'oferta',                // Offer amount
+          order_count: 'COUNT(*)'
+        },
+        filters: {
+          valid_amount: 'oferta > 0',
+          has_date: 'fecha1 IS NOT NULL'
+        },
+        aggregations: {
+          month_formatted: "FORMAT_DATE('%Y-%m', fecha1)",
+          order_count: 'COUNT(*)',
+          total_revenue: 'SUM(oferta)',
+          avg_score: 'AVG(ScoreLess3)'      // Average credit score per month
+        },
+        group_by: ['month_formatted'],
+        order_by: 'month_formatted DESC',
+        limit: 6
+      }
+    },
+
+    // CMF-specific metadata (UPDATED with real data)
+    metadata: {
+      client_name: 'Cooperativa de Ahorro y Crédito CMF',
+      industry: 'Financial Services - Credit Union',
+      dataset_size: '64K+ clients, 11K+ offers, 16K+ charge-offs',
+      data_timeframe: 'June 2025 - October 2025 (temporal analysis tables)',
+      primary_table: 'AA_CMF_OFERTAS_EXTRA_JUNIO2025',
+      secondary_table: 'AA_CMF_PREAPROBADOS_RETAIL_OCT2025',
+      auth_method: 'Service Account (automatic via GOOGLE_APPLICATION_CREDENTIALS)',
+      validation_date: '2025-11-07',
+      validated_by: 'Claude Code - Phase 3.3 Real Data Integration'
+    }
+  }
+};
+
+/**
+ * Get active schema configuration from environment
+ * @returns {Object} Active schema config
+ */
+function getActiveSchema() {
+  const schemaName = process.env.BIGQUERY_CLIENT_SCHEMA || 'default';
+
+  if (!BIGQUERY_SCHEMAS[schemaName]) {
+    console.warn(`⚠️ Schema "${schemaName}" not found. Falling back to "default".`);
+    return BIGQUERY_SCHEMAS['default'];
+  }
+
+  console.log(`📊 Active BigQuery Schema: ${schemaName}`);
+  return BIGQUERY_SCHEMAS[schemaName];
+}
+
+/**
+ * List all available schemas
+ * @returns {Array<string>} Schema names
+ */
+function listSchemas() {
+  return Object.keys(BIGQUERY_SCHEMAS);
+}
+
+/**
+ * Get schema by name
+ * @param {string} name - Schema name
+ * @returns {Object|null} Schema config or null
+ */
+function getSchema(name) {
+  return BIGQUERY_SCHEMAS[name] || null;
+}
+
+export {
+  BIGQUERY_SCHEMAS,
+  getActiveSchema,
+  listSchemas,
+  getSchema
+};
