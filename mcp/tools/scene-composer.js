@@ -203,9 +203,14 @@ Duration: 10-12 seconds.`,
    * ENHANCED: Now with strategic frameworks (avatar, mechanism, offer)
    */
   async composeScene(config) {
-    const { mode = 'presentation', niche, productImage, avatarImage, style, brief, enhancedBrief, keyMessaging, targetAudience, avatarProfile, mechanism, offer } = config;
+    const { mode = 'presentation', niche, productImage, avatarImage, style, brief, enhancedBrief, keyMessaging, targetAudience, avatarProfile, mechanism, offer, unifiedContext } = config;
 
     ////console.log(`🎬 Composing ${mode} scene for ${niche} niche with strategic frameworks`);
+
+    // 🔥 LOG CONTEXT COHERENCE: Unified context received
+    if (unifiedContext) {
+      //console.log(`  ✅ Context Coherence: Unified context received (${unifiedContext.length} chars)`);
+    }
 
     // Get template for the mode and niche
     const modeTemplates = this.sceneTemplates.get(mode);
@@ -220,7 +225,7 @@ Duration: 10-12 seconds.`,
       mode,
       niche,
       template: template.structure,
-      prompt: await this.buildScenePrompt(template, config), // Now includes frameworks
+      prompt: await this.buildScenePrompt(template, config), // Now includes frameworks + unified context
       technical: {
         cameraMovement: template.cameraMovement,
         lighting: template.lighting,
@@ -237,7 +242,8 @@ Duration: 10-12 seconds.`,
         hasTargetAudience: !!targetAudience,
         hasAvatarProfile: !!avatarProfile,
         hasMechanism: !!mechanism,
-        hasOffer: !!offer
+        hasOffer: !!offer,
+        hasUnifiedContext: !!unifiedContext // 🔥 Context Coherence tracking
       }
     };
 
@@ -247,10 +253,10 @@ Duration: 10-12 seconds.`,
 
   /**
    * Build detailed scene prompt for video generation
-   * ENHANCED: Now with strategic frameworks (avatar, mechanism, offer)
+   * ENHANCED: Now with strategic frameworks (avatar, mechanism, offer) + unified context
    */
   async buildScenePrompt(template, config) {
-    const { niche, style, productImage, avatarImage, brief, enhancedBrief, keyMessaging, targetAudience, avatarProfile, mechanism, offer } = config;
+    const { niche, style, productImage, avatarImage, brief, enhancedBrief, keyMessaging, targetAudience, avatarProfile, mechanism, offer, unifiedContext } = config;
 
     // ✅ EXTRACT PRODUCT CONTEXT from brief
     const productContext = this.extractProductContext(brief, enhancedBrief, keyMessaging);
@@ -318,6 +324,13 @@ Duration: 10-12 seconds.`,
     // ✅ ADD KEY MESSAGING (if available and space permits)
     if (productContext.keyMessage && prompt.length < 400) {
       prompt += `, emphasizing: ${productContext.keyMessage}`;
+    }
+
+    // 🔥 ADD UNIFIED CONTEXT (if available and space permits) - Context Coherence
+    if (unifiedContext && prompt.length < 420) {
+      // Extract compact context summary (max 60 chars)
+      const contextSnippet = unifiedContext.substring(0, 60);
+      prompt += `. Strategic context: ${contextSnippet}`;
     }
 
     // Add technical video specifications

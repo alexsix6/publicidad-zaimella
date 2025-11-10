@@ -123,6 +123,8 @@ export class ApiBridge {
       aspectRatio: options.aspectRatio || '16:9',
       duration: options.duration || '8s',
       saveLocally: options.saveLocally ?? true,
+      language: options.language || 'es', // 🆕 PHASE 2: Language parameter (default Spanish)
+      contextProfileId: options.contextProfileId || null, // 🆕 PHASE 3: Context Profile ID for Digital Twin
       ...options
     };
 

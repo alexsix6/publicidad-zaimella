@@ -11,9 +11,9 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { 
-      prompt, 
-      imageUrl = null, 
+    const {
+      prompt,
+      imageUrl = null,
       videoStyle = 'cinematic',
       saveLocally = true,
       enhanceWithAI = true,
@@ -24,7 +24,9 @@ export default async function handler(req, res) {
       testMode = false, // 🆕 Modo de testing sin consumir saldo
       // 🆕 PARÁMETROS PARA AUTO-DETECCIÓN
       platform = null, // instagram, linkedin, tiktok, etc.
-      format = null    // post, story, reel, etc.
+      format = null,    // post, story, reel, etc.
+      language = 'es', // 🆕 PHASE 2: Language parameter (default Spanish)
+      contextProfileId = null // 🆕 PHASE 3: Context Profile ID for Digital Twin
     } = req.body;
 
     if (!prompt || prompt.trim().length === 0) {
@@ -98,7 +100,7 @@ export default async function handler(req, res) {
 
     // PASO 1: Mejorar prompt con OpenRouter (solo si está habilitado)
     if (enhanceWithAI) {
-      //console.log(`🧠 Enhancing video prompt with ${enhancementModel}...`);
+      console.log(`🧠 Enhancing video prompt with ${enhancementModel}...`);
       
       // 🆕 Pasar el parámetro enhanceEnabled correctamente + platform context
       enhancementResult = await enhancePrompt(prompt, 'video', enhancementModel, true, false, platformContext);
@@ -137,9 +139,51 @@ export default async function handler(req, res) {
       //console.log(`🖼️ Using base image: ${imageUrl}`);
     }
 
+    // 🆕 PHASE 2: Add language indicator to prompt
+    const languageIndicator = language === 'es' ? '[AUDIO: ESPAÑOL]' : '[AUDIO: ENGLISH]';
+    let promptWithLanguage = `${languageIndicator} ${finalPrompt}`;
+    console.log(`🌍 Language set to: ${language === 'es' ? 'Español' : 'English'}`);
+
+    // 🆕 PHASE 3: Load Digital Twin profile and add physical characteristics to prompt
+    if (contextProfileId) {
+      try {
+        // Import context profile manager
+        const { contextProfileManager } = await import('../lib/context-profile-manager.js');
+
+        // Load profile
+        const profile = contextProfileManager.getProfile(contextProfileId);
+
+        if (profile && profile.digitalTwin && profile.digitalTwin.physicalCharacteristics) {
+          const characteristics = profile.digitalTwin.physicalCharacteristics;
+
+          // Build physical description string
+          const physicalDescription = [
+            characteristics.gender ? `${characteristics.gender}` : null,
+            characteristics.age ? `approximately ${characteristics.age} years old` : null,
+            characteristics.ethnicity ? `${characteristics.ethnicity} ethnicity` : null,
+            characteristics.height ? `${characteristics.height} height` : null,
+            characteristics.build ? `${characteristics.build} build` : null,
+            characteristics.hairColor ? `${characteristics.hairColor} hair` : null,
+            characteristics.hairStyle ? `styled ${characteristics.hairStyle}` : null,
+            characteristics.eyeColor ? `${characteristics.eyeColor} eyes` : null,
+            characteristics.facialFeatures ? `with ${characteristics.facialFeatures}` : null,
+            characteristics.clothing ? `wearing ${characteristics.clothing}` : null
+          ].filter(Boolean).join(', ');
+
+          if (physicalDescription) {
+            promptWithLanguage = `${promptWithLanguage} [Character: ${physicalDescription}]`;
+            console.log(`🎯 Digital Twin characteristics added: ${contextProfileId}`);
+          }
+        }
+      } catch (error) {
+        console.warn(`⚠️ Failed to load Digital Twin profile ${contextProfileId}: ${error.message}`);
+        // Continue without Digital Twin characteristics
+      }
+    }
+
     // PASO 3: Generar video con Veo 3
     //console.log(`🎯 Generating video with Veo 3 (${finalAspectRatio}, ${maxAllowedDuration})...`);
-    const videoResult = await generateVideoWithVeo3(finalPrompt, imageUrl, finalAspectRatio, maxAllowedDuration);
+    const videoResult = await generateVideoWithVeo3(promptWithLanguage, imageUrl, finalAspectRatio, maxAllowedDuration);
 
     if (!videoResult.success) {
       return res.status(500).json({

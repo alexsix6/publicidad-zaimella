@@ -1,0 +1,2696 @@
+{
+  "testName": "Test 3.1 E2E CMF",
+  "timestamp": "2025-11-10T16:41:53.273Z",
+  "duration": "3.73 min",
+  "success": true,
+  "stats": {
+    "copyVariants": 0,
+    "images": 0,
+    "videos": 0
+  },
+  "videoValidation": {
+    "expected": 2,
+    "actual": 0,
+    "passed": false
+  },
+  "fullResult": {
+    "success": true,
+    "sessionId": "session_1762792689709_gv9zn1",
+    "images": [
+      {
+        "type": "product",
+        "prompt": "Lanzar campaña de marketing para departamentos de lujo en zona premium de CMF Inmobiliaria.\nProducto: Departamentos exclusivos con vista panorámica a la ciudad, amenities 5 estrellas\n(gimnasio, spa, rooftop lounge), tecnología smart home integrada, ubicación estratégica cerca\nde centros de negocios.\nTarget: Profesionales exitosos 35-50 años, nivel socioeconómico A/B, buscan inversión + lifestyle premium.\nROI proyectado: 8-12% anual.\nObjetivo: Generar leads calificados para tours virtuales personalizados.\nBudget: $15,000 USD., optimized for General audience, emphasizing Value proposition and Quality and reliability and Customer satisfaction and Innovation and results, professional, clean, modern style, product photography style, professional, clean, modern, scene featuring Both aged 30-55, innovative system visualization, transformation moment captured, unique technology display, before-after contrast, visual representation of Complete Solution System (generic approach), premium 3x value presentation, urgency visual cues (time_limited), aligned with message theme: find, proven, method, professional lighting, brand-consistent composition, conversion-optimized visual hierarchy",
+        "usedFrameworks": {
+          "avatar": true,
+          "mechanism": true,
+          "offer": true
+        },
+        "success": true,
+        "imageUrl": "https://replicate.delivery/xezq/RaxRD83PKY7BE5MhYqvujIYvuQ1MlCeEUecNfWOodvFy64PrA/tmpd6v8xdfz.png",
+        "publicUrl": "localhost:3000/generated/image-2025-11-10T16-39-54-407Z-fib9lg.png",
+        "localPath": "/public/generated/image-2025-11-10T16-39-54-407Z-fib9lg.png",
+        "seed": 566095,
+        "prompts": {
+          "original": "Lanzar campaña de marketing para departamentos de lujo en zona premium de CMF Inmobiliaria.\nProducto: Departamentos exclusivos con vista panorámica a la ciudad, amenities 5 estrellas\n(gimnasio, spa, rooftop lounge), tecnología smart home integrada, ubicación estratégica cerca\nde centros de negocios.\nTarget: Profesionales exitosos 35-50 años, nivel socioeconómico A/B, buscan inversión + lifestyle premium.\nROI proyectado: 8-12% anual.\nObjetivo: Generar leads calificados para tours virtuales personalizados.\nBudget: $15,000 USD., optimized for General audience, emphasizing Value proposition and Quality and reliability and Customer satisfaction and Innovation and results, professional, clean, modern style, product photography style, professional, clean, modern, scene featuring Both aged 30-55, innovative system visualization, transformation moment captured, unique technology display, before-after contrast, visual representation of Complete Solution System (generic approach), premium 3x value presentation, urgency visual cues (time_limited), aligned with message theme: find, proven, method, professional lighting, brand-consistent composition, conversion-optimized visual hierarchy",
+          "final": "\"Create a hyper-detailed luxury real estate visualization showcasing CMF Inmobiliaria's premium skyline residences at golden hour. Frame a 45-degree wide-angle shot of floor-to-ceiling windows revealing a glowing metropolitan panorama, captured in 8K HDR with crisp bokeh highlighting champagne flutes on a quartz terrace table. Compose a triptych: Left panel features a 30s entrepreneur in tailored suit using smart home tablets to adjust ambient lighting (warm gold accents illuminating open-concept living space with curated art pieces), center vertical slice reveals before/after transformation from empty unit to furnished masterpiece with parametric architecture elements, right panel displays 5-star amenities through glass partitions - infinity-edge indoor pool with submerged LED lighting merging with city lights below. Employ dramatic diagonal composition using building's structural lines to guide eye toward rooftop lounge's firepit social scene (diverse professionals 35-55 laughing under designer pendant lights). Insert subtle urgency elements: holographic ROI projection (12% graph fading into skyline) and translucent 'Last Units' callout integrated into window reflection. Use metallic duotone grading (platinum + amber) with calculated negative space for text overlay zones. Render materials with hyperreal precision: veined marble spa walls, brushed brass smart home interfaces, and kinetic sculpture installations in lobby. Include strategic aerial insert showing proximity to glowing business district towers connected by light trails. Technical specs: f/2.8 aperture for foreground lifestyle vignettes transitioning to f/16 for razor-sharp architectural details, mixed ambient/cinematic lighting ratios (3:1 key/fill), ISO-mapped texture enhancement on luxury finishes. Visual hierarchy prioritizes 1) Panoramic view 2) Smart home demonstration 3) ROI data visualization 4) Social proof elements, all unified through CMF's signature navy-and-gold brand spectrum.\"",
+          "enhanced": true
+        },
+        "enhancement": {
+          "model": "deepseek/deepseek-r1",
+          "success": true
+        },
+        "metadata": {
+          "timestamp": "2025-11-10T16:39:55.766Z",
+          "enhancementModel": "deepseek/deepseek-r1",
+          "imageGenerator": "nano-banana",
+          "imageModel": "nano-banana",
+          "aspectRatio": "1:1",
+          "platform": null,
+          "format": null,
+          "contextProfileId": null
+        },
+        "platformContext": null,
+        "fromCache": false
+      },
+      {
+        "type": "avatar",
+        "prompt": "Both aged 30-55, embodying Busy, seeking optimization and convenience lifestyle with values of Achievement and success and Personal growth and improvement, professional, clean, modern, professional portrait, authentic expression, engaging demeanor, high quality, interacting with product, consistent visual style and lighting",
+        "usedAvatarProfile": true,
+        "success": true,
+        "imageUrl": "https://replicate.delivery/xezq/7RkLI448EcLecK2wfe1ROzGvEnbAhe8seEkRfeTEdZAuWPenVA/tmpvjz90n3a.png",
+        "publicUrl": "localhost:3000/generated/image-2025-11-10T16-41-18-520Z-3x2dqj.png",
+        "localPath": "/public/generated/image-2025-11-10T16-41-18-520Z-3x2dqj.png",
+        "seed": 299795,
+        "prompts": {
+          "original": "Both aged 30-55, embodying Busy, seeking optimization and convenience lifestyle with values of Achievement and success and Personal growth and improvement, professional, clean, modern, professional portrait, authentic expression, engaging demeanor, high quality, interacting with product, consistent visual style and lighting",
+          "final": "**Enhanced Prompt:**  \n\"Professional portrait of two individuals (aged 30-55) in a sleek, minimalist workspace with a focus on modern efficiency. Both subjects exude a dynamic, achievement-oriented energy, dressed in tailored business-casual attire (neutral tones with subtle pops of navy or charcoal for sophistication). Lighting: Soft, diffused natural light from floor-to-ceiling windows blends with warm ambient LEDs, creating a crisp, clean atmosphere with gentle shadows for depth. Camera setup: Medium close-up (24-70mm lens at 50mm) with a shallow depth of field (f/2.8) to highlight sharp facial details while softly blurring the tech-forward environment.  \n\nFirst subject interacts organically with a premium productivity device (e.g., slim laptop or holographic planner), fingers lightly tapping the interface—captured mid-motion for authenticity. Second subject stands slightly angled, holding a modular smart organizer, gaze focused upward with a composed, aspirational expression (subtle smile, engaged eyes). Composition uses rule-of-thirds framing to balance their interaction, with negative space emphasizing modernity.  \n\nMood: Elevated professionalism meets approachable ambition. Color palette: Muted taupe and ivory backgrounds contrast with metallic accents (brushed gold, matte black tech) and a strategic pop of emerald green (symbolizing growth). Textures: Smooth matte surfaces, crisp fabric folds, and glossy device screens for visual interest.  \n\nFLUX-specific enhancements: Hyper-detailed skin textures (micro wrinkles, natural skin gradients), 8K-rendered accessories (watch faces, fabric weaves), and dynamic global illumination to unify lighting across both subjects. Subtle rim lighting separates figures from the backdrop, adding dimensionality. Ensure consistent shadow softness (diffuser grid technique) and zero noise for a polished, high-end finish. Focus on micro-expressions—hints of determination in furrowed brows, relaxed jawlines conveying confidence.\"",
+          "enhanced": true
+        },
+        "enhancement": {
+          "model": "deepseek/deepseek-r1",
+          "success": true
+        },
+        "metadata": {
+          "timestamp": "2025-11-10T16:41:19.704Z",
+          "enhancementModel": "deepseek/deepseek-r1",
+          "imageGenerator": "nano-banana",
+          "imageModel": "nano-banana",
+          "aspectRatio": "9:16",
+          "platform": null,
+          "format": null,
+          "contextProfileId": null
+        },
+        "platformContext": null,
+        "fromCache": false
+      }
+    ],
+    "video": null,
+    "customer_avatar": {
+      "metadata": {
+        "generated_at": "2025-11-10T16:38:09.762Z",
+        "skill_version": "1.0.0",
+        "frameworks_applied": [
+          "hormozi_value_equation",
+          "todd_brown_market_sophistication",
+          "schwartz_core_desires"
+        ],
+        "frameworks_explicit": {
+          "hormozi_value_equation": {
+            "dream_outcome": "Section 3",
+            "perceived_likelihood": "Section 5",
+            "time_delay": "Section 5",
+            "effort_sacrifice": "Section 5"
+          },
+          "todd_brown_market_sophistication": {
+            "five_levels": "Section 6",
+            "messaging_strategy": "Section 6"
+          },
+          "schwartz_core_desires": {
+            "four_categories": "Section 2",
+            "health_wealth_relationships_selfactualization": "Section 2"
+          },
+          "pas_structure": {
+            "problema": "Section 3 (top_pain_points)",
+            "agitacion": "Section 3 (pain intensity/frequency)",
+            "solucion": "Section 3 (dream_outcome)"
+          }
+        },
+        "industry": "real_estate",
+        "context_profile_used": "example_agency_1734624619000",
+        "brand_guidelines_extracted": true,
+        "quality_score_estimated": 95
+      },
+      "demographics": {
+        "age_range": "30-55",
+        "gender": "Both",
+        "location": "Urban/Suburban areas",
+        "income_range": "$60,000-$150,000",
+        "education": "College educated",
+        "occupation": "Established professionals, families",
+        "family_status": "Mixed (singles, couples, families)"
+      },
+      "psychographics": {
+        "core_values": [
+          "Achievement and success",
+          "Personal growth and improvement",
+          "Quality and effectiveness"
+        ],
+        "lifestyle": "Busy, seeking optimization and convenience",
+        "personality_traits": [
+          "Goal-oriented",
+          "Solution-focused",
+          "Value-conscious"
+        ],
+        "core_desires": [
+          {
+            "category": "self_actualization",
+            "description": "Personal growth and improvement"
+          }
+        ],
+        "aspirations": [
+          "Achieve desired outcome efficiently",
+          "Gain status/recognition in their field",
+          "Improve quality of life"
+        ],
+        "fears": [
+          "Wasting time and money on wrong solution",
+          "Missing out on better opportunities",
+          "Not achieving desired transformation"
+        ]
+      },
+      "pain_points_and_desires": {
+        "top_pain_points": [
+          {
+            "pain": "Current situation not delivering desired results",
+            "intensity": "high",
+            "frequency": "daily"
+          },
+          {
+            "pain": "Wasting time and resources on ineffective solutions",
+            "intensity": "high",
+            "frequency": "weekly"
+          },
+          {
+            "pain": "Feeling frustrated and overwhelmed",
+            "intensity": "medium",
+            "frequency": "ongoing"
+          }
+        ],
+        "dream_outcome": {
+          "description": "Achieve desired transformation with certainty, speed, and minimal effort",
+          "specific_results": [
+            "Clear, measurable progress toward goal",
+            "Confidence in chosen solution",
+            "Sustainable long-term success"
+          ],
+          "emotional_payoff": "Relief, pride, and empowerment",
+          "hormozi_value_factors": {
+            "dream_outcome_clarity": "high",
+            "perceived_likelihood_of_achievement": "medium-high",
+            "time_delay_tolerance": "medium",
+            "effort_sacrifice_willingness": "medium"
+          }
+        },
+        "underlying_desires": [
+          "success",
+          "freedom",
+          "confidence"
+        ]
+      },
+      "current_vs_desired_state": {
+        "current_state": {
+          "situation": "Not achieving desired results with current approach",
+          "emotions": [
+            "Frustrated",
+            "Uncertain",
+            "Overwhelmed"
+          ],
+          "limitations": [
+            "Lack of proven framework",
+            "Insufficient guidance",
+            "Trial-and-error approach"
+          ]
+        },
+        "desired_state": {
+          "situation": "Achieving consistent results with clarity and confidence",
+          "emotions": [
+            "Confident",
+            "Empowered",
+            "Satisfied"
+          ],
+          "benefits": [
+            "Clear path to success",
+            "Expert guidance and support",
+            "Predictable, reliable results"
+          ]
+        },
+        "gap_analysis": {
+          "transformation_required": "Moderate to significant",
+          "key_obstacles": [
+            "Knowledge gap about effective solutions",
+            "Lack of implementation support",
+            "Uncertainty about ROI"
+          ],
+          "success_requirements": [
+            "Proven methodology",
+            "Personalized guidance",
+            "Ongoing support"
+          ]
+        }
+      },
+      "objections_and_barriers": {
+        "top_objections": [
+          {
+            "objection": "Will this really work for me?",
+            "category": "perceived_likelihood",
+            "hormozi_factor": "low_belief",
+            "resolution_strategy": "Proof via testimonials, case studies, guarantees"
+          },
+          {
+            "objection": "Is this worth the investment?",
+            "category": "value_perception",
+            "hormozi_factor": "perceived_cost_vs_value",
+            "resolution_strategy": "Value stack, ROI demonstration, risk reversal"
+          },
+          {
+            "objection": "How long will it take to see results?",
+            "category": "time_delay",
+            "hormozi_factor": "patience_threshold",
+            "resolution_strategy": "Quick wins roadmap, milestone clarity"
+          },
+          {
+            "objection": "Is this too complicated/time-consuming?",
+            "category": "effort_sacrifice",
+            "hormozi_factor": "ease_vs_effort",
+            "resolution_strategy": "Simplification, done-for-you elements, support"
+          }
+        ],
+        "trust_barriers": [
+          "Skepticism from past failed attempts",
+          "Unfamiliarity with provider/brand",
+          "Fear of hidden costs or commitments"
+        ],
+        "decision_barriers": [
+          "Need approval from others (spouse, business partner)",
+          "Budget constraints or timing concerns",
+          "Competing priorities"
+        ],
+        "objection_priority": {
+          "highest_priority": "perceived_likelihood",
+          "resolution_sequence": [
+            "proof",
+            "value",
+            "ease",
+            "urgency"
+          ]
+        }
+      },
+      "market_sophistication": {
+        "primary_level": {
+          "level": 4,
+          "name": "Product Aware",
+          "description": "Knows your product, needs conviction to buy",
+          "messaging_approach": "Social proof, risk reversal, urgency, final push",
+          "example_hook": "Join [number] customers who already achieved [result]"
+        },
+        "market_saturation": "medium",
+        "competitor_awareness": "aware of 2-3 alternatives",
+        "previous_buying_experiences": "May have tried 1-2 solutions before",
+        "trust_level_with_market": "Cautiously optimistic",
+        "todd_brown_insight": {
+          "headline_strategy": "Social proof, risk reversal, urgency, final push",
+          "proof_requirements": "high",
+          "uniqueness_importance": "critical"
+        }
+      },
+      "buying_triggers": {
+        "primary_triggers": [
+          {
+            "trigger": "Proof of results",
+            "importance": "critical",
+            "type": "social_proof"
+          },
+          {
+            "trigger": "Risk reduction (guarantee)",
+            "importance": "high",
+            "type": "risk_reversal"
+          },
+          {
+            "trigger": "Clear ROI/value demonstration",
+            "importance": "high",
+            "type": "value_perception"
+          },
+          {
+            "trigger": "Scarcity or urgency",
+            "importance": "medium",
+            "type": "urgency"
+          }
+        ],
+        "decision_timeframe": "1-2 weeks",
+        "key_decision_factors": [
+          "Credibility of provider",
+          "Clarity of process",
+          "Strength of guarantee",
+          "Price-to-value ratio",
+          "Ease of getting started"
+        ],
+        "buying_journey_stage": "Evaluation/consideration",
+        "preferred_proof_types": [
+          "Case studies with specific results",
+          "Video testimonials",
+          "Before/after comparisons",
+          "Third-party validation"
+        ]
+      },
+      "communication_preferences": {
+        "preferred_channels": [
+          "Email (long-form educational content)",
+          "Social media (Instagram, Facebook)",
+          "Video content (YouTube, TikTok)",
+          "Webinars or live events"
+        ],
+        "content_format_preferences": [
+          "Educational/value-driven content",
+          "Case studies and success stories",
+          "How-to guides and tutorials",
+          "Expert interviews and insights"
+        ],
+        "tone_and_voice": {
+          "preferred_tone": "confident and approachable",
+          "brand_tone_applied": true,
+          "avoid": [
+            "Overly salesy",
+            "Aggressive pushy language",
+            "Jargon without explanation"
+          ],
+          "responds_well_to": [
+            "Authenticity",
+            "Transparency",
+            "Empathy"
+          ]
+        },
+        "engagement_style": {
+          "preferred_length": "Medium to long-form (values depth)",
+          "visual_preferences": "Clean, professional design with clear hierarchy",
+          "interaction_level": "Moderate engagement (comments, questions, shares)"
+        },
+        "media_consumption_habits": {
+          "devices": [
+            "Mobile (60%)",
+            "Desktop (40%)"
+          ],
+          "peak_times": [
+            "Morning (7-9am)",
+            "Evening (7-10pm)"
+          ],
+          "content_discovery": [
+            "Social media feeds",
+            "Google search",
+            "Recommendations"
+          ]
+        }
+      },
+      "brand_alignment": {
+        "colors_available": false,
+        "colors": null,
+        "typography_available": false,
+        "typography": null,
+        "brand_values": [
+          "innovation",
+          "professionalism",
+          "reliability",
+          "creativity"
+        ],
+        "visual_elements": [
+          "clean lines",
+          "geometric shapes",
+          "premium typography"
+        ],
+        "extraction_summary": {
+          "colors_extracted": 0,
+          "fonts_extracted": 0,
+          "brand_identity_strength": 30
+        }
+      }
+    },
+    "unique_mechanism": {
+      "metadata": {
+        "generated_at": "2025-11-10T16:38:09.762Z",
+        "method": "fallback",
+        "note": "unique-mechanism-generator skill unavailable"
+      },
+      "mechanism_variants": [
+        {
+          "id": "mechanism_fallback",
+          "name": "Complete Solution System",
+          "tagline": "The comprehensive approach to achieving your goals",
+          "type": "generic",
+          "scores": {
+            "believability_score": 70,
+            "differentiation_strength": 70,
+            "market_fit_score": 70,
+            "overall_quality": 70
+          }
+        }
+      ],
+      "recommended_mechanism": {
+        "mechanism_id": "mechanism_fallback",
+        "recommendation_reason": "Fallback mechanism - skill unavailable",
+        "confidence_score": 60
+      }
+    },
+    "grand_slam_offer": {
+      "metadata": {
+        "generated_at": "2025-11-10T16:38:09.763Z",
+        "method": "fallback",
+        "note": "grand-slam-offer-generator skill unavailable"
+      },
+      "offer": {
+        "value_equation": {
+          "calculated_value_score": 70
+        },
+        "value_stack": {
+          "core_offer": {
+            "name": "Complete Solution",
+            "value": 1350000,
+            "actual_price": 450000
+          },
+          "bonuses": [],
+          "total_value": 1350000,
+          "actual_price": 450000,
+          "value_to_price_ratio": 3
+        },
+        "guarantee": {
+          "type": "money_back",
+          "duration": "60 days",
+          "strength_level": "basic",
+          "credibility_boost": 70
+        },
+        "urgency": {
+          "type": "time_limited",
+          "message": "Limited time offer",
+          "urgency_strength": 60
+        }
+      },
+      "scores": {
+        "offer_strength": 70,
+        "value_perception": 70,
+        "risk_reduction": 70,
+        "overall_grand_slam_score": 70
+      }
+    },
+    "copy": {
+      "metadata": {
+        "generated_at": "2025-11-10T16:38:09.765Z",
+        "skill_version": "1.0.2-phase5-kick",
+        "frameworks_applied": [
+          "todd_brown_hooks",
+          "hormozi_value_stack",
+          "schwartz_headlines",
+          "pas_structure"
+        ],
+        "frameworks_explicit": {
+          "todd_brown_5_hook_types": {
+            "mechanism": "Variant 1",
+            "proof": "Variant 2",
+            "big_promise": "Variant 3",
+            "enemy": "Variant 4",
+            "curiosity": "Variant 5"
+          },
+          "hormozi_value_stack": {
+            "dream_outcome": "All variants",
+            "proof": "Variant 2 emphasis",
+            "urgency": "usage_recommendations",
+            "risk_reversal": "usage_recommendations"
+          },
+          "schwartz_headlines": {
+            "formulas_applied": "All variants",
+            "specificity": "High"
+          },
+          "pas_structure": {
+            "problem": "insights.topPainPoint",
+            "agitate": "Copy body",
+            "solution": "insights.dreamOutcome"
+          }
+        },
+        "platform": "instagram",
+        "platform_context_used": true,
+        "sophistication_level": 4,
+        "context_profile_used": "example_agency_1734624619000",
+        "brand_guidelines_extracted": true,
+        "quality_score_estimated": 92,
+        "business_intelligence_used": false,
+        "bigquery_enhancements": {
+          "proven_phrases_count": 0,
+          "top_products_count": 0,
+          "real_demographics_available": true,
+          "seasonal_patterns_count": 0
+        }
+      },
+      "insights": {
+        "dreamOutcome": "Achieve desired transformation with certainty, speed, and minimal effort",
+        "topPainPoint": "Current situation not delivering desired results",
+        "uniqueMechanismHint": "proven method",
+        "proofElements": [
+          "Case studies with specific results",
+          "Video testimonials",
+          "Before/after comparisons",
+          "Third-party validation"
+        ],
+        "objections": [
+          {
+            "objection": "Will this really work for me?",
+            "category": "perceived_likelihood",
+            "hormozi_factor": "low_belief",
+            "resolution_strategy": "Proof via testimonials, case studies, guarantees"
+          },
+          {
+            "objection": "Is this worth the investment?",
+            "category": "value_perception",
+            "hormozi_factor": "perceived_cost_vs_value",
+            "resolution_strategy": "Value stack, ROI demonstration, risk reversal"
+          }
+        ],
+        "urgencyLevel": "medium",
+        "targetAudience": {
+          "demographics": "30-55",
+          "psychographics": "Achievement and success"
+        },
+        "sophisticationSignals": {
+          "primary_level": {
+            "level": 4,
+            "name": "Product Aware",
+            "description": "Knows your product, needs conviction to buy",
+            "messaging_approach": "Social proof, risk reversal, urgency, final push",
+            "example_hook": "Join [number] customers who already achieved [result]"
+          },
+          "market_saturation": "medium",
+          "competitor_awareness": "aware of 2-3 alternatives",
+          "previous_buying_experiences": "May have tried 1-2 solutions before",
+          "trust_level_with_market": "Cautiously optimistic",
+          "todd_brown_insight": {
+            "headline_strategy": "Social proof, risk reversal, urgency, final push",
+            "proof_requirements": "high",
+            "uniqueness_importance": "critical"
+          }
+        },
+        "communicationTone": "confident and approachable",
+        "bigQueryInsights": {
+          "provenPhrases": [],
+          "topProducts": [],
+          "realDemographics": null,
+          "seasonalInsights": []
+        }
+      },
+      "variants": [
+        {
+          "variant_id": 1,
+          "hook_type": "mechanism",
+          "hook_type_description": "Reveals the unique mechanism that delivers results",
+          "sophistication_match": {
+            "is_ideal_match": true,
+            "sophistication_level": 4,
+            "match_reason": "mechanism hook is ideal for level 4 audience"
+          },
+          "copy": {
+            "headline": "find out Proven method",
+            "hook": "Proven method is the breakthrough that helps you achieve desired transformation with certainty, speed, and minimal effort faster than anything else you've tried.",
+            "body": "If you're like most people, you've been struggling with current situation not delivering desired results. You've tried everything, but nothing seems to work.\n\nEvery day that goes by, you're falling further behind. The frustration builds. You start to wonder if achieve desired transformation with certainty, speed, and minimal effort is even possible for you.\n\nBut what if there was a better way? A proven proven method that's already helped thousands of people just like you achieve desired transformation with certainty, speed, and minimal effort.\n\nDon't just take our word for it. Case studies with specific results from real people prove this works.\n\nWhen you get started today, you'll get everything you need to succeed. Plus, our lifetime satisfaction guarantee means you risk nothing.",
+            "cta": "Join today and start seeing results immediately.\n\n[find out the Method →]\n\nTry it risk-free for 30 days. If you don't see results, get a full refund. No questions asked. 👀",
+            "full_formatted": "find out Proven method\n\nProven method is the breakthrough that helps you achieve desired transformation with certainty, speed, and minimal effort faster than anything else you've tried.\n\nundefined\n\nundefined\n\nundefined\n\nundefined"
+          },
+          "performance_prediction": {
+            "best_for_audience": "High fit",
+            "expected_engagement": "medium",
+            "conversion_potential": "High (15-25% lift)"
+          },
+          "optimization_notes": [
+            "Test this variant against other hook types for your audience",
+            "Monitor mechanism hook performance - ideal for sophistication level 4",
+            "A/B test headline variations",
+            "Consider shortening CTA for mobile users"
+          ],
+          "tone_adaptation": {
+            "platform": "instagram",
+            "demographics": "Millennials and Gen Z, visual-oriented, lifestyle-focused",
+            "adapted": true
+          },
+          "platform_recommendations": {
+            "platform": "instagram",
+            "formats": {
+              "post": "1:1",
+              "story": "9:16",
+              "reel": "9:16"
+            },
+            "recommended_aspect_ratios": [
+              "1:1",
+              "9:16"
+            ],
+            "best_practices": [],
+            "character_limits": {
+              "caption": 2200,
+              "recommendation": "First 125 characters most visible"
+            },
+            "hashtag_strategy": "Use 5-10 relevant hashtags (optimal engagement)",
+            "demographics_targeting": "Millennials and Gen Z, visual-oriented, lifestyle-focused"
+          },
+          "bigquery_enhancements": {
+            "data_driven": false
+          },
+          "quality_score": 92
+        },
+        {
+          "variant_id": 2,
+          "hook_type": "proof",
+          "hook_type_description": "Leads with overwhelming social validation",
+          "sophistication_match": {
+            "is_ideal_match": true,
+            "sophistication_level": 4,
+            "match_reason": "proof hook is ideal for level 4 audience"
+          },
+          "copy": {
+            "headline": "Join 10,000+ Success Stories",
+            "hook": "Over 10,000 people have already achieved achieve desired transformation with certainty, speed, and minimal effort using this proven system. Now it's your turn.",
+            "body": "If you're like most people, you've been struggling with current situation not delivering desired results. You've tried everything, but nothing seems to work.\n\nEvery day that goes by, you're falling further behind. The frustration builds. You start to wonder if achieve desired transformation with certainty, speed, and minimal effort is even possible for you.\n\nBut what if there was a better way? A proven proven method that's already helped thousands of people just like you achieve desired transformation with certainty, speed, and minimal effort.\n\nDon't just take our word for it. Case studies with specific results from real people prove this works.\n\nWhen you get started today, you'll get everything you need to succeed. Plus, our lifetime satisfaction guarantee means you risk nothing.",
+            "cta": "Join today and start seeing results immediately.\n\n[See the Proof →]\n\nTry it risk-free for 30 days. If you don't see results, get a full refund. No questions asked. 👀",
+            "full_formatted": "Join 10,000+ Success Stories\n\nOver 10,000 people have already achieved achieve desired transformation with certainty, speed, and minimal effort using this proven system. Now it's your turn.\n\nundefined\n\nundefined\n\nundefined\n\nundefined"
+          },
+          "performance_prediction": {
+            "best_for_audience": "High fit",
+            "expected_engagement": "medium",
+            "conversion_potential": "High (15-25% lift)"
+          },
+          "optimization_notes": [
+            "Test this variant against other hook types for your audience",
+            "Monitor proof hook performance - ideal for sophistication level 4",
+            "A/B test headline variations",
+            "Consider shortening CTA for mobile users"
+          ],
+          "tone_adaptation": {
+            "platform": "instagram",
+            "demographics": "Millennials and Gen Z, visual-oriented, lifestyle-focused",
+            "adapted": true
+          },
+          "platform_recommendations": {
+            "platform": "instagram",
+            "formats": {
+              "post": "1:1",
+              "story": "9:16",
+              "reel": "9:16"
+            },
+            "recommended_aspect_ratios": [
+              "1:1",
+              "9:16"
+            ],
+            "best_practices": [],
+            "character_limits": {
+              "caption": 2200,
+              "recommendation": "First 125 characters most visible"
+            },
+            "hashtag_strategy": "Use 5-10 relevant hashtags (optimal engagement)",
+            "demographics_targeting": "Millennials and Gen Z, visual-oriented, lifestyle-focused"
+          },
+          "bigquery_enhancements": {
+            "data_driven": false
+          },
+          "quality_score": 92
+        },
+        {
+          "variant_id": 3,
+          "hook_type": "big_promise",
+          "hook_type_description": "Audacious claim with high specificity",
+          "sophistication_match": {
+            "is_ideal_match": false,
+            "sophistication_level": 4,
+            "match_reason": "big_promise hook may work but not optimal for level 4"
+          },
+          "copy": {
+            "headline": "Achieve desired transformation with certainty, speed, and minimal effort",
+            "hook": "How to achieve desired transformation with certainty, speed, and minimal effort in record time without current situation not delivering desired results.",
+            "body": "If you're like most people, you've been struggling with current situation not delivering desired results. You've tried everything, but nothing seems to work.\n\nEvery day that goes by, you're falling further behind. The frustration builds. You start to wonder if achieve desired transformation with certainty, speed, and minimal effort is even possible for you.\n\nBut what if there was a better way? A proven proven method that's already helped thousands of people just like you achieve desired transformation with certainty, speed, and minimal effort.\n\nDon't just take our word for it. Case studies with specific results from real people prove this works.\n\nWhen you get started today, you'll get everything you need to succeed. Plus, our lifetime satisfaction guarantee means you risk nothing.",
+            "cta": "Join today and start seeing results immediately.\n\n[Get Started Now →]\n\nTry it risk-free for 30 days. If you don't see results, get a full refund. No questions asked. 👀",
+            "full_formatted": "Achieve desired transformation with certainty, speed, and minimal effort\n\nHow to achieve desired transformation with certainty, speed, and minimal effort in record time without current situation not delivering desired results.\n\nundefined\n\nundefined\n\nundefined\n\nundefined"
+          },
+          "performance_prediction": {
+            "best_for_audience": "Moderate fit",
+            "expected_engagement": "high",
+            "conversion_potential": "Moderate (5-15% lift)"
+          },
+          "optimization_notes": [
+            "Test this variant against other hook types for your audience",
+            "Monitor big_promise hook performance - ideal for sophistication level 4",
+            "A/B test headline variations",
+            "Consider shortening CTA for mobile users"
+          ],
+          "tone_adaptation": {
+            "platform": "instagram",
+            "demographics": "Millennials and Gen Z, visual-oriented, lifestyle-focused",
+            "adapted": true
+          },
+          "platform_recommendations": {
+            "platform": "instagram",
+            "formats": {
+              "post": "1:1",
+              "story": "9:16",
+              "reel": "9:16"
+            },
+            "recommended_aspect_ratios": [
+              "1:1",
+              "9:16"
+            ],
+            "best_practices": [],
+            "character_limits": {
+              "caption": 2200,
+              "recommendation": "First 125 characters most visible"
+            },
+            "hashtag_strategy": "Use 5-10 relevant hashtags (optimal engagement)",
+            "demographics_targeting": "Millennials and Gen Z, visual-oriented, lifestyle-focused"
+          },
+          "bigquery_enhancements": {
+            "data_driven": false
+          },
+          "quality_score": 92
+        },
+        {
+          "variant_id": 4,
+          "hook_type": "enemy",
+          "hook_type_description": "Identifies villain/obstacle blocking success",
+          "sophistication_match": {
+            "is_ideal_match": false,
+            "sophistication_level": 4,
+            "match_reason": "enemy hook may work but not optimal for level 4"
+          },
+          "copy": {
+            "headline": "What's Really Holding You Back",
+            "hook": "The real reason you're struggling with current situation not delivering desired results (and it's not what you think).",
+            "body": "If you're like most people, you've been struggling with current situation not delivering desired results. You've tried everything, but nothing seems to work.\n\nEvery day that goes by, you're falling further behind. The frustration builds. You start to wonder if achieve desired transformation with certainty, speed, and minimal effort is even possible for you.\n\nBut what if there was a better way? A proven proven method that's already helped thousands of people just like you achieve desired transformation with certainty, speed, and minimal effort.\n\nDon't just take our word for it. Case studies with specific results from real people prove this works.\n\nWhen you get started today, you'll get everything you need to succeed. Plus, our lifetime satisfaction guarantee means you risk nothing.",
+            "cta": "Join today and start seeing results immediately.\n\n[Learn the Truth →]\n\nTry it risk-free for 30 days. If you don't see results, get a full refund. No questions asked. 👀",
+            "full_formatted": "What's Really Holding You Back\n\nThe real reason you're struggling with current situation not delivering desired results (and it's not what you think).\n\nundefined\n\nundefined\n\nundefined\n\nundefined"
+          },
+          "performance_prediction": {
+            "best_for_audience": "Moderate fit",
+            "expected_engagement": "low",
+            "conversion_potential": "Moderate (5-15% lift)"
+          },
+          "optimization_notes": [
+            "Test this variant against other hook types for your audience",
+            "Monitor enemy hook performance - ideal for sophistication level 4",
+            "A/B test headline variations",
+            "Consider shortening CTA for mobile users"
+          ],
+          "tone_adaptation": {
+            "platform": "instagram",
+            "demographics": "Millennials and Gen Z, visual-oriented, lifestyle-focused",
+            "adapted": true
+          },
+          "platform_recommendations": {
+            "platform": "instagram",
+            "formats": {
+              "post": "1:1",
+              "story": "9:16",
+              "reel": "9:16"
+            },
+            "recommended_aspect_ratios": [
+              "1:1",
+              "9:16"
+            ],
+            "best_practices": [],
+            "character_limits": {
+              "caption": 2200,
+              "recommendation": "First 125 characters most visible"
+            },
+            "hashtag_strategy": "Use 5-10 relevant hashtags (optimal engagement)",
+            "demographics_targeting": "Millennials and Gen Z, visual-oriented, lifestyle-focused"
+          },
+          "bigquery_enhancements": {
+            "data_driven": false
+          },
+          "quality_score": 92
+        },
+        {
+          "variant_id": 5,
+          "hook_type": "curiosity",
+          "hook_type_description": "Pattern interrupt with intrigue",
+          "sophistication_match": {
+            "is_ideal_match": false,
+            "sophistication_level": 4,
+            "match_reason": "curiosity hook may work but not optimal for level 4"
+          },
+          "copy": {
+            "headline": "The Secret They Don't Want You to Know",
+            "hook": "The unusual strategy that's helping ordinary people achieve desired transformation with certainty, speed, and minimal effort 3x faster than traditional methods.",
+            "body": "If you're like most people, you've been struggling with current situation not delivering desired results. You've tried everything, but nothing seems to work.\n\nEvery day that goes by, you're falling further behind. The frustration builds. You start to wonder if achieve desired transformation with certainty, speed, and minimal effort is even possible for you.\n\nBut what if there was a better way? A proven proven method that's already helped thousands of people just like you achieve desired transformation with certainty, speed, and minimal effort.\n\nDon't just take our word for it. Case studies with specific results from real people prove this works.\n\nWhen you get started today, you'll get everything you need to succeed. Plus, our lifetime satisfaction guarantee means you risk nothing.",
+            "cta": "Join today and start seeing results immediately.\n\n[Reveal the Secret →]\n\nTry it risk-free for 30 days. If you don't see results, get a full refund. No questions asked. 👀",
+            "full_formatted": "The Secret They Don't Want You to Know\n\nThe unusual strategy that's helping ordinary people achieve desired transformation with certainty, speed, and minimal effort 3x faster than traditional methods.\n\nundefined\n\nundefined\n\nundefined\n\nundefined"
+          },
+          "performance_prediction": {
+            "best_for_audience": "Moderate fit",
+            "expected_engagement": "high",
+            "conversion_potential": "Moderate (5-15% lift)"
+          },
+          "optimization_notes": [
+            "Test this variant against other hook types for your audience",
+            "Monitor curiosity hook performance - ideal for sophistication level 4",
+            "A/B test headline variations",
+            "Consider shortening CTA for mobile users"
+          ],
+          "tone_adaptation": {
+            "platform": "instagram",
+            "demographics": "Millennials and Gen Z, visual-oriented, lifestyle-focused",
+            "adapted": true
+          },
+          "platform_recommendations": {
+            "platform": "instagram",
+            "formats": {
+              "post": "1:1",
+              "story": "9:16",
+              "reel": "9:16"
+            },
+            "recommended_aspect_ratios": [
+              "1:1",
+              "9:16"
+            ],
+            "best_practices": [],
+            "character_limits": {
+              "caption": 2200,
+              "recommendation": "First 125 characters most visible"
+            },
+            "hashtag_strategy": "Use 5-10 relevant hashtags (optimal engagement)",
+            "demographics_targeting": "Millennials and Gen Z, visual-oriented, lifestyle-focused"
+          },
+          "bigquery_enhancements": {
+            "data_driven": false
+          },
+          "quality_score": 92
+        }
+      ],
+      "usage_recommendations": {
+        "recommended_variants": [
+          "Variant 1 (mechanism)",
+          "Variant 2 (proof)"
+        ],
+        "testing_strategy": [
+          "Start with variants that match your audience sophistication level",
+          "For level 4, prioritize: proof, mechanism",
+          "Run A/B tests with at least $50/variant budget",
+          "Track CTR, CPC, and conversion rate",
+          "Scale winning variant after 100+ conversions"
+        ],
+        "platform_optimization": "Optimized for instagram. Consider character limits and platform-specific best practices."
+      },
+      "brand_alignment": {
+        "colors_available": false,
+        "colors": null,
+        "typography_available": false,
+        "typography": null,
+        "brand_values": [
+          "innovation",
+          "professionalism",
+          "reliability",
+          "creativity"
+        ],
+        "brand_tone": "confident and approachable",
+        "extraction_summary": {
+          "colors_extracted": 0,
+          "fonts_extracted": 0,
+          "brand_identity_strength": 30
+        }
+      },
+      "platform_context": {
+        "platform": "instagram",
+        "tone_of_voice": "confident and approachable, casual, visual-first, community-focused, authentic",
+        "demographics": "Millennials and Gen Z, visual-oriented, lifestyle-focused",
+        "brand_tone_applied": true,
+        "best_practices": [
+          "Use high-quality visuals with vibrant colors",
+          "Include relevant hashtags (5-10 optimal)",
+          "Engage with stories and interactive stickers",
+          "Maintain consistent aesthetic and brand identity"
+        ],
+        "formats": {
+          "post": "1:1",
+          "story": "9:16",
+          "reel": "9:16"
+        }
+      }
+    },
+    "landing_page": {
+      "metadata": {
+        "generated_at": "2025-11-10T16:41:53.141Z",
+        "skill_version": "1.0.0",
+        "frameworks_applied": [
+          "sales_letter_8_sections",
+          "hormozi_offer_stack",
+          "todd_brown_belief_shifting",
+          "cialdini_principles"
+        ],
+        "frameworks_explicit": {
+          "hormozi_offer_stack": {
+            "dream_outcome": "Section 5 (offer)",
+            "perceived_likelihood": "Section 4 (proof) + Section 7 (guarantee)",
+            "time_delay": "Section 8 (urgency)",
+            "effort_sacrifice": "Section 6 (objections)"
+          },
+          "todd_brown_belief_shifting": {
+            "false_beliefs": "Section 2 (problem) identifies wrong beliefs",
+            "new_mechanism": "Section 3 (solution) introduces unique mechanism",
+            "objections_handling": "Section 6 (objections FAQ)"
+          },
+          "cialdini_principles": {
+            "social_proof": "Section 4 (proof)",
+            "scarcity": "Section 8 (urgency/limited spots)",
+            "authority": "Section 4 (proof/credentials)",
+            "reciprocity": "Section 7 (guarantee/risk_reversal)"
+          }
+        },
+        "page_type": "long_form_sales_letter",
+        "context_profile_used": "example_agency_1734624619000",
+        "brand_guidelines_extracted": true,
+        "quality_score_estimated": 95
+      },
+      "brand_alignment": {
+        "colors_available": false,
+        "colors": null,
+        "typography_available": false,
+        "typography": null,
+        "brand_values": [
+          "innovation",
+          "professionalism",
+          "reliability",
+          "creativity"
+        ],
+        "brand_tone": "confident and approachable",
+        "extraction_summary": {
+          "colors_extracted": 0,
+          "fonts_extracted": 0,
+          "brand_identity_strength": 30
+        },
+        "css_generation_note": "CSS with Pantone colors will be generated in Phase 2"
+      },
+      "hero": {
+        "section_name": "Hero",
+        "purpose": "Grab attention and communicate big promise",
+        "elements": {
+          "headline": "Transform Your Results",
+          "subheadline": "The proven system to Achieve desired transformation with certainty, speed, and minimal effort",
+          "hero_image": "[Image: Hero visual showing transformation]",
+          "cta_button": {
+            "text": "Yes, I Want This →",
+            "style": "primary",
+            "position": "center"
+          },
+          "social_proof_snippet": "10,000+ success stories"
+        },
+        "html_structure": "<section class=\"hero\"><h1>{headline}</h1><p>{subheadline}</p><img src=\"{hero_image}\"/><button>{cta}</button></section>"
+      },
+      "problem": {
+        "section_name": "Problem Identification & Agitation",
+        "purpose": "Amplify pain and create urgency",
+        "elements": {
+          "opening": "If you've been struggling with Current situation not delivering desired results, you're not alone...",
+          "pain_points": [
+            "Current situation not delivering desired results",
+            "Wasting time and resources on ineffective solutions",
+            "Feeling frustrated and overwhelmed"
+          ],
+          "agitation": "Every day this continues, you're losing time, money, and momentum.",
+          "emotional_trigger": "But what if there was a better way?"
+        }
+      },
+      "solution": {
+        "section_name": "Solution Introduction",
+        "purpose": "Introduce unique mechanism and build hope",
+        "elements": {
+          "solution_intro": "Introducing proven method - the breakthrough that changes everything",
+          "mechanism_explanation": "Unlike traditional approaches, proven method works by [explain how]",
+          "why_it_works": [
+            "Addresses root cause",
+            "Proven by science/data",
+            "Simple to implement"
+          ],
+          "transition": "Here's the proof..."
+        }
+      },
+      "proof": {
+        "section_name": "Proof & Social Validation",
+        "purpose": "Build credibility and perceived likelihood of success",
+        "elements": {
+          "case_studies": [
+            {
+              "name": "John D.",
+              "result": "Lost 25 pounds in 10 weeks",
+              "testimonial": "\"This changed my life\""
+            },
+            {
+              "name": "Sarah M.",
+              "result": "Achieved dream outcome in 8 weeks",
+              "testimonial": "\"Finally something that works\""
+            },
+            {
+              "name": "Mike T.",
+              "result": "Results in just 6 weeks",
+              "testimonial": "\"Incredible transformation\""
+            }
+          ],
+          "stats": [
+            "10,000+ success stories",
+            "94% satisfaction rate",
+            "Average result: [specific metric]"
+          ],
+          "proof_types": [
+            "Case studies with specific results",
+            "Video testimonials",
+            "Before/after comparisons",
+            "Third-party validation"
+          ],
+          "authority_signals": [
+            "Featured in [Media]",
+            "Backed by [Expert]",
+            "[N] years experience"
+          ]
+        }
+      },
+      "offer": {
+        "section_name": "Offer & Value Stack",
+        "purpose": "Stack value using Hormozi principles",
+        "elements": {
+          "core_offer": "proven method Complete System",
+          "value_stack": [
+            {
+              "item": "Core Program",
+              "value": "$2,000",
+              "description": "Complete step-by-step system"
+            },
+            {
+              "item": "Bonus #1: Quick Start Guide",
+              "value": "$200",
+              "description": "Get results in first 7 days"
+            },
+            {
+              "item": "Bonus #2: Support Community",
+              "value": "$500",
+              "description": "Lifetime access"
+            },
+            {
+              "item": "Bonus #3: 1-on-1 Coaching Call",
+              "value": "$500",
+              "description": "Personalized guidance"
+            }
+          ],
+          "total_value": "$3,200",
+          "your_price": "$997",
+          "savings": "$2,203 (69% off)",
+          "payment_options": [
+            "One-time payment",
+            "Payment plan available"
+          ]
+        },
+        "hormozi_factors": {
+          "dream_outcome": "Clear transformation stated",
+          "perceived_likelihood": "High (proof shown above)",
+          "time_delay": "Fast results (first 7 days)",
+          "effort_sacrifice": "Low (step-by-step system)"
+        }
+      },
+      "objections": {
+        "section_name": "Objections Handling",
+        "purpose": "Address doubts systematically",
+        "faq_structure": [
+          {
+            "question": "Will this really work for me?",
+            "answer": "Yes, because [proof + mechanism explanation]"
+          },
+          {
+            "question": "How long does it take?",
+            "answer": "[Timeframe] with first results in [quick wins]"
+          },
+          {
+            "question": "What if I fail again?",
+            "answer": "[Risk reversal + guarantee]"
+          },
+          {
+            "question": "Is this too complicated?",
+            "answer": "No, we've simplified everything. [Ease explanation]"
+          }
+        ],
+        "objections_from_avatar": [
+          {
+            "objection": "Will this really work for me?",
+            "resolution": "Proof via testimonials, case studies, guarantees"
+          },
+          {
+            "objection": "Is this worth the investment?",
+            "resolution": "Value stack, ROI demonstration, risk reversal"
+          },
+          {
+            "objection": "How long will it take to see results?",
+            "resolution": "Quick wins roadmap, milestone clarity"
+          },
+          {
+            "objection": "Is this too complicated/time-consuming?",
+            "resolution": "Simplification, done-for-you elements, support"
+          }
+        ]
+      },
+      "guarantee": {
+        "section_name": "Guarantee & Risk Reversal",
+        "purpose": "Remove all risk and build trust",
+        "elements": {
+          "guarantee_headline": "60-Day Results Guarantee",
+          "guarantee_copy": "Try it risk-free for 60 days. If you don't see results, get a full refund. No questions asked.",
+          "risk_reversal_stack": [
+            "Money-back guarantee",
+            "No questions asked refund",
+            "Keep all bonuses even if you refund",
+            "Lifetime support included"
+          ],
+          "trust_badges": [
+            "Secure checkout",
+            "256-bit SSL encryption",
+            "Trusted by 10,000+"
+          ]
+        }
+      },
+      "cta": {
+        "section_name": "Call to Action & Urgency",
+        "purpose": "Drive immediate action",
+        "elements": {
+          "cta_headline": "Get Started Today and Transform Your Results",
+          "urgency_element": "Special pricing ends soon",
+          "cta_button": {
+            "text": "Yes, I'm Ready to Start →",
+            "style": "primary-large",
+            "position": "center"
+          },
+          "secondary_cta": "Or [alternative action]",
+          "final_reminder": "Remember: 60-day guarantee means zero risk",
+          "scarcity": "[Limited spots notice]"
+        }
+      },
+      "html_skeleton": "\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>Landing Page</title>\n</head>\n<body>\n  <!-- Section 1: Hero -->\n  <section id=\"hero\"></section>\n\n  <!-- Section 2: Problem -->\n  <section id=\"problem\"></section>\n\n  <!-- Section 3: Solution -->\n  <section id=\"solution\"></section>\n\n  <!-- Section 4: Proof -->\n  <section id=\"proof\"></section>\n\n  <!-- Section 5: Offer -->\n  <section id=\"offer\"></section>\n\n  <!-- Section 6: Objections (FAQ) -->\n  <section id=\"objections\"></section>\n\n  <!-- Section 7: Guarantee -->\n  <section id=\"guarantee\"></section>\n\n  <!-- Section 8: Final CTA -->\n  <section id=\"cta\"></section>\n</body>\n</html>",
+      "css_code": "/* ========================================\n   LANDING PAGE CSS - DEFAULT STYLING\n   ⚠️ Using generic color palette\n   ======================================== */\n\n/* === ROOT VARIABLES === */\n:root {\n  /* Default Professional Palette */\n  --color-primary: #0066CC;\n  --color-secondary: #003366;\n  --color-accent: #FF6B35;\n  --color-neutral: #F5F5F5;\n  --color-text: #333333;\n\n  /* Typography */\n  --font-primary: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;\n  --line-height: 1.6;\n  --letter-spacing: 0;\n\n  /* Spacing */\n  --spacing-xs: 0.5rem;\n  --spacing-sm: 1rem;\n  --spacing-md: 2rem;\n  --spacing-lg: 3rem;\n  --spacing-xl: 4rem;\n}\n\n/* === BASE STYLES === */\n* {\n  margin: 0;\n  padding: 0;\n  box-sizing: border-box;\n}\n\nbody {\n  font-family: var(--font-primary);\n  line-height: var(--line-height);\n  color: var(--color-text);\n  background-color: #ffffff;\n}\n\n/* === SECTION LAYOUT === */\nsection {\n  padding: var(--spacing-xl) var(--spacing-md);\n  max-width: 1200px;\n  margin: 0 auto;\n}\n\n/* === HERO SECTION === */\n#hero {\n  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);\n  color: white;\n  text-align: center;\n  padding: var(--spacing-xl) var(--spacing-md);\n  min-height: 80vh;\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n}\n\n#hero h1 {\n  font-size: 3rem;\n  font-weight: 700;\n  margin-bottom: var(--spacing-md);\n}\n\n/* === CTA BUTTONS === */\n.cta-button {\n  background-color: var(--color-accent);\n  color: white;\n  font-size: 1.25rem;\n  padding: 1rem 2.5rem;\n  border: none;\n  border-radius: 8px;\n  cursor: pointer;\n  transition: transform 0.3s ease;\n}\n\n.cta-button:hover {\n  transform: translateY(-2px);\n}\n\n/* === RESPONSIVE === */\n@media (max-width: 768px) {\n  #hero h1 { font-size: 2rem; }\n  section { padding: var(--spacing-lg) var(--spacing-sm); }\n}\n\n/* ⚠️ NOTE: This is generic styling. For brand-aligned CSS with your Pantone colors,\n   create a Context Profile with brand_guidelines and regenerate. */",
+      "html_with_css": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>Landing Page - Branded</title>\n  <style>\n/* ========================================\n   LANDING PAGE CSS - DEFAULT STYLING\n   ⚠️ Using generic color palette\n   ======================================== */\n\n/* === ROOT VARIABLES === */\n:root {\n  /* Default Professional Palette */\n  --color-primary: #0066CC;\n  --color-secondary: #003366;\n  --color-accent: #FF6B35;\n  --color-neutral: #F5F5F5;\n  --color-text: #333333;\n\n  /* Typography */\n  --font-primary: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;\n  --line-height: 1.6;\n  --letter-spacing: 0;\n\n  /* Spacing */\n  --spacing-xs: 0.5rem;\n  --spacing-sm: 1rem;\n  --spacing-md: 2rem;\n  --spacing-lg: 3rem;\n  --spacing-xl: 4rem;\n}\n\n/* === BASE STYLES === */\n* {\n  margin: 0;\n  padding: 0;\n  box-sizing: border-box;\n}\n\nbody {\n  font-family: var(--font-primary);\n  line-height: var(--line-height);\n  color: var(--color-text);\n  background-color: #ffffff;\n}\n\n/* === SECTION LAYOUT === */\nsection {\n  padding: var(--spacing-xl) var(--spacing-md);\n  max-width: 1200px;\n  margin: 0 auto;\n}\n\n/* === HERO SECTION === */\n#hero {\n  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);\n  color: white;\n  text-align: center;\n  padding: var(--spacing-xl) var(--spacing-md);\n  min-height: 80vh;\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n}\n\n#hero h1 {\n  font-size: 3rem;\n  font-weight: 700;\n  margin-bottom: var(--spacing-md);\n}\n\n/* === CTA BUTTONS === */\n.cta-button {\n  background-color: var(--color-accent);\n  color: white;\n  font-size: 1.25rem;\n  padding: 1rem 2.5rem;\n  border: none;\n  border-radius: 8px;\n  cursor: pointer;\n  transition: transform 0.3s ease;\n}\n\n.cta-button:hover {\n  transform: translateY(-2px);\n}\n\n/* === RESPONSIVE === */\n@media (max-width: 768px) {\n  #hero h1 { font-size: 2rem; }\n  section { padding: var(--spacing-lg) var(--spacing-sm); }\n}\n\n/* ⚠️ NOTE: This is generic styling. For brand-aligned CSS with your Pantone colors,\n   create a Context Profile with brand_guidelines and regenerate. */\n  </style>\n</head>\n<body>\n  <!-- Section 1: Hero -->\n  <section id=\"hero\">\n    <h1>[Headline]</h1>\n    <p>[Subheadline]</p>\n    <button class=\"cta-button\">[CTA Button]</button>\n  </section>\n\n  <!-- Section 2: Problem -->\n  <section id=\"problem\">\n    <h2>[Problem Title]</h2>\n    <p>[Problem Description]</p>\n  </section>\n\n  <!-- Section 3: Solution -->\n  <section id=\"solution\">\n    <h2>[Solution Title]</h2>\n    <p>[Solution Description]</p>\n  </section>\n\n  <!-- Section 4: Proof -->\n  <section id=\"proof\">\n    <h2>[Proof Title]</h2>\n    <p>[Social Proof]</p>\n  </section>\n\n  <!-- Section 5: Offer -->\n  <section id=\"offer\">\n    <h2>[Offer Title]</h2>\n    <p>[Value Stack]</p>\n    <button class=\"cta-button\">[CTA Button]</button>\n  </section>\n\n  <!-- Section 6: Objections (FAQ) -->\n  <section id=\"objections\">\n    <h2>[FAQ Title]</h2>\n    <p>[FAQ Content]</p>\n  </section>\n\n  <!-- Section 7: Guarantee -->\n  <section id=\"guarantee\">\n    <h2>[Guarantee Title]</h2>\n    <p>[Risk Reversal]</p>\n  </section>\n\n  <!-- Section 8: Final CTA -->\n  <section id=\"cta\">\n    <h2>[Final CTA]</h2>\n    <button class=\"cta-button\">[Take Action Now]</button>\n  </section>\n</body>\n</html>",
+      "technical_score": 30
+    },
+    "variants": [
+      {
+        "platform": "instagram",
+        "format": "post",
+        "copy": {
+          "platform": "instagram",
+          "toneOfVoice": "casual, visual-first, community-focused, authentic",
+          "original": {
+            "metadata": {
+              "generated_at": "2025-11-10T16:38:09.765Z",
+              "skill_version": "1.0.2-phase5-kick",
+              "frameworks_applied": [
+                "todd_brown_hooks",
+                "hormozi_value_stack",
+                "schwartz_headlines",
+                "pas_structure"
+              ],
+              "frameworks_explicit": {
+                "todd_brown_5_hook_types": {
+                  "mechanism": "Variant 1",
+                  "proof": "Variant 2",
+                  "big_promise": "Variant 3",
+                  "enemy": "Variant 4",
+                  "curiosity": "Variant 5"
+                },
+                "hormozi_value_stack": {
+                  "dream_outcome": "All variants",
+                  "proof": "Variant 2 emphasis",
+                  "urgency": "usage_recommendations",
+                  "risk_reversal": "usage_recommendations"
+                },
+                "schwartz_headlines": {
+                  "formulas_applied": "All variants",
+                  "specificity": "High"
+                },
+                "pas_structure": {
+                  "problem": "insights.topPainPoint",
+                  "agitate": "Copy body",
+                  "solution": "insights.dreamOutcome"
+                }
+              },
+              "platform": "instagram",
+              "platform_context_used": true,
+              "sophistication_level": 4,
+              "context_profile_used": "example_agency_1734624619000",
+              "brand_guidelines_extracted": true,
+              "quality_score_estimated": 92,
+              "business_intelligence_used": false,
+              "bigquery_enhancements": {
+                "proven_phrases_count": 0,
+                "top_products_count": 0,
+                "real_demographics_available": true,
+                "seasonal_patterns_count": 0
+              }
+            },
+            "insights": {
+              "dreamOutcome": "Achieve desired transformation with certainty, speed, and minimal effort",
+              "topPainPoint": "Current situation not delivering desired results",
+              "uniqueMechanismHint": "proven method",
+              "proofElements": [
+                "Case studies with specific results",
+                "Video testimonials",
+                "Before/after comparisons",
+                "Third-party validation"
+              ],
+              "objections": [
+                {
+                  "objection": "Will this really work for me?",
+                  "category": "perceived_likelihood",
+                  "hormozi_factor": "low_belief",
+                  "resolution_strategy": "Proof via testimonials, case studies, guarantees"
+                },
+                {
+                  "objection": "Is this worth the investment?",
+                  "category": "value_perception",
+                  "hormozi_factor": "perceived_cost_vs_value",
+                  "resolution_strategy": "Value stack, ROI demonstration, risk reversal"
+                }
+              ],
+              "urgencyLevel": "medium",
+              "targetAudience": {
+                "demographics": "30-55",
+                "psychographics": "Achievement and success"
+              },
+              "sophisticationSignals": {
+                "primary_level": {
+                  "level": 4,
+                  "name": "Product Aware",
+                  "description": "Knows your product, needs conviction to buy",
+                  "messaging_approach": "Social proof, risk reversal, urgency, final push",
+                  "example_hook": "Join [number] customers who already achieved [result]"
+                },
+                "market_saturation": "medium",
+                "competitor_awareness": "aware of 2-3 alternatives",
+                "previous_buying_experiences": "May have tried 1-2 solutions before",
+                "trust_level_with_market": "Cautiously optimistic",
+                "todd_brown_insight": {
+                  "headline_strategy": "Social proof, risk reversal, urgency, final push",
+                  "proof_requirements": "high",
+                  "uniqueness_importance": "critical"
+                }
+              },
+              "communicationTone": "confident and approachable",
+              "bigQueryInsights": {
+                "provenPhrases": [],
+                "topProducts": [],
+                "realDemographics": null,
+                "seasonalInsights": []
+              }
+            },
+            "variants": [
+              {
+                "variant_id": 1,
+                "hook_type": "mechanism",
+                "hook_type_description": "Reveals the unique mechanism that delivers results",
+                "sophistication_match": {
+                  "is_ideal_match": true,
+                  "sophistication_level": 4,
+                  "match_reason": "mechanism hook is ideal for level 4 audience"
+                },
+                "copy": {
+                  "headline": "find out Proven method",
+                  "hook": "Proven method is the breakthrough that helps you achieve desired transformation with certainty, speed, and minimal effort faster than anything else you've tried.",
+                  "body": "If you're like most people, you've been struggling with current situation not delivering desired results. You've tried everything, but nothing seems to work.\n\nEvery day that goes by, you're falling further behind. The frustration builds. You start to wonder if achieve desired transformation with certainty, speed, and minimal effort is even possible for you.\n\nBut what if there was a better way? A proven proven method that's already helped thousands of people just like you achieve desired transformation with certainty, speed, and minimal effort.\n\nDon't just take our word for it. Case studies with specific results from real people prove this works.\n\nWhen you get started today, you'll get everything you need to succeed. Plus, our lifetime satisfaction guarantee means you risk nothing.",
+                  "cta": "Join today and start seeing results immediately.\n\n[find out the Method →]\n\nTry it risk-free for 30 days. If you don't see results, get a full refund. No questions asked. 👀",
+                  "full_formatted": "find out Proven method\n\nProven method is the breakthrough that helps you achieve desired transformation with certainty, speed, and minimal effort faster than anything else you've tried.\n\nundefined\n\nundefined\n\nundefined\n\nundefined"
+                },
+                "performance_prediction": {
+                  "best_for_audience": "High fit",
+                  "expected_engagement": "medium",
+                  "conversion_potential": "High (15-25% lift)"
+                },
+                "optimization_notes": [
+                  "Test this variant against other hook types for your audience",
+                  "Monitor mechanism hook performance - ideal for sophistication level 4",
+                  "A/B test headline variations",
+                  "Consider shortening CTA for mobile users"
+                ],
+                "tone_adaptation": {
+                  "platform": "instagram",
+                  "demographics": "Millennials and Gen Z, visual-oriented, lifestyle-focused",
+                  "adapted": true
+                },
+                "platform_recommendations": {
+                  "platform": "instagram",
+                  "formats": {
+                    "post": "1:1",
+                    "story": "9:16",
+                    "reel": "9:16"
+                  },
+                  "recommended_aspect_ratios": [
+                    "1:1",
+                    "9:16"
+                  ],
+                  "best_practices": [],
+                  "character_limits": {
+                    "caption": 2200,
+                    "recommendation": "First 125 characters most visible"
+                  },
+                  "hashtag_strategy": "Use 5-10 relevant hashtags (optimal engagement)",
+                  "demographics_targeting": "Millennials and Gen Z, visual-oriented, lifestyle-focused"
+                },
+                "bigquery_enhancements": {
+                  "data_driven": false
+                },
+                "quality_score": 92
+              },
+              {
+                "variant_id": 2,
+                "hook_type": "proof",
+                "hook_type_description": "Leads with overwhelming social validation",
+                "sophistication_match": {
+                  "is_ideal_match": true,
+                  "sophistication_level": 4,
+                  "match_reason": "proof hook is ideal for level 4 audience"
+                },
+                "copy": {
+                  "headline": "Join 10,000+ Success Stories",
+                  "hook": "Over 10,000 people have already achieved achieve desired transformation with certainty, speed, and minimal effort using this proven system. Now it's your turn.",
+                  "body": "If you're like most people, you've been struggling with current situation not delivering desired results. You've tried everything, but nothing seems to work.\n\nEvery day that goes by, you're falling further behind. The frustration builds. You start to wonder if achieve desired transformation with certainty, speed, and minimal effort is even possible for you.\n\nBut what if there was a better way? A proven proven method that's already helped thousands of people just like you achieve desired transformation with certainty, speed, and minimal effort.\n\nDon't just take our word for it. Case studies with specific results from real people prove this works.\n\nWhen you get started today, you'll get everything you need to succeed. Plus, our lifetime satisfaction guarantee means you risk nothing.",
+                  "cta": "Join today and start seeing results immediately.\n\n[See the Proof →]\n\nTry it risk-free for 30 days. If you don't see results, get a full refund. No questions asked. 👀",
+                  "full_formatted": "Join 10,000+ Success Stories\n\nOver 10,000 people have already achieved achieve desired transformation with certainty, speed, and minimal effort using this proven system. Now it's your turn.\n\nundefined\n\nundefined\n\nundefined\n\nundefined"
+                },
+                "performance_prediction": {
+                  "best_for_audience": "High fit",
+                  "expected_engagement": "medium",
+                  "conversion_potential": "High (15-25% lift)"
+                },
+                "optimization_notes": [
+                  "Test this variant against other hook types for your audience",
+                  "Monitor proof hook performance - ideal for sophistication level 4",
+                  "A/B test headline variations",
+                  "Consider shortening CTA for mobile users"
+                ],
+                "tone_adaptation": {
+                  "platform": "instagram",
+                  "demographics": "Millennials and Gen Z, visual-oriented, lifestyle-focused",
+                  "adapted": true
+                },
+                "platform_recommendations": {
+                  "platform": "instagram",
+                  "formats": {
+                    "post": "1:1",
+                    "story": "9:16",
+                    "reel": "9:16"
+                  },
+                  "recommended_aspect_ratios": [
+                    "1:1",
+                    "9:16"
+                  ],
+                  "best_practices": [],
+                  "character_limits": {
+                    "caption": 2200,
+                    "recommendation": "First 125 characters most visible"
+                  },
+                  "hashtag_strategy": "Use 5-10 relevant hashtags (optimal engagement)",
+                  "demographics_targeting": "Millennials and Gen Z, visual-oriented, lifestyle-focused"
+                },
+                "bigquery_enhancements": {
+                  "data_driven": false
+                },
+                "quality_score": 92
+              },
+              {
+                "variant_id": 3,
+                "hook_type": "big_promise",
+                "hook_type_description": "Audacious claim with high specificity",
+                "sophistication_match": {
+                  "is_ideal_match": false,
+                  "sophistication_level": 4,
+                  "match_reason": "big_promise hook may work but not optimal for level 4"
+                },
+                "copy": {
+                  "headline": "Achieve desired transformation with certainty, speed, and minimal effort",
+                  "hook": "How to achieve desired transformation with certainty, speed, and minimal effort in record time without current situation not delivering desired results.",
+                  "body": "If you're like most people, you've been struggling with current situation not delivering desired results. You've tried everything, but nothing seems to work.\n\nEvery day that goes by, you're falling further behind. The frustration builds. You start to wonder if achieve desired transformation with certainty, speed, and minimal effort is even possible for you.\n\nBut what if there was a better way? A proven proven method that's already helped thousands of people just like you achieve desired transformation with certainty, speed, and minimal effort.\n\nDon't just take our word for it. Case studies with specific results from real people prove this works.\n\nWhen you get started today, you'll get everything you need to succeed. Plus, our lifetime satisfaction guarantee means you risk nothing.",
+                  "cta": "Join today and start seeing results immediately.\n\n[Get Started Now →]\n\nTry it risk-free for 30 days. If you don't see results, get a full refund. No questions asked. 👀",
+                  "full_formatted": "Achieve desired transformation with certainty, speed, and minimal effort\n\nHow to achieve desired transformation with certainty, speed, and minimal effort in record time without current situation not delivering desired results.\n\nundefined\n\nundefined\n\nundefined\n\nundefined"
+                },
+                "performance_prediction": {
+                  "best_for_audience": "Moderate fit",
+                  "expected_engagement": "high",
+                  "conversion_potential": "Moderate (5-15% lift)"
+                },
+                "optimization_notes": [
+                  "Test this variant against other hook types for your audience",
+                  "Monitor big_promise hook performance - ideal for sophistication level 4",
+                  "A/B test headline variations",
+                  "Consider shortening CTA for mobile users"
+                ],
+                "tone_adaptation": {
+                  "platform": "instagram",
+                  "demographics": "Millennials and Gen Z, visual-oriented, lifestyle-focused",
+                  "adapted": true
+                },
+                "platform_recommendations": {
+                  "platform": "instagram",
+                  "formats": {
+                    "post": "1:1",
+                    "story": "9:16",
+                    "reel": "9:16"
+                  },
+                  "recommended_aspect_ratios": [
+                    "1:1",
+                    "9:16"
+                  ],
+                  "best_practices": [],
+                  "character_limits": {
+                    "caption": 2200,
+                    "recommendation": "First 125 characters most visible"
+                  },
+                  "hashtag_strategy": "Use 5-10 relevant hashtags (optimal engagement)",
+                  "demographics_targeting": "Millennials and Gen Z, visual-oriented, lifestyle-focused"
+                },
+                "bigquery_enhancements": {
+                  "data_driven": false
+                },
+                "quality_score": 92
+              },
+              {
+                "variant_id": 4,
+                "hook_type": "enemy",
+                "hook_type_description": "Identifies villain/obstacle blocking success",
+                "sophistication_match": {
+                  "is_ideal_match": false,
+                  "sophistication_level": 4,
+                  "match_reason": "enemy hook may work but not optimal for level 4"
+                },
+                "copy": {
+                  "headline": "What's Really Holding You Back",
+                  "hook": "The real reason you're struggling with current situation not delivering desired results (and it's not what you think).",
+                  "body": "If you're like most people, you've been struggling with current situation not delivering desired results. You've tried everything, but nothing seems to work.\n\nEvery day that goes by, you're falling further behind. The frustration builds. You start to wonder if achieve desired transformation with certainty, speed, and minimal effort is even possible for you.\n\nBut what if there was a better way? A proven proven method that's already helped thousands of people just like you achieve desired transformation with certainty, speed, and minimal effort.\n\nDon't just take our word for it. Case studies with specific results from real people prove this works.\n\nWhen you get started today, you'll get everything you need to succeed. Plus, our lifetime satisfaction guarantee means you risk nothing.",
+                  "cta": "Join today and start seeing results immediately.\n\n[Learn the Truth →]\n\nTry it risk-free for 30 days. If you don't see results, get a full refund. No questions asked. 👀",
+                  "full_formatted": "What's Really Holding You Back\n\nThe real reason you're struggling with current situation not delivering desired results (and it's not what you think).\n\nundefined\n\nundefined\n\nundefined\n\nundefined"
+                },
+                "performance_prediction": {
+                  "best_for_audience": "Moderate fit",
+                  "expected_engagement": "low",
+                  "conversion_potential": "Moderate (5-15% lift)"
+                },
+                "optimization_notes": [
+                  "Test this variant against other hook types for your audience",
+                  "Monitor enemy hook performance - ideal for sophistication level 4",
+                  "A/B test headline variations",
+                  "Consider shortening CTA for mobile users"
+                ],
+                "tone_adaptation": {
+                  "platform": "instagram",
+                  "demographics": "Millennials and Gen Z, visual-oriented, lifestyle-focused",
+                  "adapted": true
+                },
+                "platform_recommendations": {
+                  "platform": "instagram",
+                  "formats": {
+                    "post": "1:1",
+                    "story": "9:16",
+                    "reel": "9:16"
+                  },
+                  "recommended_aspect_ratios": [
+                    "1:1",
+                    "9:16"
+                  ],
+                  "best_practices": [],
+                  "character_limits": {
+                    "caption": 2200,
+                    "recommendation": "First 125 characters most visible"
+                  },
+                  "hashtag_strategy": "Use 5-10 relevant hashtags (optimal engagement)",
+                  "demographics_targeting": "Millennials and Gen Z, visual-oriented, lifestyle-focused"
+                },
+                "bigquery_enhancements": {
+                  "data_driven": false
+                },
+                "quality_score": 92
+              },
+              {
+                "variant_id": 5,
+                "hook_type": "curiosity",
+                "hook_type_description": "Pattern interrupt with intrigue",
+                "sophistication_match": {
+                  "is_ideal_match": false,
+                  "sophistication_level": 4,
+                  "match_reason": "curiosity hook may work but not optimal for level 4"
+                },
+                "copy": {
+                  "headline": "The Secret They Don't Want You to Know",
+                  "hook": "The unusual strategy that's helping ordinary people achieve desired transformation with certainty, speed, and minimal effort 3x faster than traditional methods.",
+                  "body": "If you're like most people, you've been struggling with current situation not delivering desired results. You've tried everything, but nothing seems to work.\n\nEvery day that goes by, you're falling further behind. The frustration builds. You start to wonder if achieve desired transformation with certainty, speed, and minimal effort is even possible for you.\n\nBut what if there was a better way? A proven proven method that's already helped thousands of people just like you achieve desired transformation with certainty, speed, and minimal effort.\n\nDon't just take our word for it. Case studies with specific results from real people prove this works.\n\nWhen you get started today, you'll get everything you need to succeed. Plus, our lifetime satisfaction guarantee means you risk nothing.",
+                  "cta": "Join today and start seeing results immediately.\n\n[Reveal the Secret →]\n\nTry it risk-free for 30 days. If you don't see results, get a full refund. No questions asked. 👀",
+                  "full_formatted": "The Secret They Don't Want You to Know\n\nThe unusual strategy that's helping ordinary people achieve desired transformation with certainty, speed, and minimal effort 3x faster than traditional methods.\n\nundefined\n\nundefined\n\nundefined\n\nundefined"
+                },
+                "performance_prediction": {
+                  "best_for_audience": "Moderate fit",
+                  "expected_engagement": "high",
+                  "conversion_potential": "Moderate (5-15% lift)"
+                },
+                "optimization_notes": [
+                  "Test this variant against other hook types for your audience",
+                  "Monitor curiosity hook performance - ideal for sophistication level 4",
+                  "A/B test headline variations",
+                  "Consider shortening CTA for mobile users"
+                ],
+                "tone_adaptation": {
+                  "platform": "instagram",
+                  "demographics": "Millennials and Gen Z, visual-oriented, lifestyle-focused",
+                  "adapted": true
+                },
+                "platform_recommendations": {
+                  "platform": "instagram",
+                  "formats": {
+                    "post": "1:1",
+                    "story": "9:16",
+                    "reel": "9:16"
+                  },
+                  "recommended_aspect_ratios": [
+                    "1:1",
+                    "9:16"
+                  ],
+                  "best_practices": [],
+                  "character_limits": {
+                    "caption": 2200,
+                    "recommendation": "First 125 characters most visible"
+                  },
+                  "hashtag_strategy": "Use 5-10 relevant hashtags (optimal engagement)",
+                  "demographics_targeting": "Millennials and Gen Z, visual-oriented, lifestyle-focused"
+                },
+                "bigquery_enhancements": {
+                  "data_driven": false
+                },
+                "quality_score": 92
+              }
+            ],
+            "usage_recommendations": {
+              "recommended_variants": [
+                "Variant 1 (mechanism)",
+                "Variant 2 (proof)"
+              ],
+              "testing_strategy": [
+                "Start with variants that match your audience sophistication level",
+                "For level 4, prioritize: proof, mechanism",
+                "Run A/B tests with at least $50/variant budget",
+                "Track CTR, CPC, and conversion rate",
+                "Scale winning variant after 100+ conversions"
+              ],
+              "platform_optimization": "Optimized for instagram. Consider character limits and platform-specific best practices."
+            },
+            "brand_alignment": {
+              "colors_available": false,
+              "colors": null,
+              "typography_available": false,
+              "typography": null,
+              "brand_values": [
+                "innovation",
+                "professionalism",
+                "reliability",
+                "creativity"
+              ],
+              "brand_tone": "confident and approachable",
+              "extraction_summary": {
+                "colors_extracted": 0,
+                "fonts_extracted": 0,
+                "brand_identity_strength": 30
+              }
+            },
+            "platform_context": {
+              "platform": "instagram",
+              "tone_of_voice": "confident and approachable, casual, visual-first, community-focused, authentic",
+              "demographics": "Millennials and Gen Z, visual-oriented, lifestyle-focused",
+              "brand_tone_applied": true,
+              "best_practices": [
+                "Use high-quality visuals with vibrant colors",
+                "Include relevant hashtags (5-10 optimal)",
+                "Engage with stories and interactive stickers",
+                "Maintain consistent aesthetic and brand identity"
+              ],
+              "formats": {
+                "post": "1:1",
+                "story": "9:16",
+                "reel": "9:16"
+              }
+            }
+          },
+          "caption": "\n\n✨ Follow for more content like this!",
+          "hashtags": [
+            "#content",
+            "#business",
+            "#instagood",
+            "#photooftheday",
+            "#follow",
+            "#like4like"
+          ]
+        },
+        "media": {
+          "platform": "instagram",
+          "format": "post",
+          "assets": [
+            {
+              "type": "image",
+              "url": "localhost:3000/generated/image-2025-11-10T16-39-54-407Z-fib9lg.png",
+              "recommendation": "Use bright, colorful backgrounds. Show product in lifestyle context."
+            },
+            {
+              "type": "image",
+              "url": "localhost:3000/generated/image-2025-11-10T16-41-18-520Z-3x2dqj.png",
+              "recommendation": "Ensure good lighting. Use portrait orientation for stories."
+            }
+          ]
+        },
+        "recommendations": {
+          "bestPractices": [
+            "Use high-quality visuals with vibrant colors",
+            "Include relevant hashtags (5-10 optimal)",
+            "Engage with stories and interactive stickers",
+            "Maintain consistent aesthetic and brand identity"
+          ],
+          "optimalTimes": [
+            "11am-1pm",
+            "7pm-9pm"
+          ],
+          "demographics": "Millennials and Gen Z, visual-oriented, lifestyle-focused",
+          "contentTypes": [
+            "lifestyle",
+            "behind-the-scenes",
+            "user-generated",
+            "product-showcase"
+          ],
+          "toneOfVoice": "casual, visual-first, community-focused, authentic",
+          "nicheSpecific": [
+            "Follow platform best practices"
+          ]
+        },
+        "specifications": {
+          "copyLimits": {
+            "post": 2200,
+            "caption": 2200,
+            "headline": 150,
+            "description": 500
+          }
+        },
+        "metadata": {
+          "generated": "2025-11-10T16:41:53.143Z",
+          "niche": "real_estate",
+          "platformSpec": "Instagram"
+        }
+      },
+      {
+        "platform": "linkedin",
+        "format": "post",
+        "copy": {
+          "platform": "linkedin",
+          "toneOfVoice": "professional, authoritative, insightful, networking-focused",
+          "original": {
+            "metadata": {
+              "generated_at": "2025-11-10T16:38:09.765Z",
+              "skill_version": "1.0.2-phase5-kick",
+              "frameworks_applied": [
+                "todd_brown_hooks",
+                "hormozi_value_stack",
+                "schwartz_headlines",
+                "pas_structure"
+              ],
+              "frameworks_explicit": {
+                "todd_brown_5_hook_types": {
+                  "mechanism": "Variant 1",
+                  "proof": "Variant 2",
+                  "big_promise": "Variant 3",
+                  "enemy": "Variant 4",
+                  "curiosity": "Variant 5"
+                },
+                "hormozi_value_stack": {
+                  "dream_outcome": "All variants",
+                  "proof": "Variant 2 emphasis",
+                  "urgency": "usage_recommendations",
+                  "risk_reversal": "usage_recommendations"
+                },
+                "schwartz_headlines": {
+                  "formulas_applied": "All variants",
+                  "specificity": "High"
+                },
+                "pas_structure": {
+                  "problem": "insights.topPainPoint",
+                  "agitate": "Copy body",
+                  "solution": "insights.dreamOutcome"
+                }
+              },
+              "platform": "instagram",
+              "platform_context_used": true,
+              "sophistication_level": 4,
+              "context_profile_used": "example_agency_1734624619000",
+              "brand_guidelines_extracted": true,
+              "quality_score_estimated": 92,
+              "business_intelligence_used": false,
+              "bigquery_enhancements": {
+                "proven_phrases_count": 0,
+                "top_products_count": 0,
+                "real_demographics_available": true,
+                "seasonal_patterns_count": 0
+              }
+            },
+            "insights": {
+              "dreamOutcome": "Achieve desired transformation with certainty, speed, and minimal effort",
+              "topPainPoint": "Current situation not delivering desired results",
+              "uniqueMechanismHint": "proven method",
+              "proofElements": [
+                "Case studies with specific results",
+                "Video testimonials",
+                "Before/after comparisons",
+                "Third-party validation"
+              ],
+              "objections": [
+                {
+                  "objection": "Will this really work for me?",
+                  "category": "perceived_likelihood",
+                  "hormozi_factor": "low_belief",
+                  "resolution_strategy": "Proof via testimonials, case studies, guarantees"
+                },
+                {
+                  "objection": "Is this worth the investment?",
+                  "category": "value_perception",
+                  "hormozi_factor": "perceived_cost_vs_value",
+                  "resolution_strategy": "Value stack, ROI demonstration, risk reversal"
+                }
+              ],
+              "urgencyLevel": "medium",
+              "targetAudience": {
+                "demographics": "30-55",
+                "psychographics": "Achievement and success"
+              },
+              "sophisticationSignals": {
+                "primary_level": {
+                  "level": 4,
+                  "name": "Product Aware",
+                  "description": "Knows your product, needs conviction to buy",
+                  "messaging_approach": "Social proof, risk reversal, urgency, final push",
+                  "example_hook": "Join [number] customers who already achieved [result]"
+                },
+                "market_saturation": "medium",
+                "competitor_awareness": "aware of 2-3 alternatives",
+                "previous_buying_experiences": "May have tried 1-2 solutions before",
+                "trust_level_with_market": "Cautiously optimistic",
+                "todd_brown_insight": {
+                  "headline_strategy": "Social proof, risk reversal, urgency, final push",
+                  "proof_requirements": "high",
+                  "uniqueness_importance": "critical"
+                }
+              },
+              "communicationTone": "confident and approachable",
+              "bigQueryInsights": {
+                "provenPhrases": [],
+                "topProducts": [],
+                "realDemographics": null,
+                "seasonalInsights": []
+              }
+            },
+            "variants": [
+              {
+                "variant_id": 1,
+                "hook_type": "mechanism",
+                "hook_type_description": "Reveals the unique mechanism that delivers results",
+                "sophistication_match": {
+                  "is_ideal_match": true,
+                  "sophistication_level": 4,
+                  "match_reason": "mechanism hook is ideal for level 4 audience"
+                },
+                "copy": {
+                  "headline": "find out Proven method",
+                  "hook": "Proven method is the breakthrough that helps you achieve desired transformation with certainty, speed, and minimal effort faster than anything else you've tried.",
+                  "body": "If you're like most people, you've been struggling with current situation not delivering desired results. You've tried everything, but nothing seems to work.\n\nEvery day that goes by, you're falling further behind. The frustration builds. You start to wonder if achieve desired transformation with certainty, speed, and minimal effort is even possible for you.\n\nBut what if there was a better way? A proven proven method that's already helped thousands of people just like you achieve desired transformation with certainty, speed, and minimal effort.\n\nDon't just take our word for it. Case studies with specific results from real people prove this works.\n\nWhen you get started today, you'll get everything you need to succeed. Plus, our lifetime satisfaction guarantee means you risk nothing.",
+                  "cta": "Join today and start seeing results immediately.\n\n[find out the Method →]\n\nTry it risk-free for 30 days. If you don't see results, get a full refund. No questions asked. 👀",
+                  "full_formatted": "find out Proven method\n\nProven method is the breakthrough that helps you achieve desired transformation with certainty, speed, and minimal effort faster than anything else you've tried.\n\nundefined\n\nundefined\n\nundefined\n\nundefined"
+                },
+                "performance_prediction": {
+                  "best_for_audience": "High fit",
+                  "expected_engagement": "medium",
+                  "conversion_potential": "High (15-25% lift)"
+                },
+                "optimization_notes": [
+                  "Test this variant against other hook types for your audience",
+                  "Monitor mechanism hook performance - ideal for sophistication level 4",
+                  "A/B test headline variations",
+                  "Consider shortening CTA for mobile users"
+                ],
+                "tone_adaptation": {
+                  "platform": "instagram",
+                  "demographics": "Millennials and Gen Z, visual-oriented, lifestyle-focused",
+                  "adapted": true
+                },
+                "platform_recommendations": {
+                  "platform": "instagram",
+                  "formats": {
+                    "post": "1:1",
+                    "story": "9:16",
+                    "reel": "9:16"
+                  },
+                  "recommended_aspect_ratios": [
+                    "1:1",
+                    "9:16"
+                  ],
+                  "best_practices": [],
+                  "character_limits": {
+                    "caption": 2200,
+                    "recommendation": "First 125 characters most visible"
+                  },
+                  "hashtag_strategy": "Use 5-10 relevant hashtags (optimal engagement)",
+                  "demographics_targeting": "Millennials and Gen Z, visual-oriented, lifestyle-focused"
+                },
+                "bigquery_enhancements": {
+                  "data_driven": false
+                },
+                "quality_score": 92
+              },
+              {
+                "variant_id": 2,
+                "hook_type": "proof",
+                "hook_type_description": "Leads with overwhelming social validation",
+                "sophistication_match": {
+                  "is_ideal_match": true,
+                  "sophistication_level": 4,
+                  "match_reason": "proof hook is ideal for level 4 audience"
+                },
+                "copy": {
+                  "headline": "Join 10,000+ Success Stories",
+                  "hook": "Over 10,000 people have already achieved achieve desired transformation with certainty, speed, and minimal effort using this proven system. Now it's your turn.",
+                  "body": "If you're like most people, you've been struggling with current situation not delivering desired results. You've tried everything, but nothing seems to work.\n\nEvery day that goes by, you're falling further behind. The frustration builds. You start to wonder if achieve desired transformation with certainty, speed, and minimal effort is even possible for you.\n\nBut what if there was a better way? A proven proven method that's already helped thousands of people just like you achieve desired transformation with certainty, speed, and minimal effort.\n\nDon't just take our word for it. Case studies with specific results from real people prove this works.\n\nWhen you get started today, you'll get everything you need to succeed. Plus, our lifetime satisfaction guarantee means you risk nothing.",
+                  "cta": "Join today and start seeing results immediately.\n\n[See the Proof →]\n\nTry it risk-free for 30 days. If you don't see results, get a full refund. No questions asked. 👀",
+                  "full_formatted": "Join 10,000+ Success Stories\n\nOver 10,000 people have already achieved achieve desired transformation with certainty, speed, and minimal effort using this proven system. Now it's your turn.\n\nundefined\n\nundefined\n\nundefined\n\nundefined"
+                },
+                "performance_prediction": {
+                  "best_for_audience": "High fit",
+                  "expected_engagement": "medium",
+                  "conversion_potential": "High (15-25% lift)"
+                },
+                "optimization_notes": [
+                  "Test this variant against other hook types for your audience",
+                  "Monitor proof hook performance - ideal for sophistication level 4",
+                  "A/B test headline variations",
+                  "Consider shortening CTA for mobile users"
+                ],
+                "tone_adaptation": {
+                  "platform": "instagram",
+                  "demographics": "Millennials and Gen Z, visual-oriented, lifestyle-focused",
+                  "adapted": true
+                },
+                "platform_recommendations": {
+                  "platform": "instagram",
+                  "formats": {
+                    "post": "1:1",
+                    "story": "9:16",
+                    "reel": "9:16"
+                  },
+                  "recommended_aspect_ratios": [
+                    "1:1",
+                    "9:16"
+                  ],
+                  "best_practices": [],
+                  "character_limits": {
+                    "caption": 2200,
+                    "recommendation": "First 125 characters most visible"
+                  },
+                  "hashtag_strategy": "Use 5-10 relevant hashtags (optimal engagement)",
+                  "demographics_targeting": "Millennials and Gen Z, visual-oriented, lifestyle-focused"
+                },
+                "bigquery_enhancements": {
+                  "data_driven": false
+                },
+                "quality_score": 92
+              },
+              {
+                "variant_id": 3,
+                "hook_type": "big_promise",
+                "hook_type_description": "Audacious claim with high specificity",
+                "sophistication_match": {
+                  "is_ideal_match": false,
+                  "sophistication_level": 4,
+                  "match_reason": "big_promise hook may work but not optimal for level 4"
+                },
+                "copy": {
+                  "headline": "Achieve desired transformation with certainty, speed, and minimal effort",
+                  "hook": "How to achieve desired transformation with certainty, speed, and minimal effort in record time without current situation not delivering desired results.",
+                  "body": "If you're like most people, you've been struggling with current situation not delivering desired results. You've tried everything, but nothing seems to work.\n\nEvery day that goes by, you're falling further behind. The frustration builds. You start to wonder if achieve desired transformation with certainty, speed, and minimal effort is even possible for you.\n\nBut what if there was a better way? A proven proven method that's already helped thousands of people just like you achieve desired transformation with certainty, speed, and minimal effort.\n\nDon't just take our word for it. Case studies with specific results from real people prove this works.\n\nWhen you get started today, you'll get everything you need to succeed. Plus, our lifetime satisfaction guarantee means you risk nothing.",
+                  "cta": "Join today and start seeing results immediately.\n\n[Get Started Now →]\n\nTry it risk-free for 30 days. If you don't see results, get a full refund. No questions asked. 👀",
+                  "full_formatted": "Achieve desired transformation with certainty, speed, and minimal effort\n\nHow to achieve desired transformation with certainty, speed, and minimal effort in record time without current situation not delivering desired results.\n\nundefined\n\nundefined\n\nundefined\n\nundefined"
+                },
+                "performance_prediction": {
+                  "best_for_audience": "Moderate fit",
+                  "expected_engagement": "high",
+                  "conversion_potential": "Moderate (5-15% lift)"
+                },
+                "optimization_notes": [
+                  "Test this variant against other hook types for your audience",
+                  "Monitor big_promise hook performance - ideal for sophistication level 4",
+                  "A/B test headline variations",
+                  "Consider shortening CTA for mobile users"
+                ],
+                "tone_adaptation": {
+                  "platform": "instagram",
+                  "demographics": "Millennials and Gen Z, visual-oriented, lifestyle-focused",
+                  "adapted": true
+                },
+                "platform_recommendations": {
+                  "platform": "instagram",
+                  "formats": {
+                    "post": "1:1",
+                    "story": "9:16",
+                    "reel": "9:16"
+                  },
+                  "recommended_aspect_ratios": [
+                    "1:1",
+                    "9:16"
+                  ],
+                  "best_practices": [],
+                  "character_limits": {
+                    "caption": 2200,
+                    "recommendation": "First 125 characters most visible"
+                  },
+                  "hashtag_strategy": "Use 5-10 relevant hashtags (optimal engagement)",
+                  "demographics_targeting": "Millennials and Gen Z, visual-oriented, lifestyle-focused"
+                },
+                "bigquery_enhancements": {
+                  "data_driven": false
+                },
+                "quality_score": 92
+              },
+              {
+                "variant_id": 4,
+                "hook_type": "enemy",
+                "hook_type_description": "Identifies villain/obstacle blocking success",
+                "sophistication_match": {
+                  "is_ideal_match": false,
+                  "sophistication_level": 4,
+                  "match_reason": "enemy hook may work but not optimal for level 4"
+                },
+                "copy": {
+                  "headline": "What's Really Holding You Back",
+                  "hook": "The real reason you're struggling with current situation not delivering desired results (and it's not what you think).",
+                  "body": "If you're like most people, you've been struggling with current situation not delivering desired results. You've tried everything, but nothing seems to work.\n\nEvery day that goes by, you're falling further behind. The frustration builds. You start to wonder if achieve desired transformation with certainty, speed, and minimal effort is even possible for you.\n\nBut what if there was a better way? A proven proven method that's already helped thousands of people just like you achieve desired transformation with certainty, speed, and minimal effort.\n\nDon't just take our word for it. Case studies with specific results from real people prove this works.\n\nWhen you get started today, you'll get everything you need to succeed. Plus, our lifetime satisfaction guarantee means you risk nothing.",
+                  "cta": "Join today and start seeing results immediately.\n\n[Learn the Truth →]\n\nTry it risk-free for 30 days. If you don't see results, get a full refund. No questions asked. 👀",
+                  "full_formatted": "What's Really Holding You Back\n\nThe real reason you're struggling with current situation not delivering desired results (and it's not what you think).\n\nundefined\n\nundefined\n\nundefined\n\nundefined"
+                },
+                "performance_prediction": {
+                  "best_for_audience": "Moderate fit",
+                  "expected_engagement": "low",
+                  "conversion_potential": "Moderate (5-15% lift)"
+                },
+                "optimization_notes": [
+                  "Test this variant against other hook types for your audience",
+                  "Monitor enemy hook performance - ideal for sophistication level 4",
+                  "A/B test headline variations",
+                  "Consider shortening CTA for mobile users"
+                ],
+                "tone_adaptation": {
+                  "platform": "instagram",
+                  "demographics": "Millennials and Gen Z, visual-oriented, lifestyle-focused",
+                  "adapted": true
+                },
+                "platform_recommendations": {
+                  "platform": "instagram",
+                  "formats": {
+                    "post": "1:1",
+                    "story": "9:16",
+                    "reel": "9:16"
+                  },
+                  "recommended_aspect_ratios": [
+                    "1:1",
+                    "9:16"
+                  ],
+                  "best_practices": [],
+                  "character_limits": {
+                    "caption": 2200,
+                    "recommendation": "First 125 characters most visible"
+                  },
+                  "hashtag_strategy": "Use 5-10 relevant hashtags (optimal engagement)",
+                  "demographics_targeting": "Millennials and Gen Z, visual-oriented, lifestyle-focused"
+                },
+                "bigquery_enhancements": {
+                  "data_driven": false
+                },
+                "quality_score": 92
+              },
+              {
+                "variant_id": 5,
+                "hook_type": "curiosity",
+                "hook_type_description": "Pattern interrupt with intrigue",
+                "sophistication_match": {
+                  "is_ideal_match": false,
+                  "sophistication_level": 4,
+                  "match_reason": "curiosity hook may work but not optimal for level 4"
+                },
+                "copy": {
+                  "headline": "The Secret They Don't Want You to Know",
+                  "hook": "The unusual strategy that's helping ordinary people achieve desired transformation with certainty, speed, and minimal effort 3x faster than traditional methods.",
+                  "body": "If you're like most people, you've been struggling with current situation not delivering desired results. You've tried everything, but nothing seems to work.\n\nEvery day that goes by, you're falling further behind. The frustration builds. You start to wonder if achieve desired transformation with certainty, speed, and minimal effort is even possible for you.\n\nBut what if there was a better way? A proven proven method that's already helped thousands of people just like you achieve desired transformation with certainty, speed, and minimal effort.\n\nDon't just take our word for it. Case studies with specific results from real people prove this works.\n\nWhen you get started today, you'll get everything you need to succeed. Plus, our lifetime satisfaction guarantee means you risk nothing.",
+                  "cta": "Join today and start seeing results immediately.\n\n[Reveal the Secret →]\n\nTry it risk-free for 30 days. If you don't see results, get a full refund. No questions asked. 👀",
+                  "full_formatted": "The Secret They Don't Want You to Know\n\nThe unusual strategy that's helping ordinary people achieve desired transformation with certainty, speed, and minimal effort 3x faster than traditional methods.\n\nundefined\n\nundefined\n\nundefined\n\nundefined"
+                },
+                "performance_prediction": {
+                  "best_for_audience": "Moderate fit",
+                  "expected_engagement": "high",
+                  "conversion_potential": "Moderate (5-15% lift)"
+                },
+                "optimization_notes": [
+                  "Test this variant against other hook types for your audience",
+                  "Monitor curiosity hook performance - ideal for sophistication level 4",
+                  "A/B test headline variations",
+                  "Consider shortening CTA for mobile users"
+                ],
+                "tone_adaptation": {
+                  "platform": "instagram",
+                  "demographics": "Millennials and Gen Z, visual-oriented, lifestyle-focused",
+                  "adapted": true
+                },
+                "platform_recommendations": {
+                  "platform": "instagram",
+                  "formats": {
+                    "post": "1:1",
+                    "story": "9:16",
+                    "reel": "9:16"
+                  },
+                  "recommended_aspect_ratios": [
+                    "1:1",
+                    "9:16"
+                  ],
+                  "best_practices": [],
+                  "character_limits": {
+                    "caption": 2200,
+                    "recommendation": "First 125 characters most visible"
+                  },
+                  "hashtag_strategy": "Use 5-10 relevant hashtags (optimal engagement)",
+                  "demographics_targeting": "Millennials and Gen Z, visual-oriented, lifestyle-focused"
+                },
+                "bigquery_enhancements": {
+                  "data_driven": false
+                },
+                "quality_score": 92
+              }
+            ],
+            "usage_recommendations": {
+              "recommended_variants": [
+                "Variant 1 (mechanism)",
+                "Variant 2 (proof)"
+              ],
+              "testing_strategy": [
+                "Start with variants that match your audience sophistication level",
+                "For level 4, prioritize: proof, mechanism",
+                "Run A/B tests with at least $50/variant budget",
+                "Track CTR, CPC, and conversion rate",
+                "Scale winning variant after 100+ conversions"
+              ],
+              "platform_optimization": "Optimized for instagram. Consider character limits and platform-specific best practices."
+            },
+            "brand_alignment": {
+              "colors_available": false,
+              "colors": null,
+              "typography_available": false,
+              "typography": null,
+              "brand_values": [
+                "innovation",
+                "professionalism",
+                "reliability",
+                "creativity"
+              ],
+              "brand_tone": "confident and approachable",
+              "extraction_summary": {
+                "colors_extracted": 0,
+                "fonts_extracted": 0,
+                "brand_identity_strength": 30
+              }
+            },
+            "platform_context": {
+              "platform": "instagram",
+              "tone_of_voice": "confident and approachable, casual, visual-first, community-focused, authentic",
+              "demographics": "Millennials and Gen Z, visual-oriented, lifestyle-focused",
+              "brand_tone_applied": true,
+              "best_practices": [
+                "Use high-quality visuals with vibrant colors",
+                "Include relevant hashtags (5-10 optimal)",
+                "Engage with stories and interactive stickers",
+                "Maintain consistent aesthetic and brand identity"
+              ],
+              "formats": {
+                "post": "1:1",
+                "story": "9:16",
+                "reel": "9:16"
+              }
+            }
+          },
+          "post": "💼 \n\nWhat are your thoughts on this? Share your experience in the comments below.",
+          "hashtags": [
+            "#content",
+            "#business",
+            "#professional"
+          ]
+        },
+        "media": {
+          "platform": "linkedin",
+          "format": "post",
+          "assets": [
+            {
+              "type": "image",
+              "url": "localhost:3000/generated/image-2025-11-10T16-39-54-407Z-fib9lg.png",
+              "recommendation": "Professional, clean presentation. Focus on business value."
+            },
+            {
+              "type": "image",
+              "url": "localhost:3000/generated/image-2025-11-10T16-41-18-520Z-3x2dqj.png",
+              "recommendation": "Professional headshot style. Business appropriate."
+            }
+          ]
+        },
+        "recommendations": {
+          "bestPractices": [
+            "Share professional insights and expertise",
+            "Use data and statistics to back claims",
+            "Network professionally and build thought leadership",
+            "Post during business hours for maximum reach"
+          ],
+          "optimalTimes": [
+            "8am-10am",
+            "12pm-2pm",
+            "5pm-6pm"
+          ],
+          "demographics": "Working professionals, B2B decision makers, career-focused",
+          "contentTypes": [
+            "thought-leadership",
+            "industry-insights",
+            "company-updates",
+            "professional-tips"
+          ],
+          "toneOfVoice": "professional, authoritative, insightful, networking-focused",
+          "nicheSpecific": [
+            "Follow platform best practices"
+          ]
+        },
+        "specifications": {
+          "copyLimits": {
+            "post": 2200,
+            "caption": 2200,
+            "headline": 150,
+            "description": 500
+          }
+        },
+        "metadata": {
+          "generated": "2025-11-10T16:41:53.143Z",
+          "niche": "real_estate",
+          "platformSpec": "Linkedin"
+        }
+      },
+      {
+        "platform": "facebook",
+        "format": "post",
+        "copy": {
+          "platform": "facebook",
+          "toneOfVoice": "friendly, community-oriented, family-focused, conversational",
+          "original": {
+            "metadata": {
+              "generated_at": "2025-11-10T16:38:09.765Z",
+              "skill_version": "1.0.2-phase5-kick",
+              "frameworks_applied": [
+                "todd_brown_hooks",
+                "hormozi_value_stack",
+                "schwartz_headlines",
+                "pas_structure"
+              ],
+              "frameworks_explicit": {
+                "todd_brown_5_hook_types": {
+                  "mechanism": "Variant 1",
+                  "proof": "Variant 2",
+                  "big_promise": "Variant 3",
+                  "enemy": "Variant 4",
+                  "curiosity": "Variant 5"
+                },
+                "hormozi_value_stack": {
+                  "dream_outcome": "All variants",
+                  "proof": "Variant 2 emphasis",
+                  "urgency": "usage_recommendations",
+                  "risk_reversal": "usage_recommendations"
+                },
+                "schwartz_headlines": {
+                  "formulas_applied": "All variants",
+                  "specificity": "High"
+                },
+                "pas_structure": {
+                  "problem": "insights.topPainPoint",
+                  "agitate": "Copy body",
+                  "solution": "insights.dreamOutcome"
+                }
+              },
+              "platform": "instagram",
+              "platform_context_used": true,
+              "sophistication_level": 4,
+              "context_profile_used": "example_agency_1734624619000",
+              "brand_guidelines_extracted": true,
+              "quality_score_estimated": 92,
+              "business_intelligence_used": false,
+              "bigquery_enhancements": {
+                "proven_phrases_count": 0,
+                "top_products_count": 0,
+                "real_demographics_available": true,
+                "seasonal_patterns_count": 0
+              }
+            },
+            "insights": {
+              "dreamOutcome": "Achieve desired transformation with certainty, speed, and minimal effort",
+              "topPainPoint": "Current situation not delivering desired results",
+              "uniqueMechanismHint": "proven method",
+              "proofElements": [
+                "Case studies with specific results",
+                "Video testimonials",
+                "Before/after comparisons",
+                "Third-party validation"
+              ],
+              "objections": [
+                {
+                  "objection": "Will this really work for me?",
+                  "category": "perceived_likelihood",
+                  "hormozi_factor": "low_belief",
+                  "resolution_strategy": "Proof via testimonials, case studies, guarantees"
+                },
+                {
+                  "objection": "Is this worth the investment?",
+                  "category": "value_perception",
+                  "hormozi_factor": "perceived_cost_vs_value",
+                  "resolution_strategy": "Value stack, ROI demonstration, risk reversal"
+                }
+              ],
+              "urgencyLevel": "medium",
+              "targetAudience": {
+                "demographics": "30-55",
+                "psychographics": "Achievement and success"
+              },
+              "sophisticationSignals": {
+                "primary_level": {
+                  "level": 4,
+                  "name": "Product Aware",
+                  "description": "Knows your product, needs conviction to buy",
+                  "messaging_approach": "Social proof, risk reversal, urgency, final push",
+                  "example_hook": "Join [number] customers who already achieved [result]"
+                },
+                "market_saturation": "medium",
+                "competitor_awareness": "aware of 2-3 alternatives",
+                "previous_buying_experiences": "May have tried 1-2 solutions before",
+                "trust_level_with_market": "Cautiously optimistic",
+                "todd_brown_insight": {
+                  "headline_strategy": "Social proof, risk reversal, urgency, final push",
+                  "proof_requirements": "high",
+                  "uniqueness_importance": "critical"
+                }
+              },
+              "communicationTone": "confident and approachable",
+              "bigQueryInsights": {
+                "provenPhrases": [],
+                "topProducts": [],
+                "realDemographics": null,
+                "seasonalInsights": []
+              }
+            },
+            "variants": [
+              {
+                "variant_id": 1,
+                "hook_type": "mechanism",
+                "hook_type_description": "Reveals the unique mechanism that delivers results",
+                "sophistication_match": {
+                  "is_ideal_match": true,
+                  "sophistication_level": 4,
+                  "match_reason": "mechanism hook is ideal for level 4 audience"
+                },
+                "copy": {
+                  "headline": "find out Proven method",
+                  "hook": "Proven method is the breakthrough that helps you achieve desired transformation with certainty, speed, and minimal effort faster than anything else you've tried.",
+                  "body": "If you're like most people, you've been struggling with current situation not delivering desired results. You've tried everything, but nothing seems to work.\n\nEvery day that goes by, you're falling further behind. The frustration builds. You start to wonder if achieve desired transformation with certainty, speed, and minimal effort is even possible for you.\n\nBut what if there was a better way? A proven proven method that's already helped thousands of people just like you achieve desired transformation with certainty, speed, and minimal effort.\n\nDon't just take our word for it. Case studies with specific results from real people prove this works.\n\nWhen you get started today, you'll get everything you need to succeed. Plus, our lifetime satisfaction guarantee means you risk nothing.",
+                  "cta": "Join today and start seeing results immediately.\n\n[find out the Method →]\n\nTry it risk-free for 30 days. If you don't see results, get a full refund. No questions asked. 👀",
+                  "full_formatted": "find out Proven method\n\nProven method is the breakthrough that helps you achieve desired transformation with certainty, speed, and minimal effort faster than anything else you've tried.\n\nundefined\n\nundefined\n\nundefined\n\nundefined"
+                },
+                "performance_prediction": {
+                  "best_for_audience": "High fit",
+                  "expected_engagement": "medium",
+                  "conversion_potential": "High (15-25% lift)"
+                },
+                "optimization_notes": [
+                  "Test this variant against other hook types for your audience",
+                  "Monitor mechanism hook performance - ideal for sophistication level 4",
+                  "A/B test headline variations",
+                  "Consider shortening CTA for mobile users"
+                ],
+                "tone_adaptation": {
+                  "platform": "instagram",
+                  "demographics": "Millennials and Gen Z, visual-oriented, lifestyle-focused",
+                  "adapted": true
+                },
+                "platform_recommendations": {
+                  "platform": "instagram",
+                  "formats": {
+                    "post": "1:1",
+                    "story": "9:16",
+                    "reel": "9:16"
+                  },
+                  "recommended_aspect_ratios": [
+                    "1:1",
+                    "9:16"
+                  ],
+                  "best_practices": [],
+                  "character_limits": {
+                    "caption": 2200,
+                    "recommendation": "First 125 characters most visible"
+                  },
+                  "hashtag_strategy": "Use 5-10 relevant hashtags (optimal engagement)",
+                  "demographics_targeting": "Millennials and Gen Z, visual-oriented, lifestyle-focused"
+                },
+                "bigquery_enhancements": {
+                  "data_driven": false
+                },
+                "quality_score": 92
+              },
+              {
+                "variant_id": 2,
+                "hook_type": "proof",
+                "hook_type_description": "Leads with overwhelming social validation",
+                "sophistication_match": {
+                  "is_ideal_match": true,
+                  "sophistication_level": 4,
+                  "match_reason": "proof hook is ideal for level 4 audience"
+                },
+                "copy": {
+                  "headline": "Join 10,000+ Success Stories",
+                  "hook": "Over 10,000 people have already achieved achieve desired transformation with certainty, speed, and minimal effort using this proven system. Now it's your turn.",
+                  "body": "If you're like most people, you've been struggling with current situation not delivering desired results. You've tried everything, but nothing seems to work.\n\nEvery day that goes by, you're falling further behind. The frustration builds. You start to wonder if achieve desired transformation with certainty, speed, and minimal effort is even possible for you.\n\nBut what if there was a better way? A proven proven method that's already helped thousands of people just like you achieve desired transformation with certainty, speed, and minimal effort.\n\nDon't just take our word for it. Case studies with specific results from real people prove this works.\n\nWhen you get started today, you'll get everything you need to succeed. Plus, our lifetime satisfaction guarantee means you risk nothing.",
+                  "cta": "Join today and start seeing results immediately.\n\n[See the Proof →]\n\nTry it risk-free for 30 days. If you don't see results, get a full refund. No questions asked. 👀",
+                  "full_formatted": "Join 10,000+ Success Stories\n\nOver 10,000 people have already achieved achieve desired transformation with certainty, speed, and minimal effort using this proven system. Now it's your turn.\n\nundefined\n\nundefined\n\nundefined\n\nundefined"
+                },
+                "performance_prediction": {
+                  "best_for_audience": "High fit",
+                  "expected_engagement": "medium",
+                  "conversion_potential": "High (15-25% lift)"
+                },
+                "optimization_notes": [
+                  "Test this variant against other hook types for your audience",
+                  "Monitor proof hook performance - ideal for sophistication level 4",
+                  "A/B test headline variations",
+                  "Consider shortening CTA for mobile users"
+                ],
+                "tone_adaptation": {
+                  "platform": "instagram",
+                  "demographics": "Millennials and Gen Z, visual-oriented, lifestyle-focused",
+                  "adapted": true
+                },
+                "platform_recommendations": {
+                  "platform": "instagram",
+                  "formats": {
+                    "post": "1:1",
+                    "story": "9:16",
+                    "reel": "9:16"
+                  },
+                  "recommended_aspect_ratios": [
+                    "1:1",
+                    "9:16"
+                  ],
+                  "best_practices": [],
+                  "character_limits": {
+                    "caption": 2200,
+                    "recommendation": "First 125 characters most visible"
+                  },
+                  "hashtag_strategy": "Use 5-10 relevant hashtags (optimal engagement)",
+                  "demographics_targeting": "Millennials and Gen Z, visual-oriented, lifestyle-focused"
+                },
+                "bigquery_enhancements": {
+                  "data_driven": false
+                },
+                "quality_score": 92
+              },
+              {
+                "variant_id": 3,
+                "hook_type": "big_promise",
+                "hook_type_description": "Audacious claim with high specificity",
+                "sophistication_match": {
+                  "is_ideal_match": false,
+                  "sophistication_level": 4,
+                  "match_reason": "big_promise hook may work but not optimal for level 4"
+                },
+                "copy": {
+                  "headline": "Achieve desired transformation with certainty, speed, and minimal effort",
+                  "hook": "How to achieve desired transformation with certainty, speed, and minimal effort in record time without current situation not delivering desired results.",
+                  "body": "If you're like most people, you've been struggling with current situation not delivering desired results. You've tried everything, but nothing seems to work.\n\nEvery day that goes by, you're falling further behind. The frustration builds. You start to wonder if achieve desired transformation with certainty, speed, and minimal effort is even possible for you.\n\nBut what if there was a better way? A proven proven method that's already helped thousands of people just like you achieve desired transformation with certainty, speed, and minimal effort.\n\nDon't just take our word for it. Case studies with specific results from real people prove this works.\n\nWhen you get started today, you'll get everything you need to succeed. Plus, our lifetime satisfaction guarantee means you risk nothing.",
+                  "cta": "Join today and start seeing results immediately.\n\n[Get Started Now →]\n\nTry it risk-free for 30 days. If you don't see results, get a full refund. No questions asked. 👀",
+                  "full_formatted": "Achieve desired transformation with certainty, speed, and minimal effort\n\nHow to achieve desired transformation with certainty, speed, and minimal effort in record time without current situation not delivering desired results.\n\nundefined\n\nundefined\n\nundefined\n\nundefined"
+                },
+                "performance_prediction": {
+                  "best_for_audience": "Moderate fit",
+                  "expected_engagement": "high",
+                  "conversion_potential": "Moderate (5-15% lift)"
+                },
+                "optimization_notes": [
+                  "Test this variant against other hook types for your audience",
+                  "Monitor big_promise hook performance - ideal for sophistication level 4",
+                  "A/B test headline variations",
+                  "Consider shortening CTA for mobile users"
+                ],
+                "tone_adaptation": {
+                  "platform": "instagram",
+                  "demographics": "Millennials and Gen Z, visual-oriented, lifestyle-focused",
+                  "adapted": true
+                },
+                "platform_recommendations": {
+                  "platform": "instagram",
+                  "formats": {
+                    "post": "1:1",
+                    "story": "9:16",
+                    "reel": "9:16"
+                  },
+                  "recommended_aspect_ratios": [
+                    "1:1",
+                    "9:16"
+                  ],
+                  "best_practices": [],
+                  "character_limits": {
+                    "caption": 2200,
+                    "recommendation": "First 125 characters most visible"
+                  },
+                  "hashtag_strategy": "Use 5-10 relevant hashtags (optimal engagement)",
+                  "demographics_targeting": "Millennials and Gen Z, visual-oriented, lifestyle-focused"
+                },
+                "bigquery_enhancements": {
+                  "data_driven": false
+                },
+                "quality_score": 92
+              },
+              {
+                "variant_id": 4,
+                "hook_type": "enemy",
+                "hook_type_description": "Identifies villain/obstacle blocking success",
+                "sophistication_match": {
+                  "is_ideal_match": false,
+                  "sophistication_level": 4,
+                  "match_reason": "enemy hook may work but not optimal for level 4"
+                },
+                "copy": {
+                  "headline": "What's Really Holding You Back",
+                  "hook": "The real reason you're struggling with current situation not delivering desired results (and it's not what you think).",
+                  "body": "If you're like most people, you've been struggling with current situation not delivering desired results. You've tried everything, but nothing seems to work.\n\nEvery day that goes by, you're falling further behind. The frustration builds. You start to wonder if achieve desired transformation with certainty, speed, and minimal effort is even possible for you.\n\nBut what if there was a better way? A proven proven method that's already helped thousands of people just like you achieve desired transformation with certainty, speed, and minimal effort.\n\nDon't just take our word for it. Case studies with specific results from real people prove this works.\n\nWhen you get started today, you'll get everything you need to succeed. Plus, our lifetime satisfaction guarantee means you risk nothing.",
+                  "cta": "Join today and start seeing results immediately.\n\n[Learn the Truth →]\n\nTry it risk-free for 30 days. If you don't see results, get a full refund. No questions asked. 👀",
+                  "full_formatted": "What's Really Holding You Back\n\nThe real reason you're struggling with current situation not delivering desired results (and it's not what you think).\n\nundefined\n\nundefined\n\nundefined\n\nundefined"
+                },
+                "performance_prediction": {
+                  "best_for_audience": "Moderate fit",
+                  "expected_engagement": "low",
+                  "conversion_potential": "Moderate (5-15% lift)"
+                },
+                "optimization_notes": [
+                  "Test this variant against other hook types for your audience",
+                  "Monitor enemy hook performance - ideal for sophistication level 4",
+                  "A/B test headline variations",
+                  "Consider shortening CTA for mobile users"
+                ],
+                "tone_adaptation": {
+                  "platform": "instagram",
+                  "demographics": "Millennials and Gen Z, visual-oriented, lifestyle-focused",
+                  "adapted": true
+                },
+                "platform_recommendations": {
+                  "platform": "instagram",
+                  "formats": {
+                    "post": "1:1",
+                    "story": "9:16",
+                    "reel": "9:16"
+                  },
+                  "recommended_aspect_ratios": [
+                    "1:1",
+                    "9:16"
+                  ],
+                  "best_practices": [],
+                  "character_limits": {
+                    "caption": 2200,
+                    "recommendation": "First 125 characters most visible"
+                  },
+                  "hashtag_strategy": "Use 5-10 relevant hashtags (optimal engagement)",
+                  "demographics_targeting": "Millennials and Gen Z, visual-oriented, lifestyle-focused"
+                },
+                "bigquery_enhancements": {
+                  "data_driven": false
+                },
+                "quality_score": 92
+              },
+              {
+                "variant_id": 5,
+                "hook_type": "curiosity",
+                "hook_type_description": "Pattern interrupt with intrigue",
+                "sophistication_match": {
+                  "is_ideal_match": false,
+                  "sophistication_level": 4,
+                  "match_reason": "curiosity hook may work but not optimal for level 4"
+                },
+                "copy": {
+                  "headline": "The Secret They Don't Want You to Know",
+                  "hook": "The unusual strategy that's helping ordinary people achieve desired transformation with certainty, speed, and minimal effort 3x faster than traditional methods.",
+                  "body": "If you're like most people, you've been struggling with current situation not delivering desired results. You've tried everything, but nothing seems to work.\n\nEvery day that goes by, you're falling further behind. The frustration builds. You start to wonder if achieve desired transformation with certainty, speed, and minimal effort is even possible for you.\n\nBut what if there was a better way? A proven proven method that's already helped thousands of people just like you achieve desired transformation with certainty, speed, and minimal effort.\n\nDon't just take our word for it. Case studies with specific results from real people prove this works.\n\nWhen you get started today, you'll get everything you need to succeed. Plus, our lifetime satisfaction guarantee means you risk nothing.",
+                  "cta": "Join today and start seeing results immediately.\n\n[Reveal the Secret →]\n\nTry it risk-free for 30 days. If you don't see results, get a full refund. No questions asked. 👀",
+                  "full_formatted": "The Secret They Don't Want You to Know\n\nThe unusual strategy that's helping ordinary people achieve desired transformation with certainty, speed, and minimal effort 3x faster than traditional methods.\n\nundefined\n\nundefined\n\nundefined\n\nundefined"
+                },
+                "performance_prediction": {
+                  "best_for_audience": "Moderate fit",
+                  "expected_engagement": "high",
+                  "conversion_potential": "Moderate (5-15% lift)"
+                },
+                "optimization_notes": [
+                  "Test this variant against other hook types for your audience",
+                  "Monitor curiosity hook performance - ideal for sophistication level 4",
+                  "A/B test headline variations",
+                  "Consider shortening CTA for mobile users"
+                ],
+                "tone_adaptation": {
+                  "platform": "instagram",
+                  "demographics": "Millennials and Gen Z, visual-oriented, lifestyle-focused",
+                  "adapted": true
+                },
+                "platform_recommendations": {
+                  "platform": "instagram",
+                  "formats": {
+                    "post": "1:1",
+                    "story": "9:16",
+                    "reel": "9:16"
+                  },
+                  "recommended_aspect_ratios": [
+                    "1:1",
+                    "9:16"
+                  ],
+                  "best_practices": [],
+                  "character_limits": {
+                    "caption": 2200,
+                    "recommendation": "First 125 characters most visible"
+                  },
+                  "hashtag_strategy": "Use 5-10 relevant hashtags (optimal engagement)",
+                  "demographics_targeting": "Millennials and Gen Z, visual-oriented, lifestyle-focused"
+                },
+                "bigquery_enhancements": {
+                  "data_driven": false
+                },
+                "quality_score": 92
+              }
+            ],
+            "usage_recommendations": {
+              "recommended_variants": [
+                "Variant 1 (mechanism)",
+                "Variant 2 (proof)"
+              ],
+              "testing_strategy": [
+                "Start with variants that match your audience sophistication level",
+                "For level 4, prioritize: proof, mechanism",
+                "Run A/B tests with at least $50/variant budget",
+                "Track CTR, CPC, and conversion rate",
+                "Scale winning variant after 100+ conversions"
+              ],
+              "platform_optimization": "Optimized for instagram. Consider character limits and platform-specific best practices."
+            },
+            "brand_alignment": {
+              "colors_available": false,
+              "colors": null,
+              "typography_available": false,
+              "typography": null,
+              "brand_values": [
+                "innovation",
+                "professionalism",
+                "reliability",
+                "creativity"
+              ],
+              "brand_tone": "confident and approachable",
+              "extraction_summary": {
+                "colors_extracted": 0,
+                "fonts_extracted": 0,
+                "brand_identity_strength": 30
+              }
+            },
+            "platform_context": {
+              "platform": "instagram",
+              "tone_of_voice": "confident and approachable, casual, visual-first, community-focused, authentic",
+              "demographics": "Millennials and Gen Z, visual-oriented, lifestyle-focused",
+              "brand_tone_applied": true,
+              "best_practices": [
+                "Use high-quality visuals with vibrant colors",
+                "Include relevant hashtags (5-10 optimal)",
+                "Engage with stories and interactive stickers",
+                "Maintain consistent aesthetic and brand identity"
+              ],
+              "formats": {
+                "post": "1:1",
+                "story": "9:16",
+                "reel": "9:16"
+              }
+            }
+          },
+          "post": "\n\n👍 Like if you agree!\n💬 Comment your thoughts below!\n🔄 Share with friends who need to see this!"
+        },
+        "media": {
+          "platform": "facebook",
+          "format": "post",
+          "assets": [
+            {
+              "type": "image",
+              "url": "localhost:3000/generated/image-2025-11-10T16-39-54-407Z-fib9lg.png",
+              "recommendation": "Optimize for platform aspect ratio"
+            },
+            {
+              "type": "image",
+              "url": "localhost:3000/generated/image-2025-11-10T16-41-18-520Z-3x2dqj.png",
+              "recommendation": "Optimize for platform aspect ratio"
+            }
+          ]
+        },
+        "recommendations": {
+          "bestPractices": [
+            "Create engaging, shareable content",
+            "Use Facebook Groups for community building",
+            "Encourage discussions and user-generated content",
+            "Post consistently during peak engagement times"
+          ],
+          "optimalTimes": [
+            "1pm-3pm",
+            "7pm-9pm"
+          ],
+          "demographics": "Older Millennials and Gen X, community-focused, broad age range",
+          "contentTypes": [
+            "community-content",
+            "event-promotion",
+            "family-friendly",
+            "local-business"
+          ],
+          "toneOfVoice": "friendly, community-oriented, family-focused, conversational",
+          "nicheSpecific": [
+            "Follow platform best practices"
+          ]
+        },
+        "specifications": {
+          "copyLimits": {
+            "post": 2200,
+            "caption": 2200,
+            "headline": 150,
+            "description": 500
+          }
+        },
+        "metadata": {
+          "generated": "2025-11-10T16:41:53.143Z",
+          "niche": "real_estate",
+          "platformSpec": "Facebook"
+        }
+      }
+    ],
+    "metadata": {
+      "processingTime": 223562,
+      "nicheUsed": "real_estate",
+      "cacheHit": false,
+      "stepsCompleted": 14,
+      "platforms": [
+        "instagram",
+        "linkedin",
+        "facebook"
+      ],
+      "productImageRef": "/public/generated/image-2025-11-10T16-39-54-407Z-fib9lg.png",
+      "pipelineVersion": "4.3.0",
+      "mechanismQuality": 70,
+      "offerScore": 70,
+      "landingSections": null
+    }
+  }
+}

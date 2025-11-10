@@ -11,6 +11,7 @@ import { VariantGenerator } from './variant-generator.js';
 import { SkillDetector } from './skill-detector.js';
 import { contextProfileManager } from '../../lib/context-profile-manager.js';
 import { composeImages, getRecommendedLayout } from '../../lib/image-compositor.js';
+import { composeSceneWithContext } from '../../lib/context-composer.js'; // 🔥 NEW: Context Coherence
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -88,7 +89,7 @@ export class ContentOrchestrator {
     const startTime = Date.now();
 
     try {
-      //console.log('🚀 Starting complete content generation pipeline...');
+      console.log('🚀 Starting complete content generation pipeline...');
 
       // STEP 0: Context Profile Resolution (NEW - Phase 1)
       await this.executeStep('context_profile_resolution', async () => {
@@ -96,7 +97,7 @@ export class ContentOrchestrator {
 
         // Auto-select if not provided
         if (!contextProfileId) {
-          //console.log('🔍 No contextProfileId provided, attempting auto-selection...');
+          console.log('🔍 No contextProfileId provided, attempting auto-selection...');
           const autoSelection = await this.contextProfileManager.autoSelectProfile(
             session.config.brief,
             'image'
@@ -223,8 +224,20 @@ export class ContentOrchestrator {
         );
       });
 
-      // ✅ STEP 10: Video Scene Composition (NOW WITH COPY SCRIPT) 🔥 NUEVO
+      // ✅ STEP 10: Video Scene Composition (NOW WITH COPY SCRIPT + LANGUAGE + DIGITAL TWIN) 🔥 NUEVO
       await this.executeStep('video_generation', async () => {
+        // 🆕 PHASE 2: Detect language from brief
+        const detectedLanguage = this.detectLanguageFromBrief(session.config.brief);
+
+        // 🆕 PHASE 3: Get contextProfileId for Digital Twin support
+        const contextProfileResolution = session.results.context_profile_resolution;
+        const contextProfileId = contextProfileResolution?.contextProfileId || null;
+        const isDigitalTwin = contextProfileResolution?.isDigitalTwin || false;
+
+        if (contextProfileId && isDigitalTwin) {
+          console.log(`  🎯 Digital Twin mode: ${contextProfileId} will be used for video`);
+        }
+
         return await this.generateVideoContent(
           session.results.product_image,
           session.results.avatar_image,
@@ -233,7 +246,9 @@ export class ContentOrchestrator {
           session.results.customer_avatar_profile,
           session.results.unique_mechanism,
           session.results.grand_slam_offer,
-          session.results.copy_generation // 🔥 NEW: Copy content for video script
+          session.results.copy_generation, // 🔥 Copy content for video script
+          detectedLanguage, // 🆕 PHASE 2: Language parameter
+          contextProfileId // 🆕 PHASE 3: Context Profile ID for Digital Twin
         );
       });
 
@@ -484,13 +499,14 @@ export class ContentOrchestrator {
   }
 
   /**
-   * STEP 9: Video Scene Composition (ENHANCED - Now with strategic frameworks)
+   * STEP 9: Video Scene Composition (ENHANCED - Now with strategic frameworks + LANGUAGE + DIGITAL TWIN)
    * OPTIONAL COMPOSITION: Only combines product + avatar if avatarImage exists
    * Otherwise uses product image alone with brief context
-   * NOW INCLUDES: Brief context + Avatar profile + Mechanism + Offer for persuasive videos
+   * NOW INCLUDES: Brief context + Avatar profile + Mechanism + Offer for persuasive videos + Language + Context Profile ID
    */
-  async generateVideoContent(productImage, avatarImage, nicheContext, brief, avatarProfile = null, mechanism = null, offer = null, copyContent = null) {
-    //console.log('🎬 Generating video content with strategic frameworks + copy script...');
+  async generateVideoContent(productImage, avatarImage, nicheContext, brief, avatarProfile = null, mechanism = null, offer = null, copyContent = null, language = 'es', contextProfileId = null) {
+    const languageName = language === 'es' ? 'Español' : 'English';
+    console.log(`🎬 Generating video content with strategic frameworks + copy script... (Language: ${languageName})${contextProfileId ? ` [Profile: ${contextProfileId}]` : ''}`);
 
     // 🔥 NEW: Generate video script from copy content if available
     let videoScript = null;
@@ -503,6 +519,23 @@ export class ContentOrchestrator {
       );
       console.log(`  [INFO] Video script generated from copy hook: ${videoScript.hook_type}`);
     }
+
+    // 🔥 NEW: Compose unified context with strategic frameworks (CONTEXT COHERENCE)
+    const composedContext = composeSceneWithContext({
+      nicheContext: nicheContext,
+      avatarProfile: avatarProfile,
+      mechanism: mechanism,
+      offer: offer,
+      copyContent: copyContent,
+      brief: brief,
+      assetType: 'video',
+      options: {
+        basePrompt: '', // Will be built from context
+        videoScript: videoScript
+      }
+    });
+
+    console.log(`  ✅ Context coherence applied: ${composedContext.strategicElements ? Object.keys(composedContext.strategicElements).length : 0} elements unified`);
 
     // Use SceneComposer to create video scenes with strategic frameworks
     const sceneConfig = {
@@ -519,10 +552,15 @@ export class ContentOrchestrator {
       // ✅ NEW: Strategic frameworks for persuasive videos
       avatarProfile: avatarProfile, // Customer avatar profile
       mechanism: mechanism, // Unique mechanism
-      offer: offer // Grand slam offer
+      offer: offer, // Grand slam offer
+      // 🔥 NEW: Unified context from composer
+      unifiedContext: composedContext.unifiedContext // Context Coherence
     };
 
     const videoScene = await this.sceneComposer.composeScene(sceneConfig);
+
+    // 🔥 OVERRIDE PROMPT: Use context-composed prompt instead of scene-composer prompt
+    const enhancedPrompt = composedContext.prompts.main || videoScene.prompt;
 
     // ✅ OPTIONAL COMPOSITION: Only if avatarImage exists
     if (avatarImage && avatarImage.publicUrl) {
@@ -572,10 +610,15 @@ export class ContentOrchestrator {
           duration: '8s',
           enhanceWithAI: true,
           // 🔥 NEW: Include video script if available
-          videoScript: videoScript // Script with Todd Brown hooks + Hormozi frameworks
+          videoScript: videoScript, // Script with Todd Brown hooks + Hormozi frameworks
+          // 🆕 PHASE 2: Language parameter
+          language: language, // 'es' or 'en'
+          // 🆕 PHASE 3: Context Profile ID for Digital Twin
+          contextProfileId: contextProfileId // Digital Twin profile ID
         };
 
-        const result = await this.apiBridge.generateVideo(videoScene.prompt, videoOptions);
+        // 🔥 USE CONTEXT-COMPOSED PROMPT (Context Coherence)
+        const result = await this.apiBridge.generateVideo(enhancedPrompt, videoOptions);
 
         return {
           scene: videoScene,
@@ -606,10 +649,15 @@ export class ContentOrchestrator {
           duration: '8s',
           enhanceWithAI: true,
           // 🔥 NEW: Include video script if available
-          videoScript: videoScript // Script with Todd Brown hooks + Hormozi frameworks
+          videoScript: videoScript, // Script with Todd Brown hooks + Hormozi frameworks
+          // 🆕 PHASE 2: Language parameter
+          language: language, // 'es' or 'en'
+          // 🆕 PHASE 3: Context Profile ID for Digital Twin
+          contextProfileId: contextProfileId // Digital Twin profile ID
         };
 
-        const result = await this.apiBridge.generateVideo(videoScene.prompt, videoOptions);
+        // 🔥 USE CONTEXT-COMPOSED PROMPT (Context Coherence)
+        const result = await this.apiBridge.generateVideo(enhancedPrompt, videoOptions);
 
         return {
           scene: videoScene,
@@ -636,10 +684,15 @@ export class ContentOrchestrator {
         duration: '8s',
         enhanceWithAI: true,
         // 🔥 NEW: Include video script if available
-        videoScript: videoScript // Script with Todd Brown hooks + Hormozi frameworks
+        videoScript: videoScript, // Script with Todd Brown hooks + Hormozi frameworks
+        // 🆕 PHASE 2: Language parameter
+        language: language, // 'es' or 'en'
+        // 🆕 PHASE 3: Context Profile ID for Digital Twin
+        contextProfileId: contextProfileId // Digital Twin profile ID
       };
 
-      const result = await this.apiBridge.generateVideo(videoScene.prompt, videoOptions);
+      // 🔥 USE CONTEXT-COMPOSED PROMPT (Context Coherence)
+      const result = await this.apiBridge.generateVideo(enhancedPrompt, videoOptions);
 
       return {
         scene: videoScene,
@@ -2153,5 +2206,62 @@ Duration: 10-12 seconds.`
       maxPromptWords: 250,
       optimalDuration: '8-12 seconds'
     };
+  }
+
+  /**
+   * Detect language from brief text
+   * Returns 'es' (español) or 'en' (english)
+   * Default: 'es' (Spanish)
+   */
+  detectLanguageFromBrief(brief) {
+    if (!brief || typeof brief !== 'string') {
+      console.log(`  [INFO] No brief text provided, defaulting to Spanish`);
+      return 'es';
+    }
+
+    // Spanish indicators (common words and patterns)
+    const spanishIndicators = [
+      /\b(el|la|los|las|un|una|unos|unas)\b/gi,
+      /\b(de|del|al|para|por|con|sin|sobre)\b/gi,
+      /\b(que|quien|cual|donde|cuando|como)\b/gi,
+      /\b(es|son|está|están|ser|estar)\b/gi,
+      /\b(campaña|producto|cliente|objetivo|precio|inversión)\b/gi,
+      /\b(profesionales|departamentos|tecnología|ubicación)\b/gi,
+      /á|é|í|ó|ú|ñ/gi
+    ];
+
+    // English indicators
+    const englishIndicators = [
+      /\bthe\b/gi,
+      /\b(is|are|was|were|be|being|been)\b/gi,
+      /\b(have|has|had)\b/gi,
+      /\b(do|does|did|will|would|should|could)\b/gi,
+      /\b(campaign|product|client|target|price|investment)\b/gi,
+      /\b(professionals|apartments|technology|location)\b/gi
+    ];
+
+    // Count matches
+    let spanishScore = 0;
+    let englishScore = 0;
+
+    spanishIndicators.forEach(regex => {
+      const matches = brief.match(regex);
+      if (matches) spanishScore += matches.length;
+    });
+
+    englishIndicators.forEach(regex => {
+      const matches = brief.match(regex);
+      if (matches) englishScore += matches.length;
+    });
+
+    // Determine language
+    const detectedLanguage = spanishScore > englishScore ? 'es' :
+                            englishScore > spanishScore ? 'en' :
+                            'es'; // Default to Spanish if tie
+
+    const languageName = detectedLanguage === 'es' ? 'Español' : 'English';
+    console.log(`  [INFO] Detected language: ${detectedLanguage} (${languageName}) - Spanish: ${spanishScore}, English: ${englishScore}`);
+
+    return detectedLanguage;
   }
 }
