@@ -1295,9 +1295,40 @@ export class ContentOrchestrator {
   compileFinalResults(session) {
     const processingTime = Date.now() - session.startTime;
 
+    // Calculate overall quality score
+    // Copy quality: average of all variant quality_scores
+    let copyQuality = null;
+    if (session.results.copy_generation?.variants && Array.isArray(session.results.copy_generation.variants)) {
+      const variantScores = session.results.copy_generation.variants
+        .map(v => v.quality_score)
+        .filter(s => s !== null && s !== undefined);
+      if (variantScores.length > 0) {
+        copyQuality = Math.round(variantScores.reduce((sum, score) => sum + score, 0) / variantScores.length);
+      }
+    }
+
+    const mechanismQuality = session.results.unique_mechanism?.mechanism_variants?.[0]?.scores?.overall_quality || null;
+    const offerQuality = session.results.grand_slam_offer?.scores?.overall_grand_slam_score || null;
+
+    // Avatar confidence: check multiple possible locations
+    const avatarConfidence = session.results.customer_avatar_profile?.generation_confidence
+      || session.results.customer_avatar_profile?.confidence
+      || session.results.customer_avatar_profile?.score
+      || null;
+
+    // Overall quality: weighted average of available scores
+    let overallQuality = null;
+    const qualityScores = [copyQuality, mechanismQuality, offerQuality, avatarConfidence].filter(s => s !== null);
+    if (qualityScores.length > 0) {
+      overallQuality = Math.round(qualityScores.reduce((sum, score) => sum + score, 0) / qualityScores.length);
+    }
+
     return {
       success: true,
       sessionId: session.id,
+
+      // Quality Score (TOP LEVEL - NEW)
+      quality_score: overallQuality,
 
       // Content Assets (Images + Video)
       images: [
@@ -1306,13 +1337,19 @@ export class ContentOrchestrator {
       ],
       video: session.results.video_generation,
 
-      // Strategic Components (Phase 4 - NEW)
-      customer_avatar: session.results.customer_avatar_profile,
+      // Strategic Components (Phase 4 - ENHANCED with scores)
+      customer_avatar: {
+        ...session.results.customer_avatar_profile,
+        confidence: avatarConfidence
+      },
       unique_mechanism: session.results.unique_mechanism,
       grand_slam_offer: session.results.grand_slam_offer,
 
-      // Content Generation
-      copy: session.results.copy_generation,
+      // Content Generation (ENHANCED with quality score)
+      copy: {
+        ...session.results.copy_generation,
+        quality_score: copyQuality
+      },
       landing_page: session.results.landing_page_structure,
       variants: session.results.platform_variants,
 
@@ -1326,10 +1363,17 @@ export class ContentOrchestrator {
         voicePreference: session.config.voicePreference,
         productImageRef: session.results.product_image?.localPath || null,
 
-        // Phase 4 metadata (NEW)
+        // Phase 4 metadata (ENHANCED with quality tracking)
         pipelineVersion: '4.3.0',
-        mechanismQuality: session.results.unique_mechanism?.mechanism_variants?.[0]?.scores?.overall_quality || null,
-        offerScore: session.results.grand_slam_offer?.scores?.overall_grand_slam_score || null,
+        qualityScores: {
+          overall: overallQuality,
+          copy: copyQuality,
+          mechanism: mechanismQuality,
+          offer: offerQuality,
+          avatar: avatarConfidence
+        },
+        mechanismQuality: mechanismQuality,
+        offerScore: offerQuality,
         landingSections: session.results.landing_page_structure?.sections?.length || null
       }
     };
