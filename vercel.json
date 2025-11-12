@@ -58,6 +58,19 @@
 
   "headers": [
     {
+      "source": "/firma_alex_seis_AI.png",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        },
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        }
+      ]
+    },
+    {
       "source": "/api/(.*)",
       "headers": [
         {
