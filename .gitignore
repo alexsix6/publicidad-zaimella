@@ -22,6 +22,12 @@ yarn-error.log*
 .env.development.local
 .env.test.local
 .env.production.local
+# HARNESS-M21: los patrones de arriba no cubrian .env.backup-*, y por eso
+# .env.backup-20251110-085022 acabo RASTREADO en git. Esa copia no llevaba
+# credenciales -verificado en su version commiteada- pero el patron es el
+# que convierte el siguiente backup en una fuga. Cualquier .env.* queda fuera.
+.env.*
+!.env.example
 
 # Archivos temporales
 *.tmp
